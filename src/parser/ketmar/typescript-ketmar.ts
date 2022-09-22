@@ -74,10 +74,6 @@ const multilineComment = createToken({
   pattern: /\/\*[\s\S]*?\*\//u,
   group: Lexer.SKIPPED,
 })
-const ketmarSignature = createToken({
-  name: 'Ketmar Signature',
-  pattern: /map/iu,
-})
 const ketmarTokens = [
   comment,
   multilineComment,
@@ -100,7 +96,6 @@ const ketmarLexer = new Lexer(ketmarTokens)
 
 class KetmarParserTypeScript extends EmbeddedActionsParser {
   public readonly ketmarMap = this.RULE('ketmarMap', () => {
-    // this.CONSUME(ketmarSignature)
     this.CONSUME(identifierToken)
     return this.SUBRULE(this.object)
   })
@@ -164,7 +159,13 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
 
   private readonly objectItem = this.RULE('objectItem', () => {
     const key = this.CONSUME(identifierToken).image
-    const value = this.OR([
+    const value:
+      | number[]
+      | Record<string, unknown>
+      | string[]
+      | boolean
+      | number
+      | string = this.OR([
       {
         ALT: () => this.SUBRULE(this.object),
       },
@@ -193,13 +194,24 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
 
   private readonly object = this.RULE('object', () => {
     this.CONSUME(lCurlyToken)
-    const temporaryObject = {}
+    const temporaryObject: Record<string, unknown> = {}
     this.MANY({
       DEF: () => {
         this.OR([
           {
             ALT: () => {
-              const parsed = this.SUBRULE(this.objectItem)
+              // @ts-expect-error It's fine trust me bro, at this point parsed[0] has to be a string
+              const parsed: [
+                string,
+                (
+                  | number[]
+                  | Record<string, unknown>
+                  | string[]
+                  | boolean
+                  | number
+                  | string
+                )
+              ] = this.SUBRULE(this.objectItem)
               // eslint-disable-next-line prefer-destructuring, putout/putout
               temporaryObject[parsed[0]] = parsed[1]
             },
@@ -208,9 +220,10 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
             ALT: () => {
               const type = this.CONSUME(identifierToken).image
               const name = this.CONSUME1(identifierToken).image
-              const parsed = this.SUBRULE1(this.object)
-              const clone = structuredClone(parsed)
-              clone['_type'] =  type
+              const parsed: Record<string, unknown> = this.SUBRULE1(this.object)
+              const clone: Record<string, unknown> = structuredClone(parsed)
+              // eslint-disable-next-line no-underscore-dangle
+              clone._type = type
               temporaryObject[name] = clone
             },
           },
