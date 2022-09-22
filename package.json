@@ -1,0 +1,20 @@
+{
+    "name": "d2df-map-editor",
+    "version": "0.0.1",
+    "main": "./build/index.js",
+    "license": "MIT",
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.38.0",
+        "@typescript-eslint/parser": "^5.38.0",
+        "eslint": "^8.23.1",
+        "eslint-config-hardcore": "^25.0.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "prettier": "^2.7.1",
+        "typescript": "^4.8.3"
+    },
+    "dependencies": {
+        "@chevrotain/types": "^10.3.0"
+    },
+    "type": "module"
+}
