@@ -57,7 +57,7 @@ const stringToken = createToken({
 })
 const identifierToken = createToken({
   name: 'Id',
-  pattern: /[a-zA-Z][a-zA-Z0-9_]*/u,
+  pattern: /\w*/u,
 })
 const whitespaceToken = createToken({
   name: 'Whitespace',
