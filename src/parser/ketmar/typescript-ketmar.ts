@@ -1,14 +1,11 @@
-// "Wtf is this?" - you might say. "Something wrong with tsc." - I would answer.
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable import/no-named-as-default-member */
-import chevrotain from '../../third-party/chevrotain/chevrotain.js'
+/* eslint-disable @typescript-eslint/naming-convention */
+import '../../third-party/chevrotain/chevrotain-wrapper.js'
 
-const { createToken, Lexer, EmbeddedActionsParser } = chevrotain
+const { chevrotain } = window
+const { createToken } = chevrotain
+const { Lexer } = chevrotain
+const { EmbeddedActionsParser } = chevrotain
 type Rule = chevrotain.Rule
 
 const trueToken = createToken({
