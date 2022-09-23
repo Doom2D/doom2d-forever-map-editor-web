@@ -3,9 +3,7 @@
 import '../../third-party/chevrotain/chevrotain-wrapper.js'
 
 const { chevrotain } = window
-const { createToken } = chevrotain
-const { Lexer } = chevrotain
-const { EmbeddedActionsParser } = chevrotain
+const { createToken, Lexer, EmbeddedActionsParser } = chevrotain
 type Rule = chevrotain.Rule
 
 const trueToken = createToken({
