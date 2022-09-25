@@ -103,6 +103,7 @@ function parseTextureInfo(buffer: Readonly<ArrayBuffer>, start: number) {
     eOffset += 64
     textureObject.animated = readInt(buffer, start + iOffset + eOffset, 1)
     eOffset += 1
+    textureObject._type = 'texture'
     returnObject.blockObject[`texture${i}`] = textureObject
     i += 1
   }
@@ -165,6 +166,7 @@ function parsePanelInfo(buffer: Readonly<ArrayBuffer>, start: number) {
       readInt(buffer, start + returnObject.offset + eOffset, 1)
     )
     eOffset += 1
+    panelObject._type = 'panel'
     returnObject.blockObject[`panel${i}`] = panelObject
     i += 1
   }
