@@ -13,6 +13,13 @@
     },
 
     "rules": {
+      "max-statements": "off",
+      "no-negated-condition": "off",
+      "unicorn/new-for-builtins": "off",
+      "id-length": "off",
+      "unicorn/prevent-abbreviations": "off",
+      "max-params": "off",
+      "no-bitwise": "off",
       "regexp/prefer-named-capture-group": "off",
       "@typescript-eslint/no-magic-numbers": "off",
       "prefer-named-capture-group": "off",
