@@ -37,7 +37,7 @@ function parseMapInfo(buffer: Readonly<ArrayBuffer>, start: number) {
   const blockSize = 452
   const returnObject = {
     description: 'Parsing map info.',
-    isBlockValid: false,
+    isBlockValid: true,
     offset: 0,
     blockObject,
   }
@@ -75,7 +75,7 @@ function parseTextureInfo(buffer: Readonly<ArrayBuffer>, start: number) {
   const blockSize = 65
   const returnObject = {
     description: 'Parsing panel info.',
-    isBlockValid: false,
+    isBlockValid: true,
     offset: 0,
     blockObject,
   }
@@ -116,7 +116,7 @@ function parsePanelInfo(buffer: Readonly<ArrayBuffer>, start: number) {
   const blockSize = 18
   const returnObject = {
     description: 'Parsing panel info.',
-    isBlockValid: false,
+    isBlockValid: true,
     offset: 0,
     blockObject,
   }
@@ -201,6 +201,7 @@ export default function parseFalcon(buffer: Readonly<ArrayBuffer>) {
   if (!textureResult.isBlockValid) {
     response.description = infoResult.description
     response.isMapValid = false
+    return response
   }
   offset += textureResult.offset
   Object.assign(response.mapObject, textureResult.blockObject)
@@ -209,6 +210,7 @@ export default function parseFalcon(buffer: Readonly<ArrayBuffer>) {
   if (!panelResult.isBlockValid) {
     response.description = infoResult.description
     response.isMapValid = false
+    return response
   }
   offset += panelResult.offset
   Object.assign(response.mapObject, panelResult.blockObject)
