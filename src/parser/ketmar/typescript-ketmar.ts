@@ -241,9 +241,7 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
 
 const parser = new KetmarParserTypeScript()
 
-export const productions: Record<string, Rule> = parser.getGAstProductions()
-
-export function parseKetmar(text: string) {
+export default function parseKetmar(text: string) {
   const lexResult = ketmarLexer.tokenize(text)
   parser.input = lexResult.tokens
   const cst = parser.ketmarMap()
