@@ -27,7 +27,6 @@ class Pixi implements Renderer {
 
   // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   public loadImage(src: Readonly<HTMLCanvasElement>) {
-    console.log(src)
     return 0
   }
 
