@@ -1,19 +1,47 @@
 {
     "name": "d2df-map-editor",
     "version": "0.0.1",
-    "main": "./build/index.js",
     "license": "MIT",
     "devDependencies": {
-        "@chevrotain/types": "^10.3.0",
+        "@babel/core": "^7.19.1",
+        "@babel/plugin-proposal-class-properties": "^7.18.6",
+        "@babel/plugin-proposal-object-rest-spread": "^7.18.9",
+        "@babel/plugin-transform-runtime": "^7.19.1",
+        "@babel/preset-env": "^7.19.1",
+        "@babel/preset-typescript": "^7.18.6",
+        "@babel/runtime-corejs2": "^7.19.2",
+        "@babel/runtime-corejs3": "^7.19.1",
+        "@parcel/babel-preset-env": "^2.7.0",
+        "@parcel/compressor-brotli": "^2.7.0",
+        "@parcel/compressor-gzip": "^2.7.0",
+        "@parcel/optimizer-cssnano": "^2.7.0",
+        "@parcel/optimizer-htmlnano": "^2.7.0",
+        "@parcel/resolver-glob": "^2.7.0",
         "@typescript-eslint/eslint-plugin": "^5.38.0",
         "@typescript-eslint/parser": "^5.38.0",
-        "chevrotain": "^10.3.0",
+        "babel-plugin-styled-components": "^2.0.7",
+        "babel-preset-minify": "^0.5.2",
         "eslint": "^8.23.1",
         "eslint-config-hardcore": "^25.0.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.2.1",
+        "parcel": "^2.7.0",
         "prettier": "^2.7.1",
         "typescript": "^4.8.3"
     },
-    "type": "module"
+    "dependencies": {
+        "@chevrotain/types": "^10.3.0",
+        "@parcel/core": "^2.7.0",
+        "@parcel/transformer-babel": "^2.7.0",
+        "chevrotain": "^10.3.0",
+        "core-js": "^3.25.3",
+        "npm-watch": "^0.11.0"
+    },
+    "type": "module",
+    "browserslist": "> 0.5%, last 2 versions, not dead",
+    "source": "src/index.html",
+    "scripts": {
+        "clear": "rm dist/*.js; rm dist/*.map; rm dist/*.html",
+        "build": "parcel build src/index.html"
+    }
 }

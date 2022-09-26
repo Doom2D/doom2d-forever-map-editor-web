@@ -1,8 +1,8 @@
-import readInt from '../../utility/read-int.js'
-import readString from '../../utility/read-string.js'
+import readInt from '../../utility/read-int'
+import readString from '../../utility/read-string'
 
-import panelFlagsString from './constants/convert-panel-flags.js'
-import panelTypesString from './constants/convert-panel-types.js'
+import panelFlagsString from './constants/convert-panel-flags'
+import panelTypesString from './constants/convert-panel-types'
 
 function checkMapSignature(buffer: Readonly<ArrayBuffer>) {
   const view = new Uint8Array(buffer)

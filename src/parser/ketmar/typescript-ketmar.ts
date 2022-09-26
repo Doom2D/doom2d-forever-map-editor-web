@@ -1,72 +1,73 @@
+/* eslint-disable regexp/strict */
+/* eslint-disable regexp/require-unicode-regexp */
+/* eslint-disable require-unicode-regexp */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/naming-convention */
-import '../../third-party/chevrotain/chevrotain-wrapper.js'
+import { createToken, Lexer, EmbeddedActionsParser } from 'chevrotain'
 
-const { chevrotain } = window
-const { createToken, Lexer, EmbeddedActionsParser } = chevrotain
 type Rule = chevrotain.Rule
 
 const trueToken = createToken({
   name: 'True',
-  pattern: /true/iu,
+  pattern: /true/i,
 })
 const falseToken = createToken({
   name: 'False',
-  pattern: /false/iu,
+  pattern: /false/i,
 })
 const nullToken = createToken({
   name: 'Null',
-  pattern: /null/iu,
+  pattern: /null/i,
 })
 const lCurlyToken = createToken({
   name: 'LCurly',
-  pattern: /\{/u,
+  pattern: /{/,
 })
 const rCurlyToken = createToken({
   name: 'RCurly',
-  pattern: /\}/u,
+  pattern: /}/,
 })
 const lBracketToken = createToken({
   name: 'LBracket',
-  pattern: /\(/u,
+  pattern: /\(/,
 })
 const rBracketToken = createToken({
   name: 'RBracket',
-  pattern: /\)/u,
+  pattern: /\)/,
 })
 const semiToken = createToken({
   name: 'Colon',
-  pattern: /;/u,
+  pattern: /;/,
 })
 const verticalToken = createToken({
   name: 'Vertical',
-  pattern: /\|/u,
+  pattern: /\|/,
 })
 const numberToken = createToken({
   name: 'Number',
-  pattern: /-?\d+/u,
+  pattern: /-?\d+/,
 })
 const stringToken = createToken({
   name: 'String',
-  pattern: /'(.*?)'/u,
+  pattern: /'(.*?)'/,
 })
 const identifierToken = createToken({
   name: 'Id',
-  pattern: /\w+/u,
+  pattern: /\w+/,
 })
 const whitespaceToken = createToken({
   name: 'Whitespace',
   group: Lexer.SKIPPED,
-  pattern: /[ \t\n\r]+/u,
+  pattern: /[\t\n\r ]+/,
 })
 const comment = createToken({
   name: 'Comment',
-  pattern: /\/\/.*/u,
+  pattern: /\/\/.*/,
   group: Lexer.SKIPPED,
 })
 const multilineComment = createToken({
   name: 'Comment',
-  pattern: /\/\*[\s\S]*?\*\//u,
+  pattern: /\/\*[^]*?\*\//,
   group: Lexer.SKIPPED,
 })
 const ketmarTokens = [
@@ -216,8 +217,9 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
               const type = this.CONSUME(identifierToken).image
               const name = this.CONSUME1(identifierToken).image
               const parsed: Record<string, unknown> = this.SUBRULE1(this.object)
-              const clone: Record<string, unknown> = structuredClone(parsed)
-              // eslint-disable-next-line no-underscore-dangle
+              const clone: Record<string, unknown> = JSON.parse(
+                JSON.stringify(parsed)
+              )
               clone._type = type
               temporaryObject[name] = clone
             },
@@ -245,10 +247,5 @@ export function parseKetmar(text: string) {
   const lexResult = ketmarLexer.tokenize(text)
   parser.input = lexResult.tokens
   const cst = parser.ketmarMap()
-  return {
-    cst,
-    lexErrors: lexResult.errors,
-    parseErrors: parser.errors,
-    tokens: lexResult,
-  }
+  return cst
 }

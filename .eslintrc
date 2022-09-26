@@ -13,6 +13,7 @@
     },
 
     "rules": {
+      "import/no-unused-modules": "warn",
       "max-statements": "off",
       "no-negated-condition": "off",
       "unicorn/new-for-builtins": "off",
@@ -46,6 +47,9 @@
         "error",
         "never"
       ],
+      "regexp/match-any": ["error", {
+        "allows": ["[^]", "dotAll"]
+      }],
       "new-cap": "off",
       "max-len": ["off", { "code": 250 }]
     }

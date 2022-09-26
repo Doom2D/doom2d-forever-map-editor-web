@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import bitFlagsToString from '../../../utility/bit-flags-to-string.js'
+import bitFlagsToString from '../../../utility/bit-flags-to-string'
 
 export default function bitFlagsString(x: number) {
   const flags = {
