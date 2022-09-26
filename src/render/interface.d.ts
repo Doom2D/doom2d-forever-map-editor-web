@@ -13,6 +13,7 @@ interface Renderer {
   render(options: RenderOptions): void
   update(): void
   clear(): void
+  resize(width: number, height: number): void
 }
 
 export { Renderer, RenderOptions }

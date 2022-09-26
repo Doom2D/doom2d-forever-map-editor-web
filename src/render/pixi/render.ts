@@ -46,6 +46,10 @@ class Pixi implements Renderer {
     this.stage.destroy(true)
     this.stage = new PIXI.Container()
   }
+
+  public resize(width: number, height: number): void {
+    this.renderer.resize(width, height)
+  }
 }
 
 export default Pixi
