@@ -18,6 +18,8 @@
       "no-negated-condition": "off",
       "unicorn/new-for-builtins": "off",
       "id-length": "off",
+      "no-continue": "off",
+      "@typescript-eslint/naming-convention": "off",
       "unicorn/prevent-abbreviations": "off",
       "max-params": "off",
       "no-underscore-dangle": "off",
