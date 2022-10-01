@@ -16,6 +16,8 @@
       "import/no-unused-modules": "warn",
       "max-statements": "off",
       "no-negated-condition": "off",
+      "func-style": "off",
+      "curly": "off",
       "unicorn/new-for-builtins": "off",
       "id-length": "off",
       "no-continue": "off",
