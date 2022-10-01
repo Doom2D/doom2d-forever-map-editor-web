@@ -4,6 +4,7 @@ import { loadMap } from './editor/api/api'
 import { wadAsJson } from './df/resource/wad/wad-as-json'
 import { DFWad } from './df/resource/wad/dfwad'
 import pathSplit from './utility/split-path'
+import DFWadFrom from './df/resource/wad/dfwad-from'
 const n = 30
 
 setInterval(() => {
@@ -11,15 +12,19 @@ setInterval(() => {
 }, 1000 / n)
 render.init(document.body)
 
-fetch('./doom2d.wad')
+fetch('./CTF_TORMENT2.dfz')
   .then((x) => {
-    x.arrayBuffer().then((b) => {
-      const t3 = new DFWad(b, pathSplit('./doom2d.wad').fileName)
-      //  const o = loadMap(b).mapObject
+    x.arrayBuffer().then(async (b) => {
+      const t3 = await DFWadFrom(b, pathSplit('./CTF_TORMENT2.dfz').fileName)
+      // console.log(t3)
+      // console.log(t3)
+      const o = t3.loadFileAsString('MAP01.txt')
       // console.log(o)
-      // const p = parsedMapAsECS(o, ecs)
-      // render.resize(o.size[0], o.size[1])
-      // ecs.update()
+      const q = loadMap(o)
+      // console.log(q)
+      const p = parsedMapAsECS(q, ecs)
+      render.resize(q.size[0], q.size[1])
+      ecs.update()
     })
   })
   .catch()
