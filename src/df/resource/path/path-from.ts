@@ -9,7 +9,7 @@ function ResourcePathFromWad(p: Readonly<WadRecord>, name: string) {
 
 function ResourcePathFromZipObject(k: string, name: string) {
   const path = pathSplit(k)
-  return new ResourcePath(path.directory.split('/'), path.fileName, name)
+  return new ResourcePath(path.directories, path.fileName, name)
 }
 
 export { ResourcePathFromWad, ResourcePathFromZipObject }

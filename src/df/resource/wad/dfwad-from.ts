@@ -85,7 +85,7 @@ async function DFWadFrom(src: Readonly<ArrayBuffer>, name = '') {
   wad.loadFileAsString = (f: string) => {
     const split = pathSplit(f)
     const path = new ResourcePath(
-      split.directory.split('/'),
+      split.directories,
       split.fileName,
       ''
     )
