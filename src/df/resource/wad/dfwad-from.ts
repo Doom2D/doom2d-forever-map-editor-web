@@ -45,6 +45,7 @@ async function DFWadFrom(src: Readonly<ArrayBuffer>, name = '') {
         })
       }
     }
+    wad.type = 'dfwad'
   } else {
     try {
       const zip = await loadZipObject(src)
@@ -82,6 +83,7 @@ async function DFWadFrom(src: Readonly<ArrayBuffer>, name = '') {
         promises.push(handleEntry())
       }
       await Promise.all(promises)
+      wad.type = 'zip'
     } catch {
       wad.isSupported = false
     }

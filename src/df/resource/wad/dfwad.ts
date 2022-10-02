@@ -3,6 +3,8 @@ import type ResourcePath from '../path/path'
 import type ResourceArchive from './interface'
 
 class DFWad implements ResourceArchive {
+  public type: 'dfwad' | 'none' | 'zip' = 'none'
+
   public isSupported = false
 
   public files: {
