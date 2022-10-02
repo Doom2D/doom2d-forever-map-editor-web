@@ -64,5 +64,5 @@
       "isolatedModules": true
     },
     "exclude": [ "node_modules", "test", "types" ],
-    "include": ["./src/**/*.ts"]
+    "include": ["./src/**/*.ts", "./src/**/*.d.ts"]
   }

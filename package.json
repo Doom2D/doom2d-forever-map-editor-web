@@ -50,7 +50,7 @@
     ],
     "source": "src/index.html",
     "scripts": {
-        "clear": "rm dist/*.js; rm dist/*.map; rm dist/*.html",
+        "clear": "rm dist/*.js; rm dist/*.map; rm dist/*.html; rm dist/*.ts",
         "build": "parcel build src/index.html"
     }
 }
