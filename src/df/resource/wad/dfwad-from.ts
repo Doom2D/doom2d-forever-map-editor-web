@@ -35,7 +35,7 @@ async function DFWadFrom(src: Readonly<ArrayBuffer>, name = '') {
       if (!isBufferBinary(content.buffer)) {
         wad.files = wad.files.concat({
           path,
-          content: readString(content.buffer, 0, content.length, 'win1251'),
+          content: readString(content.buffer, 0, undefined, 'win1251'),
         })
       } else {
         wad.getFiles = () => wad.getFiles().concat(path)
@@ -46,54 +46,58 @@ async function DFWadFrom(src: Readonly<ArrayBuffer>, name = '') {
       }
     }
   } else {
-    const zip = await loadZipObject(src)
-    wad.isSupported = true
-    const promises: Promise<boolean>[] = []
-    for (const [key] of Object.entries(zip.files)) {
-      const handleEntry = async () => {
-        const path = ResourcePathFromZipObject(key, name)
-        wad.getFiles = () => wad.getFiles().concat(path)
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        const content = (await loadFileFromZip(
-          zip,
-          key,
-          'uint8array'
-        )) as Uint8Array
-        if (isBufferBinary(content.buffer)) {
-          wad.files = wad.files.concat({
-            path,
-            content,
-          })
-        } else {
+    try {
+      const zip = await loadZipObject(src)
+      wad.isSupported = true
+      const promises: Promise<boolean>[] = []
+      for (const [key] of Object.entries(zip.files)) {
+        const handleEntry = async () => {
+          const path = ResourcePathFromZipObject(key, name)
+          wad.getFiles = () => wad.getFiles().concat(path)
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          const contentString = (await loadFileFromZip(
+          const content = (await loadFileFromZip(
             zip,
             key,
-            'string'
-          )) as string
-          wad.files = wad.files.concat({
-            path,
-            content: contentString,
-          })
+            'uint8array'
+          )) as Uint8Array
+          if (isBufferBinary(content.buffer)) {
+            wad.files = wad.files.concat({
+              path,
+              content,
+            })
+          } else {
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+            const contentString = (await loadFileFromZip(
+              zip,
+              key,
+              'string'
+            )) as string
+            wad.files = wad.files.concat({
+              path,
+              content: contentString,
+            })
+          }
+          return true
         }
-        return true
+        promises.push(handleEntry())
       }
-      promises.push(handleEntry())
+      await Promise.all(promises)
+    } catch {
+      wad.isSupported = false
     }
-    await Promise.all(promises)
   }
-  wad.loadFileAsString = (f: string) => {
-    const split = pathSplit(f)
-    const path = new ResourcePath(
-      split.directories,
-      split.fileName,
-      ''
-    )
-    const v = wad.files
-      .filter((q) => q.path.getBaseName() === path.getBaseName()).pop()
-    if (!v) return ''
-    if (typeof v.content === 'string') return v.content
-    return readString(v.content, 0, new Uint8Array(v.content).length, 'win1251')
+
+  if (wad.isSupported) {
+    wad.loadFileAsString = (f: string) => {
+      const split = pathSplit(f)
+      const path = new ResourcePath(split.directories, split.fileName, '')
+      const v = wad.files
+        .filter((q) => q.path.getBaseName() === path.getBaseName())
+        .pop()
+      if (!v) return ''
+      if (typeof v.content === 'string') return v.content
+      return readString(v.content, 0, undefined, 'win1251')
+    }
   }
   return wad
 }
