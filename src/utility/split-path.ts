@@ -2,7 +2,7 @@ function pathSplit(x: string) {
   const obj = {
     directory: '',
     fileName: '',
-    directories: ['']
+    directories: [''],
   }
   const pathStrSplit = x.split('/')
   obj.fileName = pathStrSplit.pop() ?? ''
