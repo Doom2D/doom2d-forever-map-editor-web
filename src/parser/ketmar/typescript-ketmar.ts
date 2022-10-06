@@ -1,11 +1,11 @@
+/* eslint-disable unicorn/no-null */
 /* eslint-disable regexp/strict */
 /* eslint-disable regexp/require-unicode-regexp */
 /* eslint-disable require-unicode-regexp */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/naming-convention */
 import { createToken, Lexer, EmbeddedActionsParser } from 'chevrotain'
 
-type Rule = chevrotain.Rule
+import { type objectItem, type obj } from './item-types'
 
 const trueToken = createToken({
   name: 'True',
@@ -116,6 +116,11 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
     return Number(number.image)
   })
 
+  private readonly ketmarNull = this.RULE('ketmarNull', () => {
+    this.CONSUME(nullToken)
+    return null
+  })
+
   private readonly ketmarBool = this.RULE('ketmarBool', () =>
     this.OR([
       {
@@ -157,18 +162,15 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
 
   private readonly objectItem = this.RULE('objectItem', () => {
     const key = this.CONSUME(identifierToken).image
-    const value:
-      | number[]
-      | Record<string, unknown>
-      | string[]
-      | boolean
-      | number
-      | string = this.OR([
+    const value: obj | objectItem = this.OR([
       {
         ALT: () => this.SUBRULE(this.object),
       },
       {
         ALT: () => this.SUBRULE(this.ketmarBool),
+      },
+      {
+        ALT: () => this.SUBRULE(this.ketmarNull),
       },
       {
         ALT: () => this.SUBRULE(this.bitMask),
@@ -187,40 +189,27 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
       },
     ])
     this.CONSUME1(semiToken)
-    return [key, value]
+    return [key, value] as [string, obj | objectItem]
   })
 
   private readonly object = this.RULE('object', () => {
     this.CONSUME(lCurlyToken)
-    const temporaryObject: Record<string, unknown> = {}
+    const temporaryObject: obj = {}
     this.MANY({
       DEF: () => {
         this.OR([
           {
             ALT: () => {
-              // @ts-expect-error It's fine trust me bro, at this point parsed[0] has to be a string
-              const parsed: [
-                string,
-                (
-                  | number[]
-                  | Record<string, unknown>
-                  | string[]
-                  | boolean
-                  | number
-                  | string
-                )
-              ] = this.SUBRULE(this.objectItem)
-              // eslint-disable-next-line prefer-destructuring, putout/putout
+              const parsed = this.SUBRULE(this.objectItem)
               temporaryObject[parsed[0]] = parsed[1]
             },
           },
           {
             ALT: () => {
-              const type = this.CONSUME(identifierToken).image
-              const name = this.CONSUME1(identifierToken).image
-              const parsed: Record<string, unknown> = this.SUBRULE1(this.object)
-              temporaryObject[name] = parsed
-              this.mapBindings[name] = type
+              const type = this.SUBRULE(this.ketmarIdentifier)
+              const parsed = this.SUBRULE1(this.objectItem)
+              temporaryObject[parsed[0]] = parsed[1]
+              this.mapBindings[parsed[0]] = type
             },
           },
         ])
