@@ -91,6 +91,8 @@ const ketmarTokens = [
 const ketmarLexer = new Lexer(ketmarTokens)
 
 class KetmarParserTypeScript extends EmbeddedActionsParser {
+  public mapBindings: Record<string, string> = {}
+
   public readonly ketmarMap = this.RULE('ketmarMap', () => {
     this.CONSUME(identifierToken)
     return this.SUBRULE(this.object)
@@ -217,11 +219,8 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
               const type = this.CONSUME(identifierToken).image
               const name = this.CONSUME1(identifierToken).image
               const parsed: Record<string, unknown> = this.SUBRULE1(this.object)
-              const clone: Record<string, unknown> = JSON.parse(
-                JSON.stringify(parsed)
-              )
-              clone._type = type
-              temporaryObject[name] = clone
+              temporaryObject[name] = parsed
+              this.mapBindings[name] = type
             },
           },
         ])
