@@ -160,12 +160,8 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
     return toggledBits
   })
 
-  private readonly objectItem = this.RULE('objectItem', () => {
-    const key = this.CONSUME(identifierToken).image
-    const value: obj | objectItem = this.OR([
-      {
-        ALT: () => this.SUBRULE(this.object),
-      },
+  private readonly objectValue = this.RULE('objectValue', () => {
+    const value: objectItem = this.OR([
       {
         ALT: () => this.SUBRULE(this.ketmarBool),
       },
@@ -186,6 +182,19 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
       },
       {
         ALT: () => this.SUBRULE(this.ketmarTwoValues),
+      },
+    ])
+    return value
+  })
+
+  private readonly objectItem = this.RULE('objectItem', () => {
+    const key = this.CONSUME(identifierToken).image
+    const value: obj | objectItem = this.OR([
+      {
+        ALT: () => this.SUBRULE(this.object),
+      },
+      {
+        ALT: () => this.SUBRULE(this.objectValue)
       },
     ])
     this.CONSUME1(semiToken)
@@ -233,5 +242,15 @@ export default function parseKetmar(text: string) {
   const lexResult = ketmarLexer.tokenize(text)
   parser.input = lexResult.tokens
   const cst = parser.ketmarMap()
-  return cst
+  const map: obj = {}
+  for (const [key, value] of Object.entries(cst)) {
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const clone: obj = structuredClone(value)
+      clone._type = parser.mapBindings[key]
+      map[key] = clone
+    } else {
+      map[key] = value
+    }
+  }
+  return map
 }
