@@ -4,7 +4,6 @@ import { loadMap } from './editor/api/api'
 import { wadAsJson } from './df/resource/wad/wad-as-json'
 import { DFWad } from './df/resource/wad/dfwad'
 import pathSplit from './utility/split-path'
-import DFWadFrom from './df/resource/wad/dfwad-from'
 const n = 30
 
 setInterval(() => {
@@ -15,8 +14,9 @@ render.init(document.body)
 fetch('./CTF_TORMENT2.dfz')
   .then((x) => {
     x.arrayBuffer().then(async (b) => {
-      const t3 = await DFWadFrom(b, pathSplit('./CTF_TORMENT2.dfz').fileName)
-      // console.log(t3)
+      const t3 = new DFWad(b, pathSplit('./CTF_TORMENT2.dfz').fileName)
+      await t3.init()
+      console.log(t3)
       // console.log(t3)
       const o = t3.loadFileAsString('MAP01.txt')
       // console.log(o)
