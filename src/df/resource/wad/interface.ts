@@ -2,8 +2,12 @@ import type ResourcePath from '../path/path'
 
 interface ResourceArchive {
   getFiles: () => ResourcePath[]
-  loadFileAsArrayBuffer: (f: string) => ArrayBuffer
-  loadFileAsString: (f: string) => string
+  loadFileAsArrayBuffer: (
+    p: (a: Readonly<ResourcePath>) => boolean
+  ) => ArrayBuffer | undefined
+  loadFileAsString: (
+    p: (a: Readonly<ResourcePath>) => boolean
+  ) => string | undefined
   saveFileArrayBuffer: (path: string, content: Readonly<ArrayBuffer>) => void
   saveFileString: (path: string, content: string) => void
 }

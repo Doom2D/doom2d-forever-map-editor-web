@@ -7,6 +7,7 @@ import {
 import isBufferBinary from '../../../utility/is-buffer-binary'
 import readString from '../../../utility/read-string'
 import pathSplit from '../../../utility/split-path'
+import encodeString from '../../../utility/encode-string'
 import ResourcePath from '../path/path'
 import {
   ResourcePathFromWad,
@@ -21,7 +22,7 @@ class DFWad implements ResourceArchive {
 
   public isSupported = false
 
-  public files: {
+  private files: {
     path: ResourcePath
     content: ArrayBuffer | string
   }[] = []
@@ -30,15 +31,37 @@ class DFWad implements ResourceArchive {
 
   public getFiles = () => this.filePaths
 
-  public loadFileAsArrayBuffer = () => new ArrayBuffer(0)
+  public loadFileAsArrayBuffer = (
+    p: (a: Readonly<ResourcePath>) => boolean
+  ) => {
+    const v = this.loadFile(p)
+    if (v === undefined) return undefined
+    return typeof v === 'string' ? encodeString(v) : v
+  }
 
-  public loadFileAsString = (f: string) => ''
+  public loadFileAsString = (p: (a: Readonly<ResourcePath>) => boolean) => {
+    const v = this.loadFile(p)
+    if (v === undefined) return undefined
+    return typeof v === 'string' ? v : readString(v, 0, undefined, 'win1251')
+  }
 
   public saveFileArrayBuffer = () => true
 
   public saveFileString = () => true
 
-  public constructor(private readonly src: Readonly<ArrayBuffer>, private readonly name = '') {}
+  public constructor(
+    private readonly src: Readonly<ArrayBuffer>,
+    private readonly name = ''
+  ) {}
+
+  private loadFile(pred: (p: Readonly<ResourcePath>) => boolean) {
+    for (const [, v] of Object.entries(this.files)) {
+      if (pred(v.path)) {
+        return v.content
+      }
+    }
+    return undefined
+  }
 
   public async init() {
     const tryWad = wadAsJson(this.src)
@@ -109,18 +132,6 @@ class DFWad implements ResourceArchive {
         this.type = 'zip'
       } catch {
         this.isSupported = false
-      }
-    }
-    if (this.isSupported) {
-      this.loadFileAsString = (f: string) => {
-        const split = pathSplit(f)
-        const path = new ResourcePath(split.directories, split.fileName, '')
-        const v = this.files
-          .filter((q) => q.path.getBaseName() === path.getBaseName())
-          .pop()
-        if (!v) return ''
-        if (typeof v.content === 'string') return v.content
-        return readString(v.content, 0, undefined, 'win1251')
       }
     }
     return true
