@@ -26,7 +26,9 @@ class DFWad implements ResourceArchive {
     content: ArrayBuffer | string
   }[] = []
 
-  public getFiles = () => [] as ResourcePath[]
+  private readonly filePaths: ResourcePath[] = []
+
+  public getFiles = () => this.filePaths
 
   public loadFileAsArrayBuffer = () => new ArrayBuffer(0)
 
@@ -52,7 +54,7 @@ class DFWad implements ResourceArchive {
         )
         const content = inflate(buffer)
         const path = ResourcePathFromWad(value, this.name)
-        this.getFiles = () => this.getFiles().concat(path)
+        this.filePaths.push(path)
         if (!isBufferBinary(content.buffer)) {
           this.files = this.files.concat({
             path,
@@ -75,7 +77,7 @@ class DFWad implements ResourceArchive {
         for (const [key] of Object.entries(zip.files)) {
           const handleEntry = async () => {
             const path = ResourcePathFromZipObject(key, this.name)
-            this.getFiles = () => this.getFiles().concat(path)
+            this.filePaths.push(path)
             // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
             const content = (await loadFileFromZip(
               zip,
