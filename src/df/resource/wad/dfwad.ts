@@ -30,6 +30,10 @@ class DFWad implements ResourceArchive {
 
   public getFiles = () => this.filePaths
 
+  public loadFileWithoutConverting = (
+    p: (a: Readonly<ResourcePath>) => boolean
+  ) => this.loadFile(p)
+
   public loadFileAsArrayBuffer = (
     p: (a: Readonly<ResourcePath>) => boolean
   ) => {
