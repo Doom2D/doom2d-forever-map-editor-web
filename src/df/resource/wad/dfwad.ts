@@ -97,12 +97,15 @@ class DFWad implements ResourceArchive {
       this.type = 'dfwad'
     } else {
       try {
-        const zip = await loadZipObject(this.src)
+        const z = await loadZipObject(this.src)
         this.isSupported = true
         if (checkSupported) return true
         const promises: Promise<boolean>[] = []
-        for (const [key] of Object.entries(zip.files)) {
+        for (const [k] of Object.entries(z.files)) {
           const handleEntry = async () => {
+            const key = k
+            const zip = z
+            if (zip.files[key].dir) return true
             const path = ResourcePathFromZipObject(key, this.name)
             this.filePaths.push(path)
             // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
