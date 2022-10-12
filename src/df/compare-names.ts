@@ -16,9 +16,10 @@ function compareResourceDirectory(
 }
 
 function compareResourceBasename(p: Readonly<ResourcePath>, s: string) {
+  const n = withoutExtension(s).basename
   const b = p.getBaseName()
   return (
-    withoutExtension(b).basename.toLocaleLowerCase() === s.toLocaleLowerCase()
+    withoutExtension(b).basename.toLocaleLowerCase() === n.toLocaleLowerCase()
   )
 }
 
