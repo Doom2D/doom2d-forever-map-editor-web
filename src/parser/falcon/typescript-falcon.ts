@@ -174,6 +174,10 @@ function parsePanelInfo(buffer: Readonly<ArrayBuffer>, start: number) {
   return returnObject
 }
 
+function checkFalcon(buffer: Readonly<ArrayBuffer>) {
+  return checkMapSignature(buffer).isSignatureValid
+}
+
 export default function parseFalcon(buffer: Readonly<ArrayBuffer>) {
   const mapObject: Record<string, unknown> = {}
   const response = {
@@ -221,3 +225,5 @@ export default function parseFalcon(buffer: Readonly<ArrayBuffer>) {
   response.isMapValid = true
   return response
 }
+
+export { parseFalcon, checkFalcon }

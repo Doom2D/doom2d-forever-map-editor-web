@@ -194,7 +194,7 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
         ALT: () => this.SUBRULE(this.object),
       },
       {
-        ALT: () => this.SUBRULE(this.objectValue)
+        ALT: () => this.SUBRULE(this.objectValue),
       },
     ])
     this.CONSUME1(semiToken)
@@ -238,6 +238,12 @@ class KetmarParserTypeScript extends EmbeddedActionsParser {
 
 const parser = new KetmarParserTypeScript()
 
+function checkKetmar(text: string) {
+  return (
+    ketmarLexer.tokenize(text).tokens[0].image.toLocaleLowerCase() === 'map'
+  )
+}
+
 export default function parseKetmar(text: string) {
   const lexResult = ketmarLexer.tokenize(text)
   parser.input = lexResult.tokens
@@ -254,3 +260,5 @@ export default function parseKetmar(text: string) {
   }
   return map
 }
+
+export { checkKetmar, parseKetmar }
