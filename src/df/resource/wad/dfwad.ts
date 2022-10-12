@@ -81,18 +81,15 @@ class DFWad implements ResourceArchive {
         const content = inflate(buffer)
         const path = ResourcePathFromWad(value, this.name)
         this.filePaths.push(path)
-        if (!isBufferBinary(content.buffer)) {
-          this.files = this.files.concat({
-            path,
-            content: readString(content.buffer, 0, undefined, 'win1251'),
-          })
-        } else {
-          this.getFiles = () => this.getFiles().concat(path)
-          this.files = this.files.concat({
-            path,
-            content,
-          })
-        }
+        this.files = !isBufferBinary(content.buffer)
+          ? this.files.concat({
+              path,
+              content: readString(content.buffer, 0, undefined, 'win1251'),
+            })
+          : this.files.concat({
+              path,
+              content,
+            })
       }
       this.type = 'dfwad'
     } else {
