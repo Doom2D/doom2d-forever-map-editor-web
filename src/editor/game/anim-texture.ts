@@ -40,7 +40,7 @@ class AnimTexture {
     return this.resourceBuffer
   }
 
-public async init() {
+  public async init() {
     await this.wad.init()
     if (!this.wad.isSupported) {
       throw new Error('Unsupported DFWad passed to AnimTexture!')
