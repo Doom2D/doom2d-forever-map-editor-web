@@ -6,9 +6,8 @@ import {
 } from '../../../third-party/jszip/wrapper'
 import isBufferBinary from '../../../utility/is-buffer-binary'
 import readString from '../../../utility/read-string'
-import pathSplit from '../../../utility/split-path'
 import encodeString from '../../../utility/encode-string'
-import ResourcePath from '../path/path'
+import type ResourcePath from '../path/path'
 import {
   ResourcePathFromWad,
   ResourcePathFromZipObject,
