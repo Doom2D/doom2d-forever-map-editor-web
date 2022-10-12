@@ -52,6 +52,8 @@ class DFWad implements ResourceArchive {
 
   public saveFileString = () => true
 
+  public filesForCategorising = () => this.files
+
   public constructor(
     private readonly src: Readonly<ArrayBuffer>,
     private readonly name = ''
@@ -66,10 +68,11 @@ class DFWad implements ResourceArchive {
     return undefined
   }
 
-  public async init() {
+  public async init(checkSupported = false) {
     const tryWad = wadAsJson(this.src)
     if (tryWad.isValid) {
       this.isSupported = true
+      if (checkSupported) return true
       for (const [, value] of Object.entries(tryWad.wadObject)) {
         if (value.type === 'parent') {
           continue
@@ -96,6 +99,7 @@ class DFWad implements ResourceArchive {
       try {
         const zip = await loadZipObject(this.src)
         this.isSupported = true
+        if (checkSupported) return true
         const promises: Promise<boolean>[] = []
         for (const [key] of Object.entries(zip.files)) {
           const handleEntry = async () => {
