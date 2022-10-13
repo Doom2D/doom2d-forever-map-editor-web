@@ -5,6 +5,7 @@ import {
   type fileInfo,
 } from '../../file-category/file-categories'
 import Bild from '../../image/bild'
+import loadImage from '../../utility/load-image-async'
 
 import AnimTexture from './anim-texture'
 
@@ -29,19 +30,7 @@ class imagesFromWad {
           }
           const t = new Bild(buffer)
           await t.init()
-          const imageLoad = new Promise<HTMLImageElement>((resolve, reject) => {
-            const image = new Image()
-            const blob = new Blob([t.giveBuffer()])
-            const url = window.URL.createObjectURL(blob)
-            image.src = url
-            image.addEventListener('load', () => {
-              resolve(image)
-            })
-            image.addEventListener('error', () => {
-              reject(new Error('Error loading image'))
-            })
-          })
-          const image = await imageLoad
+          const image = await loadImage(t.giveBuffer())
           images.push({ image, file: v })
           return true
         }
