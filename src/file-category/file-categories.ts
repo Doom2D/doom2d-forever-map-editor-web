@@ -3,7 +3,7 @@ import encodeString from '../utility/encode-string'
 
 import fileCategory from './file-category'
 
-type fileInfo = {
+interface fileInfo {
   path: ResourcePath
   type: 'dfwad' | 'image' | 'map' | 'unknown'
   ext: string
