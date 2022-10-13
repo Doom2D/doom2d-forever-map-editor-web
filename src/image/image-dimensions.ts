@@ -18,6 +18,7 @@ class imageDimensions {
           width: img.width,
           height: img.height,
         })
+        img.dispose()
       })
     })
     return await a

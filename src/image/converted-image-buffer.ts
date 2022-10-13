@@ -1,7 +1,9 @@
 /* eslint-disable promise/avoid-new */
+// import * as wasmi from 'wasm-imagemagick'
 import * as magickwasm from '@imagemagick/magick-wasm'
 
 import capitalize from '../utility/capitalize'
+import getFileType from '../utility/get-file-type'
 
 const magick = magickwasm.ImageMagick
 
@@ -12,16 +14,19 @@ class convertedImageBuffer {
   ) {}
 
   private convertStringToEnum(str: string) {
-    const s = capitalize(str)
+    /*
     const key = Object.keys(magickwasm.MagickFormat).find(
-      (x) => x.toLocaleLowerCase() === s.toLocaleLowerCase()
+      (x) => x.toLocaleLowerCase() === str.toLocaleLowerCase()
     )
     if (key === undefined) {
       throw new Error(`${str} image format is not supported!`)
     }
-    return magickwasm.MagickFormat[
+    const v = magickwasm.MagickFormat[
       Object.values(magickwasm.MagickFormat).indexOf(key.toLocaleUpperCase())
-    ] as magickwasm.MagickFormat
+    ] as magickwasm.MagickFormat | undefined
+    if (v === undefined) throw new Error(`Image type ${str} is not supported!`)
+    */
+    return str.toLocaleUpperCase() as magickwasm.MagickFormat
   }
 
   public giveInfo() {
@@ -39,6 +44,17 @@ class convertedImageBuffer {
       this.src,
       this.convertStringToEnum(this.targetExtension)
     )
+    return await this.wasmImageMagickConvert()
+  }
+
+  private async wasmImageMagickConvert() {
+    const type = getFileType(this.src)
+    const n = `src.${type}`
+    const command = ['convert', n, `out.${this.targetExtension}`]
+    const image = { name: n, content: new Uint8Array(this.src) }
+    const result = await wasmi. call([image], command)
+    const output = await result.outputFiles[0].blob.arrayBuffer()
+    return output
   }
 
   private async magickWasmConvert(
@@ -46,15 +62,19 @@ class convertedImageBuffer {
     f: magickwasm.MagickFormat
   ) {
     const view = new Uint8Array(n)
+    const settings = new magickwasm.MagickSettings()
+    const test = getFileType(view.buffer)
     const a = new Promise<Uint8Array>((resolve) => {
-      magick.read(view, (img) => {
+      magick.read(view,(img) => {
         img.write((data) => {
           resolve(data)
+          img.dispose()
         }, f)
       })
     })
-    const b = await a
-    return b.slice().buffer
+    const u = await a
+    const r = new Blob([u])
+    return await r.arrayBuffer()
   }
 }
 
