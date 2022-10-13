@@ -43,3 +43,5 @@ class FileCategories {
 }
 
 export default FileCategories
+
+export { FileCategories, fileInfo }
