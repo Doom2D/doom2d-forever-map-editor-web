@@ -23,4 +23,14 @@ function compareResourceBasename(p: Readonly<ResourcePath>, s: string) {
   )
 }
 
-export { compareResourceBasename, compareResourceDirectory }
+function compareResourceArchiveNames(s1: string, s2: string) {
+  const n1 = withoutExtension(s1).basename.toLowerCase()
+  const n2 = withoutExtension(s2).basename.toLowerCase()
+  return n1 === n2
+}
+
+export {
+  compareResourceBasename,
+  compareResourceDirectory,
+  compareResourceArchiveNames,
+}
