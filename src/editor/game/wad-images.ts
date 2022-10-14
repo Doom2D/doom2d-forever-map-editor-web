@@ -17,7 +17,12 @@ class imagesFromWad {
     const iter = await new FileCategories(
       this.src.filesForCategorising()
     ).getCategories()
-    const images: { image: HTMLImageElement; file: fileInfo }[] = []
+    const images: {
+      full?: Readonly<ArrayBuffer>
+      buffer: Readonly<ArrayBuffer>
+      image: HTMLImageElement
+      file: fileInfo
+    }[] = []
     for (const [, v] of Object.entries(iter)) {
       if (v.type === 'image' || v.type === 'dfwad') {
         const p = async () => {
@@ -32,12 +37,17 @@ class imagesFromWad {
             const t = new AnimTextureWrapper(buffer, info.width, info.height)
             await t.init()
             const image = await loadImage(t.giveBuffer())
-            images.push({ image, file: v })
+            images.push({
+              full: t.giveBufferFull(),
+              buffer: t.giveBuffer(),
+              image,
+              file: v,
+            })
           } else {
             const t = new Bild(buffer)
             await t.init()
             const image = await loadImage(t.giveBuffer())
-            images.push({ image, file: v })
+            images.push({ buffer: t.giveBuffer(), image, file: v })
           }
           return true
         }
