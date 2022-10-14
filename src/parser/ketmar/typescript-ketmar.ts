@@ -245,20 +245,42 @@ function checkKetmar(text: string) {
 }
 
 export default function parseKetmar(text: string) {
-  const lexResult = ketmarLexer.tokenize(text)
-  parser.input = lexResult.tokens
-  const cst = parser.ketmarMap()
-  const map: obj = {}
-  for (const [key, value] of Object.entries(cst)) {
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      const clone: obj = structuredClone(value)
-      clone._type = parser.mapBindings[key]
-      map[key] = clone
-    } else {
-      map[key] = value
-    }
+  const mapObject: Record<string, unknown> = {}
+  const response = {
+    description: 'Parsing a "ketmar" map',
+    isMapValid: false,
+    mapObject,
   }
-  return map
+  try {
+    const lexResult = ketmarLexer.tokenize(text)
+    parser.input = lexResult.tokens
+    const cst = parser.ketmarMap()
+    const map: obj = {}
+    for (const [key, value] of Object.entries(cst)) {
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        const clone: obj = structuredClone(value)
+        clone._type = parser.mapBindings[key]
+        map[key] = clone
+      } else {
+        map[key] = value
+      }
+    }
+    response.isMapValid = true
+    response.description = 'Successfully parsed a "ketmar" map'
+
+    // necessary evil
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    response.mapObject = map as Record<string, unknown>
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    response.description = `Error parsing a "ketmar" map: ${error}`
+    response.isMapValid = false
+  }
+  return response
 }
 
 export { checkKetmar, parseKetmar }
