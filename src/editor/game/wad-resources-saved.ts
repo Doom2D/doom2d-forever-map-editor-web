@@ -21,7 +21,6 @@ class wadResourcesSaved {
   }
 
   public async save() {
-    await this.src.init()
     const images = await this.images.prepareImages()
     const promises: Promise<boolean>[] = []
     for (const [, v] of Object.entries(images)) {
