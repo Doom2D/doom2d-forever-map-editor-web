@@ -52,7 +52,7 @@ class Database {
   }
 
   public async saveByPath(v: unknown, key: IDBValidKey) {
-    const transaction = this.db.transaction(this.store)
+    const transaction = this.db.transaction(this.store, 'readwrite')
     return await this.addItem(transaction, this.store, v, key)
   }
 }
