@@ -30,6 +30,22 @@ class magickWasmImageManipulation {
     return await r.arrayBuffer()
   }
 
+  public async crop(x = 0, y = 0, width: number, height: number) {
+    const view = new Uint8Array(this.src)
+    const a = new Promise<Uint8Array>((resolve) => {
+      magick.read(view, (image) => {
+        image.crop(width, height)
+        image.write((data) => {
+          resolve(data)
+          image.dispose()
+        }, this.targetAsEnum())
+      })
+    })
+    const u = await a
+    const r = new Blob([u])
+    return await r.arrayBuffer()
+  }
+
   public async resize(width: number, height: number) {
     const view = new Uint8Array(this.src)
     const a = new Promise<Uint8Array>((resolve) => {

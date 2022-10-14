@@ -1,4 +1,6 @@
+import loadImage from '../utility/load-image-async'
 import convertedImageBuffer from './converted-image-buffer'
+import imageCropped from './image-cropped'
 import imageDimensions from './image-dimensions'
 import imageResized from './image-resized'
 
@@ -11,8 +13,8 @@ class Bild {
 
   public constructor(
     private readonly src: Readonly<ArrayBuffer>,
-    private width: number | undefined,
-    private height: number | undefined
+    private width = -1,
+    private height = -1
   ) {
     this.convertedImage = new convertedImageBuffer(
       this.src,
@@ -21,7 +23,10 @@ class Bild {
   }
 
   public giveInfo() {
-    return { width: this.width, height: this.height }
+    return {
+      width: this.width,
+      height: this.height,
+    }
   }
 
   public giveBuffer() {
@@ -30,31 +35,41 @@ class Bild {
 
   public async init() {
     this.imageBuffer = await this.convertedImage.giveConvertedBuffer()
-    if (this.width !== undefined && this.height !== undefined) {
-      const resizedxy = new imageResized(
+    if (this.width >= 0 && this.height >= 0) {
+      const resizedxy = new imageCropped(
         this.imageBuffer,
         this.targetExtension,
+        0,
+        0,
         this.width,
         this.height
       )
-      this.imageBuffer = await resizedxy.getResized()
-    } else if (this.width === undefined && this.height === undefined) {
+      this.imageBuffer = await resizedxy.getCropped()
+      const ii = await loadImage(this.imageBuffer)
+      document.body.append(ii)
+    } else if (this.width <= -1 && this.height <= -1) {
       const b = new imageDimensions(this.imageBuffer, this.targetExtension)
       const n = await b.giveInfo()
       this.width = n.width
       this.height = n.height
+      const ii = await loadImage(this.imageBuffer)
+      document.body.append(ii)
     } else {
       const b = new imageDimensions(this.imageBuffer, this.targetExtension)
       const n = await b.giveInfo()
-      const resizedxory = new imageResized(
+      if (this.width <= -1) this.width = n.width
+      if (this.height <= -1) this.height = n.height
+      const resizedxory = new imageCropped(
         this.imageBuffer,
         this.targetExtension,
-        this.width ?? n.width,
-        this.height ?? n.height
+        0,
+        0,
+        this.width,
+        this.height
       )
-      this.imageBuffer = await resizedxory.getResized()
-      this.width = this.width ?? n.width
-      this.height = this.height ?? n.height
+      this.imageBuffer = await resizedxory.getCropped()
+      const ii = await loadImage(this.imageBuffer)
+      document.body.append(ii)
     }
   }
 }
