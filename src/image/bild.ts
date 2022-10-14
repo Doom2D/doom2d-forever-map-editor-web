@@ -1,5 +1,6 @@
 import convertedImageBuffer from './converted-image-buffer'
 import imageDimensions from './image-dimensions'
+import imageResized from './image-resized'
 
 class Bild {
   private readonly targetExtension = 'png'
@@ -8,11 +9,11 @@ class Bild {
 
   private imageBuffer: ArrayBuffer = new ArrayBuffer(0)
 
-  private width = -1
-
-  private height = -1
-
-  public constructor(private readonly src: Readonly<ArrayBuffer>) {
+  public constructor(
+    private readonly src: Readonly<ArrayBuffer>,
+    private width: number | undefined,
+    private height: number | undefined
+  ) {
     this.convertedImage = new convertedImageBuffer(
       this.src,
       this.targetExtension
@@ -28,12 +29,33 @@ class Bild {
   }
 
   public async init() {
-    const w = await this.convertedImage.giveConvertedBuffer()
-    const x = new imageDimensions(w)
-    const y = await x.giveInfo()
-    this.width = y.width
-    this.height = y.height
-    this.imageBuffer = w
+    this.imageBuffer = await this.convertedImage.giveConvertedBuffer()
+    if (this.width !== undefined && this.height !== undefined) {
+      const resizedxy = new imageResized(
+        this.imageBuffer,
+        this.targetExtension,
+        this.width,
+        this.height
+      )
+      this.imageBuffer = await resizedxy.getResized()
+    } else if (this.width === undefined && this.height === undefined) {
+      const b = new imageDimensions(this.imageBuffer, this.targetExtension)
+      const n = await b.giveInfo()
+      this.width = n.width
+      this.height = n.height
+    } else {
+      const b = new imageDimensions(this.imageBuffer, this.targetExtension)
+      const n = await b.giveInfo()
+      const resizedxory = new imageResized(
+        this.imageBuffer,
+        this.targetExtension,
+        this.width ?? n.width,
+        this.height ?? n.height
+      )
+      this.imageBuffer = await resizedxory.getResized()
+      this.width = this.width ?? n.width
+      this.height = this.height ?? n.height
+    }
   }
 }
 

@@ -1,27 +1,15 @@
-/* eslint-disable promise/avoid-new */
-import * as magickwasm from '@imagemagick/magick-wasm'
-
-const magick = magickwasm.ImageMagick
+import magickWasmImageManipulation from './backend/magick-wasm'
 
 class imageDimensions {
-  public constructor(private readonly src: ArrayBuffer) {}
+  public constructor(private readonly src: ArrayBuffer, private readonly ext: string) {}
 
   public async giveInfo() {
     return await this.getImageDimensions()
   }
 
   private async getImageDimensions() {
-    const view = new Uint8Array(this.src)
-    const a = new Promise<{ width: number; height: number }>((resolve) => {
-      magick.read(view, (img) => {
-        resolve({
-          width: img.width,
-          height: img.height,
-        })
-        img.dispose()
-      })
-    })
-    return await a
+    const a = new magickWasmImageManipulation(this.src, this.ext)
+    return await a.getImageDimensions()
   }
 }
 
