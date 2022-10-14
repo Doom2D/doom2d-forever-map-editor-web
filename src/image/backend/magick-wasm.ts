@@ -50,7 +50,7 @@ class magickWasmImageManipulation {
   public async crop(x = 0, y = 0, width: number, height: number) {
     const view = new Uint8Array(this.src)
     const a = new Promise<Uint8Array>((resolve) => {
-      magick.read(view, this.srcSettings(), (image) => {
+      magick.read(view, (image) => {
         image.autoOrient()
         image.crop(width, height)
         image.write((data) => {
@@ -67,7 +67,7 @@ class magickWasmImageManipulation {
   public async resize(width: number, height: number) {
     const view = new Uint8Array(this.src)
     const a = new Promise<Uint8Array>((resolve) => {
-      magick.read(view, this.srcSettings(), (image) => {
+      magick.read(view, (image) => {
         image.autoOrient()
         image.resize(width, height)
         image.write((data) => {
@@ -83,7 +83,7 @@ class magickWasmImageManipulation {
   public async getImageDimensions() {
     const view = new Uint8Array(this.src)
     const a = new Promise<{ width: number; height: number }>((resolve) => {
-      magick.read(view, this.srcSettings(), (img) => {
+      magick.read(view, (img) => {
         resolve({
           width: img.width,
           height: img.height,
