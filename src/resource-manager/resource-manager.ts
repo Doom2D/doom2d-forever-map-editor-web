@@ -8,7 +8,7 @@ class ResourceManager {
 
   public constructor(private readonly store = 'store') {}
 
-  private getCached(key: string) {
+  private getCached(key: string): unknown {
     return this.cacheObject[key]
   }
 
@@ -20,15 +20,18 @@ class ResourceManager {
   }
 
   public async getItem(key: string) {
-    const cached = this.cacheObject[key]
+    const cached = this.getCached(key)
     if (cached === undefined && this.db === undefined) {
       throw new Error(`Couldn't find item ${key}!`)
+    } else if (cached !== undefined) {
+      return cached
+    } else {
+      const saved = await this.db?.loadByPath(key)
+      if (saved === undefined) {
+        throw new Error(`Couldn't find item ${key}!`)
+      }
+      return saved
     }
-    const saved = await this.db?.loadByPath(key)
-    if (saved === undefined) {
-      throw new Error(`Couldn't find item ${key}!`)
-    }
-    return saved
   }
 
   public async init() {
