@@ -1,4 +1,5 @@
 import pathConstructed from '../../../utility/construct-path'
+import withoutExtension from '../../../utility/without-extension'
 
 class ResourcePath {
   public constructor(
@@ -17,18 +18,26 @@ class ResourcePath {
 
   public asThisEditorPath() {
     let str = ''
-    str += `[${this.fileSrc}]`
-    str += pathConstructed(this.src, this.basename, '\\')
+    str += `[${this.fileSrc.toLocaleLowerCase()}]`
+    str += pathConstructed(
+      this.src.map((x) => x.toLocaleLowerCase()),
+      withoutExtension(this.basename).basename.toLocaleLowerCase(),
+      '/'
+    )
     return str
   }
 
   public asGamePath(root = true) {
     let str = ''
     if (!root) {
-      str += this.fileSrc
+      str += this.fileSrc.toLocaleLowerCase()
     }
     str += ':'
-    str += pathConstructed(this.src, this.basename, '\\')
+    str += pathConstructed(
+      this.src.map((x) => x.toLocaleLowerCase()),
+      withoutExtension(this.basename).basename.toLocaleLowerCase(),
+      '\\'
+    )
     return str
   }
 }
