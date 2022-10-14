@@ -1,4 +1,5 @@
 /* eslint-disable promise/avoid-new */
+import { compareResourcePaths } from '../../df/compare-names'
 import type { DFWad } from '../../df/resource/wad/dfwad'
 import {
   FileCategories,
@@ -26,7 +27,9 @@ class imagesFromWad {
     for (const [, v] of Object.entries(iter)) {
       if (v.type === 'image' || v.type === 'dfwad') {
         const p = async () => {
-          const i = this.src.loadFileAsArrayBuffer((a) => a === v.path)
+          const i = this.src.loadFileAsArrayBuffer((a) =>
+            compareResourcePaths(a, v.path)
+          )
           if (i === undefined) throw new Error("Couldn't find file in DFWad!")
           let buffer: ArrayBuffer = i
           if (v.type === 'dfwad') {

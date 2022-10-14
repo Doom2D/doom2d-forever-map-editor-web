@@ -1,3 +1,4 @@
+import { compareResourcePaths } from '../../df/compare-names'
 import type { DFWad } from '../../df/resource/wad/dfwad'
 import type ResourceManager from '../../resource-manager/resource-manager'
 
@@ -30,8 +31,8 @@ class wadResourcesSaved {
             const infoPath = `${v.file.path.asThisEditorPath()}[INFO]`
             const fullPath = `${v.file.path.asThisEditorPath()}[FULL]`
             const viewPath = v.file.path.asThisEditorPath()
-            const animationWad = this.src.loadFileAsArrayBuffer(
-              (a) => a === v.file.path
+            const animationWad = this.src.loadFileAsArrayBuffer((a) =>
+              compareResourcePaths(a, v.file.path)
             )
             if (animationWad === undefined)
               throw new Error('Error saving animtexture!')

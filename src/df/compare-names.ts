@@ -29,8 +29,20 @@ function compareResourceArchiveNames(s1: string, s2: string) {
   return n1 === n2
 }
 
+function compareResourcePaths(
+  p1: Readonly<ResourcePath>,
+  p2: Readonly<ResourcePath>
+) {
+  const n1 = withoutExtension(p1.getBaseName()).basename.toLocaleLowerCase()
+  const n2 = withoutExtension(p2.getBaseName()).basename.toLocaleLowerCase()
+  const d1 = p1.getParent().join('/').toLocaleLowerCase()
+  const d2 = p2.getParent().join('/').toLocaleLowerCase()
+  return n1 === n2 && d1 === d2
+}
+
 export {
   compareResourceBasename,
   compareResourceDirectory,
   compareResourceArchiveNames,
+  compareResourcePaths,
 }
