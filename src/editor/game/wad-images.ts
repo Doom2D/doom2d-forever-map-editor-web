@@ -5,6 +5,7 @@ import {
   type fileInfo,
 } from '../../file-category/file-categories'
 import Bild from '../../image/bild'
+import AnimTextureWrapper from '../../image/sheet-wrapper/sheet-wrapper'
 import loadImage from '../../utility/load-image-async'
 
 import AnimTexture from './anim-texture'
@@ -27,11 +28,17 @@ class imagesFromWad {
             const animTexture = new AnimTexture(i)
             await animTexture.init()
             buffer = animTexture.giveFullImage()
+            const info = animTexture.giveInfo()
+            const t = new AnimTextureWrapper(buffer, info.width, info.height)
+            await t.init()
+            const image = await loadImage(t.giveBuffer())
+            images.push({ image, file: v })
+          } else {
+            const t = new Bild(buffer)
+            await t.init()
+            const image = await loadImage(t.giveBuffer())
+            images.push({ image, file: v })
           }
-          const t = new Bild(buffer)
-          await t.init()
-          const image = await loadImage(t.giveBuffer())
-          images.push({ image, file: v })
           return true
         }
 
