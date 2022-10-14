@@ -45,15 +45,11 @@ class Bild {
         this.height
       )
       this.imageBuffer = await resizedxy.getCropped()
-      const ii = await loadImage(this.imageBuffer)
-      document.body.append(ii)
     } else if (this.width <= -1 && this.height <= -1) {
       const b = new imageDimensions(this.imageBuffer, this.targetExtension)
       const n = await b.giveInfo()
       this.width = n.width
       this.height = n.height
-      const ii = await loadImage(this.imageBuffer)
-      document.body.append(ii)
     } else {
       const b = new imageDimensions(this.imageBuffer, this.targetExtension)
       const n = await b.giveInfo()
@@ -68,8 +64,6 @@ class Bild {
         this.height
       )
       this.imageBuffer = await resizedxory.getCropped()
-      const ii = await loadImage(this.imageBuffer)
-      document.body.append(ii)
     }
   }
 }
