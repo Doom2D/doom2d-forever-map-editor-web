@@ -16,9 +16,9 @@ class ResourcePath {
     return this.basename
   }
 
-  public asThisEditorPath() {
+  public asThisEditorPath(withSource = true) {
     let str = ''
-    str += `[${this.fileSrc.toLocaleLowerCase()}]`
+    str += withSource ? `[${this.fileSrc.toLocaleLowerCase()}]` : `[]`
     str += pathConstructed(
       this.src.map((x) => x.toLocaleLowerCase()),
       withoutExtension(this.basename).basename.toLocaleLowerCase(),
