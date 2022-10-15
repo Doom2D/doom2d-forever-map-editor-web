@@ -6,10 +6,14 @@ class ResourceManager {
 
   private readonly cacheObject: Record<string, unknown> = {}
 
-  public constructor(private readonly store = 'store') {}
+  public constructor(private readonly store?: string) {}
 
   private getCached(key: string): unknown {
     return this.cacheObject[key]
+  }
+
+  public cachedAtKey(key: string) {
+    return this.getCached(key) !== undefined
   }
 
   public async saveItem(key: string, value: unknown) {
@@ -35,8 +39,10 @@ class ResourceManager {
   }
 
   public async init() {
-    const idb = await openIDB(this.store)
-    this.db = new Database(idb)
+    if (this.store !== undefined) {
+      const idb = await openIDB(this.store)
+      this.db = new Database(idb)
+    }
   }
 
   private async open() {
