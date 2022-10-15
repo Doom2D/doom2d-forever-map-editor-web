@@ -1,40 +1,36 @@
 import * as PIXI from 'pixi.js'
 
+import ResourceManager from '../../resource-manager/resource-manager'
 import { type Renderer, type RenderOptions } from '../interface'
 
 class Pixi implements Renderer {
-  private readonly renderer = new PIXI.Renderer({
-    width: 800,
-    height: 600,
-    backgroundColor: 0x10_99_bb,
-  })
+  private readonly renderer: PIXI.Renderer
 
   private readonly ticker = new PIXI.Ticker()
 
   private stage = new PIXI.Container()
 
-  public constructor() {
+  private readonly resourceManager: ResourceManager
+
+  public constructor(private readonly src: Readonly<HTMLCanvasElement>) {
+    this.renderer = new PIXI.Renderer({
+      width: 800,
+      height: 600,
+      backgroundColor: 0x10_99_bb,
+      view: this.src,
+    })
+    this.resourceManager = new ResourceManager()
+  }
+
+  public init() {
     this.ticker.add(() => {
       this.renderer.render(this.stage)
     }, PIXI.UPDATE_PRIORITY.LOW)
     this.ticker.start()
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-  public init(element: Readonly<HTMLElement>) {
-    element.append(this.renderer.view)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-  public loadImage(src: Readonly<HTMLCanvasElement>) {
-    return 0
-  }
-
-  public render(options: RenderOptions): void {
-    const graphics = new PIXI.Graphics()
-    graphics.beginFill(0xFFFF00)
-    graphics.drawRect(options.x, options.y, options.w, options.h)
-    this.stage.addChild(graphics)
+  public deleteEntity(n: number): void {
+    throw new Error('This method is not defined!')
   }
 
   public update(): void {
@@ -48,6 +44,61 @@ class Pixi implements Renderer {
 
   public resize(width: number, height: number): void {
     this.renderer.resize(width, height)
+  }
+
+  private entityToString(n: number) {
+    return `___${n}___`
+  }
+
+  public async registerEntity(n: number, imgKey: string): Promise<void> {
+    const entityString = this.entityToString(n)
+    try {
+      if (!this.resourceManager.cachedAtKey(entityString)) {
+        const texture = (await this.resourceManager.getItem(
+          imgKey
+        )) as PIXI.Texture
+        const sprite = new PIXI.TilingSprite(texture)
+        await this.resourceManager.saveItem(entityString, sprite)
+      }
+    } catch {
+      const graphics = new PIXI.Graphics()
+      graphics.beginFill(0xff_ff_00)
+      graphics.lineStyle(5, 0xff_00_00)
+      graphics.drawRect(0, 0, 1, 1)
+      graphics.endFill()
+      const texture = this.renderer.generateTexture(graphics)
+      const sprite = new PIXI.TilingSprite(texture)
+      await this.resourceManager.saveItem(entityString, sprite)
+    }
+  }
+
+  public async saveImage(
+    key: string,
+    src: Readonly<HTMLImageElement>
+  ): Promise<void> {
+    const baseTexture = new PIXI.BaseTexture(src)
+    const texture = new PIXI.Texture(baseTexture)
+    await this.resourceManager.saveItem(key, texture)
+  }
+
+  public async render(options: Readonly<RenderOptions>): void {
+    if (
+      !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
+    ) {
+      await this.registerEntity(options.entity, options.imgKey)
+    }
+
+    // sadly, we have to do this
+    const sprite = (await this.resourceManager.getItem(
+      this.entityToString(options.entity)
+    )) as PIXI.TilingSprite
+    sprite.position.x = options.x
+    sprite.position.y = options.y
+    sprite.width = options.w
+    sprite.height = options.h
+    if (sprite.parent !== this.stage) {
+      this.stage.addChild(sprite)
+    }
   }
 }
 
