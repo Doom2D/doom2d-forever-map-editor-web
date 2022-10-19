@@ -73,7 +73,9 @@ class EditorMap {
         typeof v.position[0] !== 'number' ||
         typeof v.position[1] !== 'number' ||
         v.texture === undefined ||
-        typeof v.texture !== 'string'
+        typeof v.texture !== 'string' ||
+        v.type === undefined ||
+        typeof v.type !== 'string'
       ) {
         throw new Error('Invalid panel in parsed map!')
       }
@@ -85,6 +87,7 @@ class EditorMap {
         position: { x: v.position[0], y: v.position[1] },
         dimensions: { width: v.size[0], height: v.size[1] },
         texture,
+        type: v.type,
       })
       this.panels.push(panel)
     }

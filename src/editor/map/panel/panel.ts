@@ -1,17 +1,22 @@
 import type Texture from '../texture/texture'
 
+import PanelType from './type/type'
+
 class Panel {
   private readonly position: { x: number; y: number }
 
   private readonly dimensions: { width: number; height: number }
 
-  private readonly texture: Texture
+  private readonly texture: Readonly<Texture>
+
+  private readonly type: Readonly<PanelType>
 
   public constructor(
     a: Readonly<{
       position: Readonly<{ x: number; y: number }>
       dimensions: Readonly<{ width: number; height: number }>
-      texture: Texture
+      texture: Readonly<Texture>
+      type: string
     }>
   ) {
     this.position = {
@@ -23,6 +28,7 @@ class Panel {
       height: a.dimensions.height,
     }
     this.texture = a.texture
+    this.type = new PanelType(a.type)
   }
 
   public givePosition() {
@@ -35,6 +41,10 @@ class Panel {
 
   public giveTexture() {
     return this.texture
+  }
+
+  public giveRenderOrder() {
+    return this.type.giveRenderOrder()
   }
 }
 
