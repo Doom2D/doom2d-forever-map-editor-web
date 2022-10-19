@@ -93,6 +93,10 @@ class EditorMap {
   public giveMetaInfo() {
     return { width: this.size.width, height: this.size.height }
   }
+
+  public givePanels() {
+    return this.panels
+  }
 }
 
 export default EditorMap
