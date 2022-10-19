@@ -16,7 +16,7 @@ class Pixi implements Renderer {
     this.renderer = new PIXI.Renderer({
       width: 800,
       height: 600,
-      backgroundColor: 0x10_99_bb,
+      backgroundColor: 0x00_57_b7,
       view: this.src,
     })
     this.resourceManager = new ResourceManager()
@@ -62,8 +62,8 @@ class Pixi implements Renderer {
       }
     } catch {
       const graphics = new PIXI.Graphics()
-      graphics.beginFill(0xff_ff_00)
-      graphics.lineStyle(5, 0xff_00_00)
+      graphics.beginFill(0xff_dd_00)
+      graphics.lineStyle(5, 0xff_dd_00)
       graphics.drawRect(0, 0, 1, 1)
       graphics.endFill()
       const texture = this.renderer.generateTexture(graphics)
