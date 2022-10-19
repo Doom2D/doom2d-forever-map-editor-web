@@ -14,7 +14,9 @@ class EditorMap {
 
   private readonly music: string = 'Standart.wad:D2DMUS\\ПРОСТОТА'
 
-  private readonly sky: ResourcePath = ResourcePathFromGamePath('Standart.wad:D2DSKY\\RSKY1')
+  private readonly sky: ResourcePath = ResourcePathFromGamePath(
+    'Standart.wad:D2DSKY\\RSKY1'
+  )
 
   private readonly size = { width: 0, height: 0 }
 
@@ -86,6 +88,10 @@ class EditorMap {
       )
       this.panels.push(panel)
     }
+  }
+
+  public giveMetaInfo() {
+    return { width: this.size.width, height: this.size.height }
   }
 }
 
