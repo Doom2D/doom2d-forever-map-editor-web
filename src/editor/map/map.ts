@@ -81,11 +81,11 @@ class EditorMap {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (texture === undefined)
         throw new Error("Invalid panel's texture in parsed map!")
-      const panel = new Panel(
-        { x: v.position[0], y: v.position[1] },
-        { width: v.size[0], height: v.size[1] },
-        texture
-      )
+      const panel = new Panel({
+        position: { x: v.position[0], y: v.position[1] },
+        dimensions: { width: v.size[0], height: v.size[1] },
+        texture,
+      })
       this.panels.push(panel)
     }
   }
