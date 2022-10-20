@@ -88,6 +88,7 @@ class EditorMap {
         dimensions: { width: v.size[0], height: v.size[1] },
         texture,
         type: v.type,
+        flags: v.flags,
       })
       this.panels.push(panel)
     }
