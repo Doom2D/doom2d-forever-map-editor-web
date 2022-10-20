@@ -5,6 +5,8 @@ import type EditorMap from '../map/map'
 import Pixi from '../../render/pixi/render'
 import RenderSystem from '../../third-party/ecs/system/render'
 import Texture from '../../third-party/ecs/component/texture'
+import SortedMapElements from '../render/sorted/sorted'
+import { RenderRules } from '../render/rules/rules'
 
 // more like a Tab
 class ECSFromMap {
@@ -14,6 +16,8 @@ class ECSFromMap {
 
   private readonly renderSystem: RenderSystem
 
+  private readonly sortedElements: SortedMapElements
+
   public constructor(
     private readonly map: Readonly<EditorMap>,
     private readonly drawSrc: Readonly<HTMLCanvasElement>
@@ -21,6 +25,9 @@ class ECSFromMap {
     this.ECS = new ECS()
     this.pixi = new Pixi(this.drawSrc)
     this.renderSystem = new RenderSystem(this.pixi)
+    this.sortedElements = new SortedMapElements(this.map, [
+      RenderRules.RENDER_HIDDEN,
+    ])
   }
 
   public giveECS() {
@@ -32,7 +39,7 @@ class ECSFromMap {
     this.pixi.resize(msize.width, msize.height)
     this.renderSystem.init()
     this.ECS.addSystem(this.renderSystem)
-    for (const [, v] of Object.entries(this.map.givePanels())) {
+    for (const [, v] of Object.entries(this.sortedElements.givePanels())) {
       const entity = this.ECS.addEntity()
       const pos = v.givePosition()
       const dimensions = v.giveDimensions()
