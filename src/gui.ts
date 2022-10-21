@@ -31,12 +31,6 @@ class HTMLInterface {
     this.addCallbacks()
   }
 
-  private addCallbacks() {
-    this.mapSelect.addEventListener('change', () => {
-      this.dispatch.dispatch('onmapselect', this.mapSelect.value)
-    })
-  }
-
   public addOptionsToMapSelect(src: Readonly<string[]>) {
     for (const [, v] of Object.entries(src)) {
       const option = document.createElement('option')
@@ -44,6 +38,12 @@ class HTMLInterface {
       option.innerHTML = v
       this.mapSelect.append(option)
     }
+  }
+
+  private addCallbacks() {
+    this.mapSelect.addEventListener('change', () => {
+      this.dispatch.dispatch('onmapselect', this.mapSelect.value)
+    })
   }
 }
 
