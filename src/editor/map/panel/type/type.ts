@@ -18,14 +18,16 @@ class PanelType {
       x === 'PANEL_OPENDOOR' ||
       x === 'PANEL_CLOSEDOOR' ||
       x === 'PANEL_LIFTLEFT' ||
-      x === 'PANEL_LIFTRIGHT'
+      x === 'PANEL_LIFTRIGHT' ||
+      x === 'PANEL_LIFTUP' ||
+      x === 'PANEL_LIFTDOWN'
     ) {
       return RenderOrder.WALL
     }
     if (x === 'PANEL_BACK' || x === 'PANEL_STEP') {
       return RenderOrder.BACK
     }
-    if (x === 'PANEL_NONE') {
+    if (x === 'PANEL_NONE' || x === 'PANEL_BLOCKMON') {
       return RenderOrder.HIDDEN
     }
     throw new Error('Invalid panel type passed to PanelType!')
