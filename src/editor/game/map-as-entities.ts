@@ -36,9 +36,11 @@ class ECSFromMap {
     return this.ECS
   }
 
+  public resizeRender(w: number, h: number) {
+    this.pixi.resize(w, h)
+  }
+
   public async init() {
-    const msize = this.map.giveMetaInfo()
-    this.pixi.resize(msize.width, msize.height)
     this.renderSystem.init()
     this.ECS.addSystem(this.renderSystem)
     const promises: Promise<void>[] = []
