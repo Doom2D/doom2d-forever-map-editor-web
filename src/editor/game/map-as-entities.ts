@@ -43,6 +43,8 @@ class ECSFromMap {
   public async init() {
     this.renderSystem.init()
     this.ECS.addSystem(this.renderSystem)
+    const info = this.map.giveMetaInfo()
+    this.resizeRender(info.width, info.height)
     const promises: Promise<void>[] = []
     for (const [, v] of Object.entries(this.sortedElements.givePanels())) {
       const entity = this.ECS.addEntity()
