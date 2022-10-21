@@ -2,6 +2,9 @@ import { initializeImageMagick } from '@imagemagick/magick-wasm'
 
 import { DFWad } from './df/resource/wad/dfwad'
 import convertedMap from './editor/game/converted-map'
+import ECSFromMap from './editor/game/map-as-entities'
+import imagesFromWad from './editor/game/wad-images'
+import EditorMap from './editor/map/map'
 import { FileCategories } from './file-category/file-categories'
 import ResourceManager from './resource-manager/resource-manager'
 
@@ -34,6 +37,31 @@ class Application {
     await wad.init()
     await this.manager.saveItem(`wad${tab}`, wad, true)
     return wad
+  }
+
+  public async loadMap(
+    tab: number,
+    path: string,
+    src: Readonly<HTMLCanvasElement>
+  ) {
+    const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
+    const file = wad.loadFileWithoutConverting(
+      (x) => x.asRegularPath() === path
+    )
+    if (file === undefined) {
+      throw new Error('Invalid map path!')
+    }
+    const parsed = new EditorMap(new convertedMap(file).getUnparsed())
+    const imgs = new imagesFromWad(wad)
+    const prepare = await imgs.prepareImages()
+    const promises: Promise<unknown>[] = []
+    for (const [, v] of Object.entries(prepare)) {
+      const func = this.manager.saveItem(v.file.path.asThisEditorPath(false), v.image, true)
+      promises.push(func)
+    }
+    await Promise.all(promises)
+    const ecs = new ECSFromMap(parsed, src, this.manager)
+    await ecs.init()
   }
 
   public async getMaps(tab: number) {
