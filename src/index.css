@@ -24,7 +24,7 @@ html, body {
 
 #tools {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	flex-wrap: wrap;
@@ -70,4 +70,23 @@ html, body {
 		justify-content: flex-start;
 	}
 	
+}
+
+#left-arrow {
+	width: 30px
+}
+
+#right-arrow {
+	width: 30px
+}
+
+#map {
+	min-width: 50px
+}
+
+#mapdiv {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
 }
