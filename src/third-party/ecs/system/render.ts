@@ -25,7 +25,6 @@ class Render extends System {
 
   public async update(entities: Readonly<Set<Entity>>): void {
     this.entitiesLastSeenUpdate = entities.size
-    this.rendererImplementation.clear()
     entities.forEach((v) => {
       const components = this.ecs.getComponents(v)
       const pos = components.get(Position)
