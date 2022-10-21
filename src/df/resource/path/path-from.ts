@@ -21,4 +21,9 @@ function ResourcePathFromGamePath(str: string) {
   return new ResourcePath(s2, basename, source)
 }
 
-export { ResourcePathFromWad, ResourcePathFromZipObject, ResourcePathFromGamePath }
+function ResourcePathFromRegularPath(str: string) {
+  const path = pathSplit(str)
+  return new ResourcePath(path.directories, path.fileName, '')
+}
+
+export { ResourcePathFromWad, ResourcePathFromZipObject, ResourcePathFromGamePath, ResourcePathFromRegularPath }

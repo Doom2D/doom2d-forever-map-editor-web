@@ -40,6 +40,14 @@ class ResourcePath {
     )
     return str
   }
+
+  public asRegularPath() {
+    return pathConstructed(
+      this.src.map((x) => x.toLocaleLowerCase()),
+      withoutExtension(this.basename).basename.toLocaleLowerCase(),
+      '/'
+    )
+  }
 }
 
 export default ResourcePath
