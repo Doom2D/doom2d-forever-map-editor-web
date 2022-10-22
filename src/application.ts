@@ -14,7 +14,7 @@ class Application {
   private readonly tabs: number[] = []
 
   public constructor(private readonly store: string) {
-    this.manager = new ResourceManager(store)
+    this.manager = new ResourceManager(this.store)
   }
 
   public registerNewTab() {
