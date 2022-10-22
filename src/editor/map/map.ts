@@ -101,6 +101,10 @@ class EditorMap {
   public givePanels() {
     return this.panels
   }
+
+  public giveTextures() {
+    return this.textures
+  }
 }
 
 export default EditorMap
