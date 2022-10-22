@@ -46,6 +46,15 @@ class ECSFromMap {
     const info = this.map.giveMetaInfo()
     this.resizeRender(info.width, info.height)
     const promises: Promise<void>[] = []
+    for (const [, v] of Object.entries(this.map.giveTextures())) {
+      const pathStr = v.givePath().asThisEditorPath(false)
+      const cacheImage = (async () => {
+        const x = pathStr
+        const element = await this.manager.getItem(x)
+        await this.renderSystem.saveImage(x, element)
+      })()
+      promises.push(cacheImage)
+    }
     for (const [, v] of Object.entries(this.sortedElements.givePanels())) {
       const entity = this.ECS.addEntity()
       const pos = v.givePosition()
@@ -54,12 +63,12 @@ class ECSFromMap {
       const size = new Size(dimensions.width, dimensions.height)
       const pathStr = v.giveTexture().givePath().asThisEditorPath(false)
       const texture = new Texture(pathStr)
-      const cacheimg = (async () => {
-        const element = await this.manager.getItem(pathStr)
-        await this.renderSystem.saveImage(pathStr, element)
+      const registerEntity = (async () => {
+        const x = pathStr
+        const element = await this.manager.getItem(x)
         await this.pixi.registerEntity(entity, pathStr)
       })()
-      promises.push(cacheimg)
+      promises.push(registerEntity)
       this.ECS.addComponent(entity, position)
       this.ECS.addComponent(entity, size)
       this.ECS.addComponent(entity, texture)
