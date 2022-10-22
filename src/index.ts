@@ -1,31 +1,24 @@
-import { DFWad } from './df/resource/wad/dfwad'
-import convertedMap from './editor/game/converted-map'
-import ECSFromMap from './editor/game/map-as-entities'
-import EditorMap from './editor/map/map'
-import FileCategories from './file-category/file-categories'
+import Application from './application'
+import Dispatch from './dispatch/dispatch'
+import HTMLInterface from './gui'
 import pathSplit from './utility/split-path'
-const n = 30
 
+const app = new Application('store')
+const dispatch = new Dispatch()
+const gui = new HTMLInterface(dispatch)
+await app.init()
 
-fetch('./CTF_TORMENT2.dfz')
-  .then((x) => {
-    x.arrayBuffer().then(async (b) => {
-      const t3 = new DFWad(b, pathSplit('./CTF_TORMENT2.dfz').fileName)
-      await t3.init()
-      // console.log(t3)
-      const files = t3.filesForCategorising()
-      const categories = new FileCategories(files)
-      const c = await categories.getCategories()
-      const map = c.filter((x) => x.type === 'map').pop()
-      const content = t3.loadFileWithoutConverting((x) => x === map?.path)
-      if (map === undefined) throw new Error('Shit WAD!')
-      const mapObj = new convertedMap(content)
-      const mapParsed = new EditorMap(mapObj.getUnparsed())
-      console.log(mapParsed)
-      const canvas = document.createElement('canvas')
-      document.body.append(canvas)
-      const ecs = new ECSFromMap(mapParsed, canvas)
-      await ecs.init()
-    })
-  })
-  .catch()
+const tab = app.registerNewTab()
+const test = './CTF_TORMENT2.dfz'
+const path = pathSplit(test)
+const response = await fetch(test)
+const buffer = await response.arrayBuffer()
+await app.loadWad(tab, buffer, path.fileName)
+gui.addOptionsToMapSelect(await app.getMaps(tab))
+const canvas = await gui.allocateCanvas(tab)
+await gui.setActiveCanvas(tab)
+
+dispatch.on('onmapselect', async (name: unknown) => {
+  if (typeof name !== 'string') throw new Error('Invalid return value!')
+  await app.loadMap(tab, name, canvas)
+})

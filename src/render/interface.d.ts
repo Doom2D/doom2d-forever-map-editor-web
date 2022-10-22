@@ -18,6 +18,7 @@ interface Renderer {
   update(): void
   clear(): void
   resize(width: number, height: number): void
+  lastMousePosition(): { x: number, y: number }
 }
 
 export { Renderer, RenderOptions }

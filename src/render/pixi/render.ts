@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js'
+import { Viewport } from 'pixi-viewport'
 
 import ResourceManager from '../../resource-manager/resource-manager'
 import { type Renderer, type RenderOptions } from '../interface'
@@ -12,14 +13,49 @@ class Pixi implements Renderer {
 
   private readonly resourceManager: ResourceManager
 
+  private readonly viewport: Viewport
+
+  private readonly coords = {
+    screen: {
+      x: -1,
+      y: -1,
+    },
+
+    world: {
+      x: -1,
+      y: -1,
+    }
+  }
+
   public constructor(private readonly src: Readonly<HTMLCanvasElement>) {
     this.renderer = new PIXI.Renderer({
-      width: 800,
-      height: 600,
+      width: src.clientWidth,
+      height: src.clientHeight,
       backgroundColor: 0x00_57_b7,
       view: this.src,
+      antialias: false,
     })
+    this.viewport = new Viewport({
+      screenWidth: src.clientWidth,
+      screenHeight: src.clientHeight,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      interaction: this.renderer.plugins.interaction as PIXI.InteractionManager,
+    })
+    this.stage.addChild(this.viewport)
+    this.viewport.drag().pinch().wheel().decelerate()
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
     this.resourceManager = new ResourceManager()
+  }
+
+  public lastMousePosition(): { x: number; y: number } {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const interaction = this.renderer.plugins
+      .interaction as PIXI.InteractionManager
+    const a = this.viewport.toWorld(
+      interaction.mouse.global.x,
+      interaction.mouse.global.y
+    )
+    return { x: a.x, y: a.y }
   }
 
   public init() {
@@ -44,6 +80,7 @@ class Pixi implements Renderer {
 
   public resize(width: number, height: number): void {
     this.renderer.resize(width, height)
+    this.viewport.resize(width, height)
   }
 
   private entityToString(n: number) {
@@ -59,6 +96,7 @@ class Pixi implements Renderer {
         )) as PIXI.Texture
         const sprite = new PIXI.TilingSprite(texture)
         await this.resourceManager.saveItem(entityString, sprite)
+        sprite.interactive = true
       }
     } catch {
       const graphics = new PIXI.Graphics()
@@ -68,6 +106,7 @@ class Pixi implements Renderer {
       graphics.endFill()
       const texture = this.renderer.generateTexture(graphics)
       const sprite = new PIXI.TilingSprite(texture)
+      sprite.interactive = true
       await this.resourceManager.saveItem(entityString, sprite)
     }
   }
@@ -92,12 +131,11 @@ class Pixi implements Renderer {
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(options.entity)
     )) as PIXI.TilingSprite
-    sprite.position.x = options.x
-    sprite.position.y = options.y
+    sprite.position.set(options.x, options.y)
     sprite.width = options.w
     sprite.height = options.h
-    if (sprite.parent !== this.stage) {
-      this.stage.addChild(sprite)
+    if (sprite.parent !== this.viewport) {
+      this.viewport.addChild(sprite)
     }
   }
 }
