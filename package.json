@@ -56,7 +56,7 @@
     "source": "src/index.html",
     "browserslist": "IE 11",
     "scripts": {
-        "clear": "rm dist/*.js; rm dist/*.map; rm dist/*.html; rm dist/*.ts",
+        "clear": "rm dist/*.js; rm dist/*.map; rm dist/*.html; rm dist/*.ts; rm dist/*.css",
         "build": "parcel build src/index.html"
     }
 }
