@@ -1,4 +1,5 @@
 import type Dispatch from './dispatch/dispatch'
+import type { RenderRulesKey } from './editor/render/rules/rules'
 import ResourceManager from './resource-manager/resource-manager'
 
 class HTMLInterface {
@@ -51,10 +52,30 @@ class HTMLInterface {
     }
   }
 
+  public changeRenderFlagsNames(opts: Record<string, RenderRulesKey>) {
+    for (const [k, v] of Object.entries(opts)) {
+      const element = document.querySelector(`#${v}_LABEL`)
+      if (element === null) throw new Error('Invalid DOM element!')
+      element.textContent = k
+    }
+  }
+
   private addCallbacks() {
     this.mapSelect.addEventListener('change', () => {
       this.dispatch.dispatch('onmapselect', this.mapSelect.value)
     })
+
+    const checkboxes = document.querySelectorAll<HTMLInputElement>('.rulebox')
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of, unicorn/no-for-loop
+    for (let i = 0; i < checkboxes.length; i += 1) {
+      const elem = checkboxes[i]
+      elem.addEventListener('change', (event) => {
+        this.dispatch.dispatch('onruleselect', {
+          id: event.currentTarget.id,
+          value: event.currentTarget.checked,
+        })
+      })
+    }
   }
 
   public async setActiveCanvas(tab: number) {

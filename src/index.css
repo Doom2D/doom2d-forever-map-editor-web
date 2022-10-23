@@ -25,8 +25,7 @@ html, body {
 #tools {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+	align-items: left;
 	flex-wrap: wrap;
 	overflow: auto;
 	width: 580px;
@@ -66,7 +65,7 @@ html, body {
 	
 	#tools {
 		display: flex;
-		align-items: center;
+		align-items: left;
 		overflow: auto;
 		width: 100%;
 		height: 240px;
@@ -94,6 +93,24 @@ html, body {
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
+}
+
+#doomlogo {
+	align-self: center;
+}
+
+#layersdiv {
+	display: flex;
+	flex-direction: column;
+	align-items: left;
+	justify-content: left;
+	flex-wrap: wrap;
+	overflow: auto;
+	transition: width .8s;
+}
+
+.layersubdiv {
+	margin-left: 10%
 }
 
 #line {

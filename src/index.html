@@ -24,12 +24,18 @@
     <div id="tools">
 			<img id="doomlogo" src="http://doom2d.org/landing/img/logo350.png" alt="Paris" class="center">
 			<hr id="line"/>
-			<div id="mapdiv">
+			<div id="mapdiv" class="menudiv">
 				<button type="button" id="left-arrow">&lt</button>
 				<select name="map" id="map">
 					<option value="emptyoption">---</option>
 				</select>
 				<button type="button" id="right-arrow">&gt</button>
+			</div>
+			<div id="layersdiv">
+				<div class="layersubdiv" ><input class="rulebox" type="checkbox" id="HIDDEN" checked/><label id="HIDDEN_LABEL"></label></div>
+				<div class="layersubdiv" ><input class="rulebox" type="checkbox" id="BACKGROUND" checked/><label id="BACKGROUND_LABEL"></label></div>
+				<div class="layersubdiv" ><input class="rulebox" type="checkbox" id="WALL" checked></input><label id="WALL_LABEL"></label></div>
+				<div class="layersubdiv" ><input class="rulebox" type="checkbox" id="FOREGROUND"checked/><label id="FOREGROUND_LABEL"></label></div>
 			</div>
 		</div>
     <div id="area"></div>

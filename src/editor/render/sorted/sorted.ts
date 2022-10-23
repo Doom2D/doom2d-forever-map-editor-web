@@ -13,16 +13,26 @@ class SortedMapElements {
   public givePanels() {
     const arr: Panel[] = []
     for (const [, v] of Object.entries(this.src.givePanels())) {
+      const x = v.giveRenderOrder()
+      if (v.giveFlags().includes(panelFlags.HIDE)) continue
       if (
         this.rules.includes('HIDDEN') &&
-        (v.giveRenderOrder() === RenderOrder.HIDDEN ||
-          v.giveFlags().includes(panelFlags.HIDE))
+        (x === RenderOrder.HIDDEN || v.giveFlags().includes(panelFlags.HIDE))
       ) {
+        continue
+      }
+      if (this.rules.includes('WALL') && x === RenderOrder.WALL) {
+        continue
+      }
+      if (this.rules.includes('FOREGROUND') && x === RenderOrder.FORE) {
+        continue
+      }
+      if (this.rules.includes('BACKGROUND') && x === RenderOrder.BACK) {
         continue
       }
       arr.push(v)
     }
-    return arr
+    return arr.slice().sort((a, b) => a.giveRenderOrder() - b.giveRenderOrder())
   }
 }
 

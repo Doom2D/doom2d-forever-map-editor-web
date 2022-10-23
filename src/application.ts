@@ -5,6 +5,7 @@ import convertedMap from './editor/game/converted-map'
 import ECSFromMap from './editor/game/map-as-entities'
 import imagesFromWad from './editor/game/wad-images'
 import EditorMap from './editor/map/map'
+import { type RenderRulesKey } from './editor/render/rules/rules'
 import { FileCategories } from './file-category/file-categories'
 import ResourceManager from './resource-manager/resource-manager'
 
@@ -12,6 +13,8 @@ class Application {
   private readonly manager: ResourceManager
 
   private readonly tabs: number[] = []
+
+  private loadedMap: ECSFromMap | undefined
 
   public constructor(private readonly store: string) {
     this.manager = new ResourceManager(this.store)
@@ -30,6 +33,16 @@ class Application {
   public getMapJSON(src: Readonly<ArrayBuffer | string>) {
     const mapObj = new convertedMap(src)
     return mapObj.getUnparsed()
+  }
+
+  public async updateRenderRule(opt: RenderRulesKey, remove: boolean) {
+    if (this.loadedMap === undefined) throw new Error('Tried to change render rules before a map is loaded!')
+    if (remove) {
+      this.loadedMap.addRule(opt)
+    } else {
+      this.loadedMap.removeRule(opt)
+    }
+    await this.loadedMap.reload()
   }
 
   public async loadWad(tab: number, src: Readonly<ArrayBuffer>, name: string) {
@@ -60,8 +73,8 @@ class Application {
       promises.push(func)
     }
     await Promise.all(promises)
-    const ecs = new ECSFromMap(parsed, src, this.manager)
-    await ecs.init()
+    this.loadedMap = new ECSFromMap(parsed, src, this.manager)
+    await this.loadedMap.start()
   }
 
   public async getMaps(tab: number) {

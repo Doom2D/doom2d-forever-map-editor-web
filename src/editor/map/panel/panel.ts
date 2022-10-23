@@ -52,6 +52,14 @@ class Panel {
     return this.flag.giveFlags()
   }
 
+  public giveType() {
+    return this.type
+  }
+
+  public giveFlag() {
+    return this.flag
+  }
+
   public giveRenderOrder() {
     return this.type.giveRenderOrder()
   }

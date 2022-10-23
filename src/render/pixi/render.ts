@@ -13,7 +13,7 @@ class Pixi implements Renderer {
 
   private readonly resourceManager: ResourceManager
 
-  private readonly viewport: Viewport
+  private viewport: Viewport
 
   private readonly coords = {
     screen: {
@@ -65,17 +65,26 @@ class Pixi implements Renderer {
     this.ticker.start()
   }
 
-  public deleteEntity(n: number): void {
-    throw new Error('This method is not defined!')
-  }
-
   public update(): void {
     this.renderer.render(this.stage)
   }
 
   public clear(): void {
+    this.viewport.removeAllListeners()
+    this.viewport.removeChildren()
+    this.stage.removeAllListeners()
+    this.stage.removeChildren()
+    this.viewport.destroy()
     this.stage.destroy(true)
     this.stage = new PIXI.Container()
+    this.viewport = new Viewport({
+      screenWidth: this.src.clientWidth,
+      screenHeight: this.src.clientHeight,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      interaction: this.renderer.plugins.interaction as PIXI.InteractionManager,
+    })
+    this.viewport.drag().pinch().wheel().decelerate()
+    this.stage.addChild(this.viewport)
   }
 
   public resize(width: number, height: number): void {
@@ -118,6 +127,16 @@ class Pixi implements Renderer {
     const baseTexture = new PIXI.BaseTexture(src)
     const texture = new PIXI.Texture(baseTexture)
     await this.resourceManager.saveItem(key, texture)
+  }
+
+  public async deleteEntity(n: number): void {
+    const entityString = this.entityToString(n)
+    if (!this.resourceManager.cachedAtKey(entityString)) return
+    const sprite = (await this.resourceManager.getItem(
+      entityString
+    )) as PIXI.TilingSprite
+    // eslint-disable-next-line unicorn/prefer-dom-node-remove
+    this.viewport.removeChild(sprite)
   }
 
   public async render(options: Readonly<RenderOptions>): void {
