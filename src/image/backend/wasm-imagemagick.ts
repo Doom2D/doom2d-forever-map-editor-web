@@ -1,5 +1,5 @@
 import { call } from 'wasm-imagemagick'
-import { lookup } from 'mime-types'
+import { getExtension } from 'mime' 
 
 import getFileType from '../../utility/get-file-type'
 
@@ -11,8 +11,8 @@ class WasmImagemagickImageManipulation {
 
   private getSrcOpt() {
     const type = getFileType(this.src)
-    const response = lookup(type)
-    return typeof response === 'boolean' ? this.target : response
+    const response = getExtension(type)
+    return response ?? this.target
   }
 
   private async process(args: Readonly<string[]>, solo = false) {
