@@ -1,10 +1,15 @@
-import magickWasmImageManipulation from './backend/magick-wasm'
+import WasmImagemagickImageManipulation from './backend/wasm-imagemagick'
 
 class imageResized {
-  public constructor(private readonly src: ArrayBuffer, private readonly ext: string, private readonly width: number, private readonly height: number) {}
+  public constructor(
+    private readonly src: Readonly<ArrayBuffer>,
+    private readonly ext: string,
+    private readonly width: number,
+    private readonly height: number
+  ) {}
 
   public async getResized() {
-    const a = new magickWasmImageManipulation(this.src, this.ext)
+    const a = new WasmImagemagickImageManipulation(this.src, this.ext)
     return await a.resize(this.width, this.height)
   }
 }

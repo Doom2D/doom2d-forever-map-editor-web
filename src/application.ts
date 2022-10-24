@@ -1,9 +1,6 @@
-import { initializeImageMagick } from '@imagemagick/magick-wasm'
-
 import { DFWad } from './df/resource/wad/dfwad'
 import convertedMap from './editor/game/converted-map'
 import ECSFromMap from './editor/game/map-as-entities'
-import imagesFromWad from './editor/game/wad-images'
 import wadResourcesSaved from './editor/game/wad-resources-saved'
 import EditorMap from './editor/map/map'
 import { type RenderRulesKey } from './editor/render/rules/rules'
@@ -87,7 +84,6 @@ class Application {
   }
 
   public async init() {
-    await initializeImageMagick()
     await this.manager.init()
   }
 }

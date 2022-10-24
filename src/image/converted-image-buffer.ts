@@ -1,4 +1,4 @@
-import magickWasmImageManipulation from './backend/magick-wasm'
+import WasmImagemagickImageManipulation from './backend/wasm-imagemagick'
 
 class convertedImageBuffer {
   public constructor(
@@ -7,7 +7,10 @@ class convertedImageBuffer {
   ) {}
 
   public async giveConvertedBuffer() {
-    const a = new magickWasmImageManipulation(this.src, this.targetExtension)
+    const a = new WasmImagemagickImageManipulation(
+      this.src,
+      this.targetExtension
+    )
     return await a.convertToTarget()
   }
 }
