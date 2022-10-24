@@ -46,6 +46,39 @@ class Application {
     this.loadedMap.reload()
   }
 
+  public async saveImages(tab: number, persistent = false) {
+    const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
+    const imgs = new imagesFromWad(wad)
+    const prepare = await imgs.prepareImages()
+    const promises: Promise<unknown>[] = []
+    for (const [, v] of Object.entries(prepare)) {
+      if (persistent) {
+        const func1 = this.manager.saveItem(
+          v.file.path.asThisEditorPath(false),
+          v.image,
+          true,
+          false
+        )
+        const func2 = this.manager.saveItem(
+          v.file.path.asThisEditorPath(false),
+          v.buffer,
+          false,
+          true
+        )
+        promises.push(func1, func2)
+      } else {
+        const func = this.manager.saveItem(
+          v.file.path.asThisEditorPath(false),
+          v.image,
+          true,
+          false
+        )
+        promises.push(func)
+      }
+    }
+    await Promise.all(promises)
+  }
+
   public async loadWad(tab: number, src: Readonly<ArrayBuffer>, name: string) {
     const wad = new DFWad(src, name)
     await wad.init()
@@ -66,14 +99,7 @@ class Application {
       throw new Error('Invalid map path!')
     }
     const parsed = new EditorMap(new convertedMap(file).getUnparsed())
-    const imgs = new imagesFromWad(wad)
-    const prepare = await imgs.prepareImages()
-    const promises: Promise<unknown>[] = []
-    for (const [, v] of Object.entries(prepare)) {
-      const func = this.manager.saveItem(v.file.path.asThisEditorPath(false), v.image, true)
-      promises.push(func)
-    }
-    await Promise.all(promises)
+    await this.saveImages(tab, true)
     this.loadedMap = new ECSFromMap(parsed, src, this.manager)
     await this.loadedMap.start()
   }

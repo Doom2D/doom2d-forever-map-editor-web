@@ -108,7 +108,7 @@ class Pixi implements Renderer {
           imgKey
         )) as PIXI.Texture
         const sprite = new PIXI.TilingSprite(texture)
-        await this.resourceManager.saveItem(entityString, sprite)
+        await this.resourceManager.saveItem(entityString, sprite, true)
         sprite.interactive = true
       }
     } catch {
@@ -120,7 +120,7 @@ class Pixi implements Renderer {
       const texture = this.renderer.generateTexture(graphics)
       const sprite = new PIXI.TilingSprite(texture)
       sprite.interactive = true
-      await this.resourceManager.saveItem(entityString, sprite)
+      await this.resourceManager.saveItem(entityString, sprite, true)
     }
   }
 
@@ -130,7 +130,7 @@ class Pixi implements Renderer {
   ): Promise<void> {
     const baseTexture = new PIXI.BaseTexture(src)
     const texture = new PIXI.Texture(baseTexture)
-    await this.resourceManager.saveItem(key, texture)
+    await this.resourceManager.saveItem(key, texture, true)
   }
 
   public async deleteEntity(n: number): void {

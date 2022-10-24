@@ -16,9 +16,11 @@ class ResourceManager {
     return this.getCached(key) !== undefined
   }
 
-  public async saveItem(key: string, value: unknown, justCache = false) {
-    this.cacheObject[key] = value
-    if (this.db !== undefined && !justCache) {
+  public async saveItem(key: string, value: unknown, cache = false, persist = false) {
+    if (cache) {
+      this.cacheObject[key] = value
+    }
+    if (this.db !== undefined && persist) {
       await this.db.saveByPath(value, key)
     }
   }
