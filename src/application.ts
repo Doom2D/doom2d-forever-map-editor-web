@@ -35,7 +35,7 @@ class Application {
     return mapObj.getUnparsed()
   }
 
-  public async updateRenderRule(opt: RenderRulesKey, remove: boolean) {
+  public updateRenderRule(opt: RenderRulesKey, remove: boolean) {
     if (this.loadedMap === undefined) throw new Error('Tried to change render rules before a map is loaded!')
     if (remove) {
       this.loadedMap.addRule(opt)
