@@ -6,11 +6,12 @@ const RenderOrder = {
   ITEM: 3,
   MONSTER: 4,
   WALL: 5,
-  AREA: 6,
-  OPENDOOR: 7,
-  LIQUID: 8,
-  FORE: 9,
-  TRIGGER: 10,
+  CLOSEDOOR: 6,
+  AREA: 7,
+  OPENDOOR: 8,
+  LIQUID: 9,
+  FORE: 10,
+  TRIGGER: 11,
 } as const
 
 type RenderOrderKey = typeof RenderOrder[keyof typeof RenderOrder]

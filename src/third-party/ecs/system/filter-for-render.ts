@@ -56,6 +56,21 @@ class RenderFilter extends System {
           shouldRender.setForRender(false)
           continue
         }
+        if (
+          this.rules.includes('DOOR') &&
+          (x === RenderOrder.OPENDOOR || x === RenderOrder.CLOSEDOOR)
+        ) {
+          shouldRender.setForRender(false)
+          continue
+        }
+        if (this.rules.includes('LIQUID') && x === RenderOrder.LIQUID) {
+          shouldRender.setForRender(false)
+          continue
+        }
+        if (this.rules.includes('STEP') && x === RenderOrder.STEP) {
+          shouldRender.setForRender(false)
+          continue
+        }
         shouldRender.setForRender(true)
       }
     }

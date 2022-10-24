@@ -8,6 +8,9 @@ class English implements Localization {
     'Background ': RenderRules.RENDER_BACKGROUND,
     'Walls ': RenderRules.RENDER_WALL,
     'Foreground ': RenderRules.RENDER_FOREGROUND,
+    'Liquid ': RenderRules.RENDER_LIQUID,
+    'Steps ': RenderRules.RENDER_STEP,
+    'Doors ': RenderRules.RENDER_DOOR,
   })
 }
 

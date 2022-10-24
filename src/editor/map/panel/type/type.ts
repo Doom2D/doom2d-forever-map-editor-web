@@ -21,8 +21,11 @@ class PanelType {
     if (x === 'PANEL_BACK') {
       return RenderOrder.BACK
     }
-    if (x === 'PANEL_WALL' || x === 'PANEL_CLOSEDOOR') {
+    if (x === 'PANEL_WALL') {
       return RenderOrder.WALL
+    }
+    if (x === 'PANEL_CLOSEDOOR') {
+      return RenderOrder.CLOSEDOOR
     }
     if (x === 'PANEL_STEP') {
       return RenderOrder.STEP
