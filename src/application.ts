@@ -4,6 +4,7 @@ import { DFWad } from './df/resource/wad/dfwad'
 import convertedMap from './editor/game/converted-map'
 import ECSFromMap from './editor/game/map-as-entities'
 import imagesFromWad from './editor/game/wad-images'
+import wadResourcesSaved from './editor/game/wad-resources-saved'
 import EditorMap from './editor/map/map'
 import { type RenderRulesKey } from './editor/render/rules/rules'
 import { FileCategories } from './file-category/file-categories'
@@ -48,35 +49,8 @@ class Application {
 
   public async saveImages(tab: number, persistent = false) {
     const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
-    const imgs = new imagesFromWad(wad)
-    const prepare = await imgs.prepareImages()
-    const promises: Promise<unknown>[] = []
-    for (const [, v] of Object.entries(prepare)) {
-      if (persistent) {
-        const func1 = this.manager.saveItem(
-          v.file.path.asThisEditorPath(false),
-          v.image,
-          true,
-          false
-        )
-        const func2 = this.manager.saveItem(
-          v.file.path.asThisEditorPath(false),
-          v.buffer,
-          false,
-          true
-        )
-        promises.push(func1, func2)
-      } else {
-        const func = this.manager.saveItem(
-          v.file.path.asThisEditorPath(false),
-          v.image,
-          true,
-          false
-        )
-        promises.push(func)
-      }
-    }
-    await Promise.all(promises)
+    const saved = new wadResourcesSaved(wad, this.manager)
+    await saved.save(true, true)
   }
 
   public async loadWad(tab: number, src: Readonly<ArrayBuffer>, name: string) {

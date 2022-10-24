@@ -21,16 +21,14 @@ class wadResourcesSaved {
     return this.saved
   }
 
-  public async save() {
+  public async save(cache: boolean, persist: boolean) {
     const images = await this.images.prepareImages()
     const promises: Promise<boolean>[] = []
-    for (const [, v] of Object.entries(images)) {
+    for (const [, x] of Object.entries(images)) {
       promises.push(
         (async () => {
+          const v = x
           if (v.full !== undefined) {
-            const infoPath = `${v.file.path.asThisEditorPath()}[INFO]`
-            const fullPath = `${v.file.path.asThisEditorPath()}[FULL]`
-            const viewPath = v.file.path.asThisEditorPath()
             const animationWad = this.src.loadFileAsArrayBuffer((a) =>
               compareResourcePaths(a, v.file.path)
             )
@@ -38,24 +36,49 @@ class wadResourcesSaved {
               throw new Error('Error saving animtexture!')
             const animTexture = new AnimTexture(animationWad)
             await animTexture.init()
-            const saveInfo = (async () => {
+            if (cache) {
               await this.m.saveItem(
-                infoPath,
-                JSON.stringify(animTexture.giveInfo())
+                v.file.path.asThisEditorPath(false),
+                v.image,
+                true,
+                false
               )
-              return true
-            })()
-            const saveFull = (async () => {
-              await this.m.saveItem(fullPath, v.full)
-              return true
-            })()
-            const saveView = (async () => {
-              await this.m.saveItem(viewPath, v.buffer)
-              return true
-            })()
-            await Promise.all([saveInfo, saveFull, saveView])
+            }
+            if (persist) {
+              const infoPath = `${v.file.path.asThisEditorPath(true)}[INFO]`
+              const fullPath = `${v.file.path.asThisEditorPath(true)}[FULL]`
+              const saveInfo = (async () => {
+                await this.m.saveItem(
+                  infoPath,
+                  JSON.stringify(animTexture.giveInfo()),
+                  false,
+                  true
+                )
+                return true
+              })()
+              const saveFull = (async () => {
+                await this.m.saveItem(fullPath, v.full, false, true)
+                return true
+              })()
+              await Promise.all([saveInfo, saveFull])
+            }
           } else {
-            await this.m.saveItem(v.file.path.asThisEditorPath(), v.buffer)
+            if (cache) {
+              await this.m.saveItem(
+                v.file.path.asThisEditorPath(false),
+                v.image,
+                true,
+                false
+              )
+            }
+            if (persist) {
+              await this.m.saveItem(
+                v.file.path.asThisEditorPath(true),
+                v.buffer,
+                false,
+                true
+              )
+            }
           }
           return true
         })()
