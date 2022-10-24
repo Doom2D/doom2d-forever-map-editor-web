@@ -58,6 +58,10 @@ class ECSFromMap {
     this.filterSystem.newRules(this.renderRules)
   }
 
+  public removeChildren() {
+    this.pixi.deregisterAll()
+  }
+
   public reload() {
     this.ECS.update()
   }

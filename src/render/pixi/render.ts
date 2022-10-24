@@ -69,6 +69,10 @@ class Pixi implements Renderer {
     this.renderer.render(this.stage)
   }
 
+  public deregisterAll() {
+    this.viewport.removeChildren()
+  }
+
   public clear(): void {
     this.viewport.removeAllListeners()
     this.viewport.removeChildren()

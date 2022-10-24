@@ -42,7 +42,8 @@ class Application {
     } else {
       this.loadedMap.removeRule(opt)
     }
-    await this.loadedMap.reload()
+    this.loadedMap.removeChildren()
+    this.loadedMap.reload()
   }
 
   public async loadWad(tab: number, src: Readonly<ArrayBuffer>, name: string) {
