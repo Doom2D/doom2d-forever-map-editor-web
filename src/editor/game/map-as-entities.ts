@@ -100,7 +100,7 @@ class ECSFromMap {
     this.ECS.addSystem(this.filterSystem)
     this.ECS.addSystem(this.renderSystem)
     const info = this.map.giveMetaInfo()
-    this.resizeRender(info.width, info.height)
+    this.resizeRender(this.drawSrc.width, this.drawSrc.height)
     await this.cacheImagesForRender()
     this.ECS.update()
   }
