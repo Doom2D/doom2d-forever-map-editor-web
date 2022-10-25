@@ -12,6 +12,7 @@ import PanelTypeComponent from '../../third-party/ecs/component/panel-type'
 import PanelFlags from '../../third-party/ecs/component/panel-flag'
 import RenderFilter from '../../third-party/ecs/system/filter-for-render'
 import { type RenderRulesKey } from '../render/rules/rules'
+import type Bild from '../../image/bild'
 
 // more like a Tab
 class ECSFromMap {
@@ -110,7 +111,8 @@ class ECSFromMap {
       const pathStr = v.givePath().asThisEditorPath(false)
       const cacheImage = (async () => {
         const x = pathStr
-        const element = await this.manager.getItem(x)
+        const element = await this.manager.getItem(x) as HTMLImageElement | null
+        if (element === null) return
         await this.renderSystem.saveImage(x, element)
       })()
       promises.push(cacheImage)

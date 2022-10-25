@@ -1,6 +1,7 @@
 import { DFWad } from './df/resource/wad/dfwad'
 import convertedMap from './editor/game/converted-map'
 import ECSFromMap from './editor/game/map-as-entities'
+import mapResourcesCached from './editor/game/map-resources-cached'
 import wadResourcesSaved from './editor/game/wad-resources-saved'
 import EditorMap from './editor/map/map'
 import { type RenderRulesKey } from './editor/render/rules/rules'
@@ -44,10 +45,16 @@ class Application {
     this.loadedMap.reload()
   }
 
-  public async saveImages(tab: number, persistent = false) {
+  public async saveWadImages(tab: number, persistent = false) {
     const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
     const saved = new wadResourcesSaved(wad, this.manager)
     await saved.save(true, true)
+  }
+
+  public async saveMapImages(tab: number, map: Readonly<EditorMap>) {
+    const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
+    const cached = new mapResourcesCached(wad, map, this.manager)
+    await cached.save(true, false)
   }
 
   public async loadWad(tab: number, src: Readonly<ArrayBuffer>, name: string) {
@@ -70,7 +77,7 @@ class Application {
       throw new Error('Invalid map path!')
     }
     const parsed = new EditorMap(new convertedMap(file).getUnparsed())
-    await this.saveImages(tab, true)
+    await this.saveMapImages(tab, parsed)
     this.loadedMap = new ECSFromMap(parsed, src, this.manager)
     await this.loadedMap.start()
   }

@@ -13,11 +13,12 @@ gui.changeRenderFlagsNames(localization.getRenderRules())
 await app.init()
 
 const tab = app.registerNewTab()
-const test = './CTF_TORMENT2.dfz'
+const test = './doom2d.wad'
 const path = pathSplit(test)
 const response = await fetch(test)
 const buffer = await response.arrayBuffer()
 await app.loadWad(tab, buffer, path.fileName)
+await app.saveWadImages(tab, true)
 gui.addOptionsToMapSelect(await app.getMaps(tab))
 const canvas = await gui.allocateCanvas(tab)
 await gui.setActiveCanvas(tab)
