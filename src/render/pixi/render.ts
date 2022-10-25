@@ -4,6 +4,10 @@ import { Viewport } from 'pixi-viewport'
 import ResourceManager from '../../resource-manager/resource-manager'
 import { type Renderer, type RenderOptions } from '../interface'
 
+const darken = `B.r = min(Cb.r, Cs.r)
+B.g = min(Cb.g, Cs.g)
+B.r = min(Cb.r, Cs.r)`
+
 class Pixi implements Renderer {
   private readonly renderer: PIXI.Renderer
 
@@ -102,25 +106,42 @@ class Pixi implements Renderer {
 
   public async registerEntity(n: number, imgKey: string): Promise<void> {
     const entityString = this.entityToString(n)
-    try {
-      if (!this.resourceManager.cachedAtKey(entityString)) {
-        const texture = (await this.resourceManager.getItem(
-          imgKey
-        )) as PIXI.Texture
-        const sprite = new PIXI.TilingSprite(texture)
-        await this.resourceManager.saveItem(entityString, sprite, true)
-        sprite.interactive = true
+    console.log(imgKey)
+    if (imgKey === '[]_water_0' || imgKey === '[]_water_1' || imgKey === '[]_water_2') {
+      const sprite =new PIXI.TilingSprite(PIXI.Texture.WHITE)
+      if (imgKey === '[]_water_0') {
+        sprite.tint = 0x00_00_ff
+      } else if (imgKey === '[]_water_1') {
+        sprite.tint = 0x00_e0_00
+      } else if (imgKey === '[]_water_2') {
+        sprite.tint = 0xe0_00_00
       }
-    } catch {
-      const graphics = new PIXI.Graphics()
-      graphics.beginFill(0xff_dd_00)
-      graphics.lineStyle(5, 0xff_dd_00)
-      graphics.drawRect(0, 0, 1, 1)
-      graphics.endFill()
-      const texture = this.renderer.generateTexture(graphics)
-      const sprite = new PIXI.TilingSprite(texture)
       sprite.interactive = true
+      // sprite.blendMode = PIXI.BLEND_MODES.SCREEN
+      sprite.filters = [new PIXI.Filter(undefined, darken)]
+      sprite.alpha = 0.93
       await this.resourceManager.saveItem(entityString, sprite, true)
+    } else {
+      try {
+        if (!this.resourceManager.cachedAtKey(entityString)) {
+          const texture = (await this.resourceManager.getItem(
+            imgKey
+          )) as PIXI.Texture
+          const sprite = new PIXI.TilingSprite(texture)
+          await this.resourceManager.saveItem(entityString, sprite, true)
+          sprite.interactive = true
+        }
+      } catch {
+        const graphics = new PIXI.Graphics()
+        graphics.beginFill(0xff_dd_00)
+        graphics.lineStyle(5, 0xff_dd_00)
+        graphics.drawRect(0, 0, 1, 1)
+        graphics.endFill()
+        const texture = this.renderer.generateTexture(graphics)
+        const sprite = new PIXI.TilingSprite(texture)
+        sprite.interactive = true
+        await this.resourceManager.saveItem(entityString, sprite, true)
+      }
     }
   }
 
