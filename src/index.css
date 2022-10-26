@@ -116,3 +116,18 @@ html, body {
 #line {
 	width: 90%; 
 }
+
+#select-import {
+	min-width: 15%
+}
+
+#select-export {
+	min-width: 15%
+}
+
+#select-file {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}

@@ -10,6 +10,8 @@ const dispatch = new Dispatch()
 const gui = new HTMLInterface(dispatch)
 const localization = new English()
 gui.changeRenderFlagsNames(localization.getRenderRules())
+gui.changeImportExportNames(localization.getImportExport())
+gui.tick()
 await app.init()
 
 const tab = app.registerNewTab()
@@ -38,3 +40,5 @@ dispatch.on('onruleselect', async (msg: unknown) => {
     throw new Error('Invalid message passed to dispatch!')
   await app.updateRenderRule(msg.id, !msg.value)
 })
+
+dispatch.on('onimportclick', () => {})

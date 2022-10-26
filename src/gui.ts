@@ -2,6 +2,14 @@ import type Dispatch from './dispatch/dispatch'
 import type { RenderRulesKey } from './editor/render/rules/rules'
 import ResourceManager from './resource-manager/resource-manager'
 
+const guiStates = {
+  INIT: 0,
+  WAIT_FOR_LOAD: 1,
+  LOADED: 2
+} as const
+
+type guiStatesKey = typeof guiStates[keyof typeof guiStates]
+
 class HTMLInterface {
   public readonly mapdiv: HTMLDivElement
 
@@ -13,23 +21,51 @@ class HTMLInterface {
 
   public readonly area: HTMLDivElement
 
+  private readonly tools: HTMLDivElement
+
   private readonly manager: ResourceManager
+
+  private readonly doomlogo: HTMLImageElement
+
+  private readonly line: HTMLHRElement
+
+  private readonly selectDiv: HTMLDivElement
+
+  private readonly importButton: HTMLButtonElement
+
+  private readonly exportButton: HTMLButtonElement
+
+  private state: guiStatesKey = guiStates.INIT
 
   private activeCanvas: HTMLCanvasElement | undefined
 
   public constructor(private readonly dispatch: Readonly<Dispatch>) {
+    const doomlogo = document.querySelector<HTMLImageElement>('#doomlogo')
+    const line = document.querySelector<HTMLHRElement>('#line')
     const mapdiv = document.querySelector<HTMLDivElement>('#mapdiv')
     const leftbutton = document.querySelector<HTMLButtonElement>('#left-arrow')
     const rightbutton =
       document.querySelector<HTMLButtonElement>('#right-arrow')
+    const tools = document.querySelector<HTMLDivElement>('#tools')
     const area = document.querySelector<HTMLDivElement>('#area')
     const mapselect = document.querySelector<HTMLSelectElement>('#map')
+    const selectDiv = document.querySelector<HTMLDivElement>('#select-file')
+    const importButton =
+      document.querySelector<HTMLButtonElement>('#select-import')
+    const exportButton =
+      document.querySelector<HTMLButtonElement>('#select-export')
     if (
       mapdiv === null ||
       leftbutton === null ||
       rightbutton === null ||
       mapselect === null ||
-      area === null
+      area === null ||
+      tools === null ||
+      doomlogo === null ||
+      line === null ||
+      selectDiv === null ||
+      importButton === null ||
+      exportButton === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -38,9 +74,21 @@ class HTMLInterface {
     this.rightMapButton = rightbutton
     this.mapSelect = mapselect
     this.area = area
+    this.tools = tools
+    this.doomlogo = doomlogo
+    this.line = line
+    this.selectDiv = selectDiv
+    this.importButton = importButton
+    this.exportButton = exportButton
     this.addCallbacks()
 
     this.manager = new ResourceManager()
+  }
+
+  public tick() {
+    if (this.state === guiStates.INIT) {
+      this.tools.replaceChildren(this.doomlogo, this.line, this.selectDiv)
+    }
   }
 
   public addOptionsToMapSelect(src: Readonly<string[]>) {
@@ -49,6 +97,18 @@ class HTMLInterface {
       option.value = v
       option.innerHTML = v
       this.mapSelect.append(option)
+    }
+  }
+
+  public changeImportExportNames(
+    opts: Readonly<Record<string, 'export' | 'import'>>
+  ) {
+    for (const [k, v] of Object.entries(opts)) {
+      if (v === 'export') {
+        this.exportButton.textContent = k
+      } else {
+        this.importButton.textContent = k
+      }
     }
   }
 
@@ -69,13 +129,17 @@ class HTMLInterface {
     // eslint-disable-next-line @typescript-eslint/prefer-for-of, unicorn/no-for-loop
     for (let i = 0; i < checkboxes.length; i += 1) {
       const elem = checkboxes[i]
-      elem.addEventListener('change', (event) => {
+      elem.addEventListener('change', () => {
         this.dispatch.dispatch('onruleselect', {
-          id: event.currentTarget.id,
-          value: event.currentTarget.checked,
+          id: elem.id,
+          value: elem.checked,
         })
       })
     }
+
+    this.importButton.addEventListener('click', () => {
+      this.dispatch.dispatch('onimportclick', {})
+    })
   }
 
   public async setActiveCanvas(tab: number) {
@@ -114,3 +178,5 @@ class HTMLInterface {
 }
 
 export default HTMLInterface
+
+export { HTMLInterface, guiStates, type guiStatesKey }

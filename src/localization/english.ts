@@ -12,6 +12,13 @@ class English implements Localization {
     'Steps ': RenderRules.RENDER_STEP,
     'Doors ': RenderRules.RENDER_DOOR,
   })
+
+  public getImportExport: () => Record<string, 'export' | 'import'> = () => {
+    return {
+      'Import ': 'import',
+      'Export ': 'export'
+    }
+  }
 }
 
 export default English
