@@ -5,7 +5,9 @@ import ResourceManager from './resource-manager/resource-manager'
 const guiStates = {
   INIT: 0,
   WAIT_FOR_LOAD: 1,
-  LOADED: 2
+  WAD_LOADED: 2,
+  IMPORT: 3,
+  EXPORT: 4,
 } as const
 
 type guiStatesKey = typeof guiStates[keyof typeof guiStates]
@@ -22,6 +24,8 @@ class HTMLInterface {
   public readonly area: HTMLDivElement
 
   private readonly tools: HTMLDivElement
+
+  private readonly layersDiv: HTMLDivElement
 
   private readonly manager: ResourceManager
 
@@ -48,6 +52,7 @@ class HTMLInterface {
       document.querySelector<HTMLButtonElement>('#right-arrow')
     const tools = document.querySelector<HTMLDivElement>('#tools')
     const area = document.querySelector<HTMLDivElement>('#area')
+    const layersDiv = document.querySelector<HTMLDivElement>('#layersdiv')
     const mapselect = document.querySelector<HTMLSelectElement>('#map')
     const selectDiv = document.querySelector<HTMLDivElement>('#select-file')
     const importButton =
@@ -65,7 +70,8 @@ class HTMLInterface {
       line === null ||
       selectDiv === null ||
       importButton === null ||
-      exportButton === null
+      exportButton === null ||
+      layersDiv === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -75,6 +81,7 @@ class HTMLInterface {
     this.mapSelect = mapselect
     this.area = area
     this.tools = tools
+    this.layersDiv = layersDiv
     this.doomlogo = doomlogo
     this.line = line
     this.selectDiv = selectDiv
@@ -87,7 +94,16 @@ class HTMLInterface {
 
   public tick() {
     if (this.state === guiStates.INIT) {
-      this.tools.replaceChildren(this.doomlogo, this.line, this.selectDiv)
+      this.tools.replaceChildren(this.doomlogo, this.selectDiv, this.line)
+    }
+    if (this.state === guiStates.WAD_LOADED) {
+      this.tools.replaceChildren(
+        this.doomlogo,
+        this.selectDiv,
+        this.line,
+        this.mapdiv,
+        this.layersDiv
+      )
     }
   }
 
@@ -118,6 +134,10 @@ class HTMLInterface {
       if (element === null) throw new Error('Invalid DOM element!')
       element.textContent = k
     }
+  }
+
+  public setState(state: guiStatesKey) {
+    this.state = state
   }
 
   private addCallbacks() {

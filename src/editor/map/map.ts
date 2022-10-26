@@ -26,7 +26,7 @@ class EditorMap {
 
   private readonly textures: Texture[] = []
 
-  public constructor(private readonly src: Readonly<Record<string, unknown>>) {
+  public constructor(private readonly src: Readonly<Record<string, unknown>>, private readonly filename: string) {
     const thisIsForLater: Record<string, unknown>[] = []
     for (const [k, v] of Object.entries(src)) {
       if (typeof v === 'string') {
@@ -49,7 +49,7 @@ class EditorMap {
           if (v._type === 'texture') {
             if (v.path === undefined || typeof v.path !== 'string')
               throw new Error('Invalid texture in parsed map!')
-            const path = ResourcePathFromGamePath(v.path)
+            const path = ResourcePathFromGamePath(v.path, this.filename)
             const animated = Boolean(v.animated ?? false)
             const texture = new Texture(path, animated)
             this.textures.push(texture)

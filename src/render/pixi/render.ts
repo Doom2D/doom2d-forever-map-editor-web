@@ -106,7 +106,6 @@ class Pixi implements Renderer {
 
   public async registerEntity(n: number, imgKey: string): Promise<void> {
     const entityString = this.entityToString(n)
-    console.log(imgKey)
     if (imgKey === '[]_water_0' || imgKey === '[]_water_1' || imgKey === '[]_water_2') {
       const sprite =new PIXI.TilingSprite(PIXI.Texture.WHITE)
       if (imgKey === '[]_water_0') {

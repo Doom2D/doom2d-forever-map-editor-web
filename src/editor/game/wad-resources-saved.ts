@@ -73,7 +73,7 @@ class wadResourcesSaved {
             }
             if (persist) {
               await this.m.saveItem(
-                v.file.path.asThisEditorPath(true),
+                `${v.file.path.asThisEditorPath(true)}[FULL]`,
                 v.buffer,
                 false,
                 true

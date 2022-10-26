@@ -45,7 +45,7 @@ class mapResourcesCached {
             const image = await loadImage(bild.giveBuffer())
             await this.m.saveItem(p.asThisEditorPath(false), image, true, false)
           } else {
-            const response = await this.m.getItem(p.asThisEditorPath(true))
+            const response = await this.m.getItem(`${p.asThisEditorPath(true)}[FULL]`)
             if (response === null)
               throw new Error('Error loading texture!')
             const bild = new Bild(response)

@@ -76,7 +76,7 @@ class Application {
     if (file === undefined) {
       throw new Error('Invalid map path!')
     }
-    const parsed = new EditorMap(new convertedMap(file).getUnparsed())
+    const parsed = new EditorMap(new convertedMap(file).getUnparsed(), wad.giveFilename())
     await this.saveMapImages(tab, parsed)
     this.loadedMap = new ECSFromMap(parsed, src, this.manager)
     await this.loadedMap.start()

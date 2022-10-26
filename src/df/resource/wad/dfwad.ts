@@ -68,6 +68,10 @@ class DFWad implements ResourceArchive {
     return undefined
   }
 
+  public giveFilename() {
+    return this.name
+  }
+
   public async init(checkSupported = false) {
     const tryWad = wadAsJson(this.src)
     if (tryWad.isValid) {
