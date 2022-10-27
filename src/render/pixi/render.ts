@@ -16,18 +16,6 @@ class Pixi implements Renderer {
 
   private viewport: Viewport
 
-  private readonly coords = {
-    screen: {
-      x: -1,
-      y: -1,
-    },
-
-    world: {
-      x: -1,
-      y: -1,
-    },
-  }
-
   public constructor(private readonly src: Readonly<HTMLCanvasElement>) {
     this.renderer = new PIXI.Renderer({
       width: src.clientWidth,
@@ -133,7 +121,6 @@ class Pixi implements Renderer {
       }
       sprite.blendMode = 30
       sprite.interactive = true
-      // sprite.alpha = 0.75
       await this.resourceManager.saveItem(entityString, sprite, true)
     } else {
       try {
