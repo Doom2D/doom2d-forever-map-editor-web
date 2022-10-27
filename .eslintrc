@@ -27,6 +27,7 @@
       "no-underscore-dangle": "off",
       "no-bitwise": "off",
       "complexity": "off",
+      "import/prefer-default-export": "off",
       "prefer-destructuring": "off",
       "regexp/prefer-named-capture-group": "off",
       "@typescript-eslint/no-magic-numbers": "off",
