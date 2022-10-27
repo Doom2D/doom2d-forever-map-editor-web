@@ -27,6 +27,8 @@ class HTMLInterface {
 
   private readonly layersDiv: HTMLDivElement
 
+  private readonly emptyOption: HTMLOptionElement
+
   private readonly manager: ResourceManager
 
   private readonly doomlogo: HTMLImageElement
@@ -54,6 +56,8 @@ class HTMLInterface {
     const area = document.querySelector<HTMLDivElement>('#area')
     const layersDiv = document.querySelector<HTMLDivElement>('#layersdiv')
     const mapselect = document.querySelector<HTMLSelectElement>('#map')
+    const emptyOption =
+      document.querySelector<HTMLOptionElement>('#emptyoption')
     const selectDiv = document.querySelector<HTMLDivElement>('#select-file')
     const importButton =
       document.querySelector<HTMLButtonElement>('#select-import')
@@ -71,7 +75,8 @@ class HTMLInterface {
       selectDiv === null ||
       importButton === null ||
       exportButton === null ||
-      layersDiv === null
+      layersDiv === null ||
+      emptyOption === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -79,6 +84,7 @@ class HTMLInterface {
     this.leftMapButton = leftbutton
     this.rightMapButton = rightbutton
     this.mapSelect = mapselect
+    this.emptyOption = emptyOption
     this.area = area
     this.tools = tools
     this.layersDiv = layersDiv
@@ -108,6 +114,7 @@ class HTMLInterface {
   }
 
   public addOptionsToMapSelect(src: Readonly<string[]>) {
+    this.mapSelect.replaceChildren(this.emptyOption)
     for (const [, v] of Object.entries(src)) {
       const option = document.createElement('option')
       option.value = v
