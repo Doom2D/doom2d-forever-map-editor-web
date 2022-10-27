@@ -4,15 +4,18 @@ import { ECS } from '../../third-party/ecs/minimal-ecs'
 import type EditorMap from '../map/map'
 import Pixi from '../../render/pixi/render'
 import RenderSystem from '../../third-party/ecs/system/render'
-import Texture from '../../third-party/ecs/component/texture'
 import type ResourceManager from '../../resource-manager/resource-manager'
 import ForRender from '../../third-party/ecs/component/for-render'
-import Type from '../../third-party/ecs/component/type'
+import { Type } from '../../third-party/ecs/component/type'
 import PanelTypeComponent from '../../third-party/ecs/component/panel-type'
 import PanelFlags from '../../third-party/ecs/component/panel-flag'
 import RenderFilter from '../../third-party/ecs/system/filter-for-render'
 import { type RenderRulesKey } from '../render/rules/rules'
-import type Bild from '../../image/bild'
+import { EditorMapFromECS } from '../../third-party/ecs/system/create-editormap'
+import ImageKey from '../../third-party/ecs/component/texture'
+import { PanelTexture } from '../../third-party/ecs/component/panel-texture'
+import PathComponent from '../../third-party/ecs/component/path'
+import type Texture from '../map/texture/texture'
 
 // more like a Tab
 class ECSFromMap {
@@ -23,6 +26,8 @@ class ECSFromMap {
   private readonly renderSystem: RenderSystem
 
   private readonly filterSystem: RenderFilter
+
+  private readonly mapCreatorSystem: EditorMapFromECS
 
   private renderRules: RenderRulesKey[] = []
 
@@ -35,6 +40,7 @@ class ECSFromMap {
     this.pixi = new Pixi(this.drawSrc)
     this.renderSystem = new RenderSystem(this.pixi)
     this.filterSystem = new RenderFilter(this.renderRules)
+    this.mapCreatorSystem = new EditorMapFromECS()
   }
 
   public giveECS() {
@@ -68,6 +74,22 @@ class ECSFromMap {
   }
 
   private registerEntitiesFromMap() {
+    const bindings: {
+      texture: Texture
+      entity: number
+    }[] = []
+    for (const [, v] of Object.entries(this.map.giveTextures())) {
+      const entity = this.ECS.addEntity()
+      const path = v.givePath()
+      const c = new PathComponent(path)
+      const type = new Type('texture')
+      this.ECS.addComponent(entity, type)
+      this.ECS.addComponent(entity, c)
+      bindings.push({
+        texture: v,
+        entity,
+      })
+    }
     for (const [, v] of Object.entries(this.map.givePanels())) {
       const entity = this.ECS.addEntity()
       const pos = v.givePosition()
@@ -75,11 +97,15 @@ class ECSFromMap {
       const position = new Position(pos.x, pos.y)
       const size = new Size(dimensions.width, dimensions.height)
       const pathStr = v.giveTexture().givePath().asThisEditorPath(false)
-      const texture = new Texture(pathStr)
+      const texture = new ImageKey(pathStr)
       const shouldRender = new ForRender(false)
       const typeComponent = new PanelTypeComponent(v.giveType())
       const flagComponent = new PanelFlags(v.giveFlag())
       const type = new Type('panel')
+      const t = v.giveTexture()
+      const s = bindings.find((q) => q.texture === t)
+      if (s === undefined) throw new Error('Texture is not found!')
+      const textureComponent = new PanelTexture(s.entity)
       this.ECS.addComponent(entity, position)
       this.ECS.addComponent(entity, size)
       this.ECS.addComponent(entity, texture)
@@ -87,7 +113,14 @@ class ECSFromMap {
       this.ECS.addComponent(entity, type)
       this.ECS.addComponent(entity, typeComponent)
       this.ECS.addComponent(entity, flagComponent)
+      this.ECS.addComponent(entity, textureComponent)
     }
+  }
+
+  public giveMap() {
+    this.mapCreatorSystem.createMap()
+    this.ECS.update()
+    return this.mapCreatorSystem.giveMap()
   }
 
   public async start() {
@@ -99,6 +132,7 @@ class ECSFromMap {
     this.renderSystem.init()
     this.ECS.addSystem(this.filterSystem)
     this.ECS.addSystem(this.renderSystem)
+    this.ECS.addSystem(this.mapCreatorSystem)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)
     await this.cacheImagesForRender()
@@ -111,7 +145,9 @@ class ECSFromMap {
       const pathStr = v.givePath().asThisEditorPath(false)
       const cacheImage = (async () => {
         const x = pathStr
-        const element = await this.manager.getItem(x) as HTMLImageElement | null
+        const element = (await this.manager.getItem(
+          x
+        )) as HTMLImageElement | null
         if (element === null) return
         await this.renderSystem.saveImage(x, element)
       })()

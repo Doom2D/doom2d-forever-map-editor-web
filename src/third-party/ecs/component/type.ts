@@ -9,3 +9,5 @@ class Type extends Component {
 }
 
 export default Type
+
+export { type DFElements, Type }

@@ -1,9 +1,9 @@
 import { Component } from '../minimal-ecs'
 
-class Texture extends Component {
+class ImageKey extends Component {
   public constructor(public key: string) {
     super()
   }
 }
 
-export default Texture
+export default ImageKey

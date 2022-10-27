@@ -11,8 +11,8 @@ class ComponentContainer {
     public add(component: Component): void {
         this.map.set(component.constructor, component);
     }
-    public get<T extends Component>(componentClass: ComponentClass<T>): T {
-        return this.map.get(componentClass) as T;
+    public get<T extends Component>(componentClass: ComponentClass<T>): T | undefined {
+        return this.map.get(componentClass) as T | undefined;
     }
     public has(componentClass: Function): boolean {
         return this.map.has(componentClass);
