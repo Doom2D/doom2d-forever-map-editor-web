@@ -1,6 +1,6 @@
 import Application from './application'
 import Dispatch from './dispatch/dispatch'
-import HTMLInterface, { guiStates } from './gui'
+import { HTMLInterface, guiStates } from './gui'
 import English from './localization/english'
 import isObject from './utility/is-object'
 import pathSplit from './utility/split-path'
@@ -32,7 +32,7 @@ dispatch.on('onruleselect', async (msg: unknown) => {
     typeof msg.value !== 'boolean'
   )
     throw new Error('Invalid message passed to dispatch!')
-  await app.updateRenderRule(msg.id, !msg.value)
+  app.updateRenderRule(msg.id, !msg.value)
 })
 
 dispatch.on('onimportclick', async () => {
