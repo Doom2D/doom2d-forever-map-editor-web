@@ -1,12 +1,9 @@
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
+import { TilingSprite } from '@pixi/picture'
 
 import ResourceManager from '../../resource-manager/resource-manager'
 import { type Renderer, type RenderOptions } from '../interface'
-
-const darken = `B.r = min(Cb.r, Cs.r)
-B.g = min(Cb.g, Cs.g)
-B.r = min(Cb.r, Cs.r)`
 
 class Pixi implements Renderer {
   private readonly renderer: PIXI.Renderer
@@ -28,20 +25,25 @@ class Pixi implements Renderer {
     world: {
       x: -1,
       y: -1,
-    }
+    },
   }
 
   public constructor(private readonly src: Readonly<HTMLCanvasElement>) {
     this.renderer = new PIXI.Renderer({
       width: src.clientWidth,
       height: src.clientHeight,
-      backgroundColor: 0x00_57_b7,
+      backgroundColor: 0,
       view: this.src,
       antialias: false,
     })
+    this.renderer.state.blendModes[30] = [
+      this.renderer.gl.ZERO,
+      this.renderer.gl.SRC_COLOR,
+    ]
     this.viewport = new Viewport({
       screenWidth: src.clientWidth,
       screenHeight: src.clientHeight,
+
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       interaction: this.renderer.plugins.interaction as PIXI.InteractionManager,
     })
@@ -59,7 +61,10 @@ class Pixi implements Renderer {
       interaction.mouse.global.x,
       interaction.mouse.global.y
     )
-    return { x: a.x, y: a.y }
+    return {
+      x: a.x,
+      y: a.y,
+    }
   }
 
   public init() {
@@ -88,6 +93,7 @@ class Pixi implements Renderer {
     this.viewport = new Viewport({
       screenWidth: this.src.clientWidth,
       screenHeight: this.src.clientHeight,
+
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       interaction: this.renderer.plugins.interaction as PIXI.InteractionManager,
     })
@@ -106,19 +112,28 @@ class Pixi implements Renderer {
 
   public async registerEntity(n: number, imgKey: string): Promise<void> {
     const entityString = this.entityToString(n)
-    if (imgKey === '[]_water_0' || imgKey === '[]_water_1' || imgKey === '[]_water_2') {
-      const sprite =new PIXI.TilingSprite(PIXI.Texture.WHITE)
-      if (imgKey === '[]_water_0') {
-        sprite.tint = 0x00_00_ff
-      } else if (imgKey === '[]_water_1') {
-        sprite.tint = 0x00_e0_00
-      } else if (imgKey === '[]_water_2') {
-        sprite.tint = 0xe0_00_00
+    if (
+      imgKey === '[]_water_0' ||
+      imgKey === '[]_water_1' ||
+      imgKey === '[]_water_2'
+    ) {
+      const sprite = new TilingSprite(PIXI.Texture.WHITE)
+      switch (imgKey) {
+        case '[]_water_0':
+          sprite.tint = 0x00_00_ff
+          break
+        case '[]_water_1':
+          sprite.tint = 0x00_e0_00
+          break
+        case '[]_water_2':
+          sprite.tint = 0xe0_00_00
+          break
+        default:
+          throw new Error('Unknown water special texture!')
       }
+      sprite.blendMode = 30
       sprite.interactive = true
-      // sprite.blendMode = PIXI.BLEND_MODES.SCREEN
-      sprite.filters = [new PIXI.Filter(undefined, darken)]
-      sprite.alpha = 0.93
+      // sprite.alpha = 0.75
       await this.resourceManager.saveItem(entityString, sprite, true)
     } else {
       try {
@@ -132,8 +147,8 @@ class Pixi implements Renderer {
         }
       } catch {
         const graphics = new PIXI.Graphics()
-        graphics.beginFill(0xff_dd_00)
-        graphics.lineStyle(5, 0xff_dd_00)
+        graphics.beginFill(16_768_256)
+        graphics.lineStyle(5, 16_768_256)
         graphics.drawRect(0, 0, 1, 1)
         graphics.endFill()
         const texture = this.renderer.generateTexture(graphics)
