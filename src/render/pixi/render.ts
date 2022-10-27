@@ -16,6 +16,18 @@ class Pixi implements Renderer {
 
   private viewport: Viewport
 
+  private readonly state: {
+    entityStates: (
+      | {
+          clicked: boolean
+          offset: { x: number; y: number }
+        }
+      | undefined
+    )[]
+  } = {
+    entityStates: [],
+  }
+
   public constructor(private readonly src: Readonly<HTMLCanvasElement>) {
     this.renderer = new PIXI.Renderer({
       width: src.clientWidth,
@@ -36,7 +48,11 @@ class Pixi implements Renderer {
       interaction: this.renderer.plugins.interaction as PIXI.InteractionManager,
     })
     this.stage.addChild(this.viewport)
-    this.viewport.drag().pinch().wheel().decelerate()
+    this.viewport
+      .drag({
+        keyToPress: ['ShiftLeft'],
+      })
+      .wheel()
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
     this.resourceManager = new ResourceManager()
   }
@@ -81,11 +97,15 @@ class Pixi implements Renderer {
     this.viewport = new Viewport({
       screenWidth: this.src.clientWidth,
       screenHeight: this.src.clientHeight,
-
+      ticker: this.ticker,
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       interaction: this.renderer.plugins.interaction as PIXI.InteractionManager,
     })
-    this.viewport.drag().pinch().wheel().decelerate()
+    this.viewport
+      .drag({
+        keyToPress: ['ShiftLeft'],
+      })
+      .wheel()
     this.stage.addChild(this.viewport)
   }
 
@@ -96,6 +116,56 @@ class Pixi implements Renderer {
 
   private entityToString(n: number) {
     return `___${n}___`
+  }
+
+  private addEvents(sprite: Readonly<PIXI.TilingSprite>, entity: number) {
+    const x = sprite
+    const grid = 1
+    const onDragStart = (ev: Readonly<PIXI.InteractionEvent>) => {
+      const point = this.viewport.toWorld(ev.data.global)
+      this.state.entityStates[entity] = {
+        clicked: true,
+
+        offset: {
+          x: x.x - (Math.round(point.x) / grid) * grid,
+
+          y: x.y - (Math.round(point.y) / grid) * grid,
+        },
+      }
+      const outline = new PIXI.Graphics()
+      outline.beginFill(0xff_ff_00)
+      outline.lineStyle(1, 0xff_00_00)
+      outline.alpha = 0.5
+      outline.drawRect(0, 0, x.width, x.height)
+      x.addChild(outline)
+    }
+    const onDragMove = (ev: Readonly<PIXI.InteractionEvent>) => {
+      const a = this.state.entityStates[entity]
+      if (a === undefined) {
+        return
+      }
+      if (a.clicked) {
+        const b = this.viewport.getVisibleBounds()
+        const point = this.viewport.toWorld(ev.data.global)
+        if (b.x - point.x > 0 && b.x - point.x <= 30) {
+          this.viewport.position.x += 30
+        }
+        x.position.x = Number(Math.round(point.x / grid) * grid) + a.offset.x
+        x.position.y = Number(Math.round(point.y / grid) * grid) + a.offset.y
+      }
+    }
+    const onDragEnd = () => {
+      const a = this.state.entityStates[entity]
+      if (a !== undefined) a.clicked = false
+      x.removeChildren()
+    }
+    sprite.addListener('mousedown', onDragStart)
+    sprite.addListener('touchdown', onDragStart)
+    sprite.addListener('mousemove', onDragMove)
+    sprite.addListener('mouseup', onDragEnd)
+    sprite.addListener('mouseupoutside', onDragEnd)
+    sprite.addListener('touchend', onDragEnd)
+    sprite.addListener('touchendoutside', onDragEnd)
   }
 
   public async registerEntity(n: number, imgKey: string): Promise<void> {
@@ -129,6 +199,7 @@ class Pixi implements Renderer {
             imgKey
           )) as PIXI.Texture
           const sprite = new PIXI.TilingSprite(texture)
+          this.addEvents(sprite, n)
           await this.resourceManager.saveItem(entityString, sprite, true)
           sprite.interactive = true
         }
