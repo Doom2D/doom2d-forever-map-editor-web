@@ -14,21 +14,21 @@ interface RenderOptions {
 }
 
 interface Renderer {
-  init(): void
-  saveImage(key: string, src: HTMLImageElement): Promise<void>
-  registerEntity(n: number, imgKey: string): Promise<void>
-  deleteEntity(n: number): void
-  render(options: RenderOptions): void
-  update(): void
-  clear(): void
-  resize(width: number, height: number): void
+  init(): unknown
+  saveImage(key: string, src: HTMLImageElement): Promise<unknown>
+  registerEntity(n: number, imgKey: string): Promise<unknown>
+  deleteEntity(n: number): unknown
+  render(options: RenderOptions): unknown
+  update(): unknown
+  clear(): unknown
+  resize(width: number, height: number): unknown
   lastMousePosition(): { x: number, y: number }
-  deregisterAll(): void
-  addDispatch(dispatch: Dispatch): void
-  addResizeArrows()
-  clearChildren(n: number): void
-  highlight(n: number): void
-  removeHighlight(n: number): void
+  deregisterAll(): unknown
+  addDispatch(dispatch: Dispatch): unknown
+  addResizeArrows(n: number)
+  addHighlight(n: number): unknown
+  clearArrows(n: number): unknown
+  clearHighlight(n: number): unknown
 }
 
 export { Renderer, RenderOptions }

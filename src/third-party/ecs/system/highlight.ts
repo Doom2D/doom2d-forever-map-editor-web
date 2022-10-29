@@ -36,14 +36,13 @@ class Highlight extends System {
         const entity = info.entity
         this.state.entityStates.forEach((v, i) => {
           if (v === undefined || i === entity) return
-          const p = v
-          p.clicked = 0
           const components = this.ecs.getComponents(i)
+          v.clicked = 0
           const selected = components.get(Selected)
-          console.log(selected)
+          info.renderer.clearArrows(i)
+          info.renderer.clearHighlight(i)
           if (selected === undefined) throw new Error('Invalid entity!')
           selected.key = false
-          info.renderer.clearChildren(i)
         })
         const a = this.state.entityStates[entity]
         if (this.state.entityStates[entity] === undefined) {
@@ -51,7 +50,7 @@ class Highlight extends System {
             clicked: 1,
           }
         } else {
-          a.clicked += 1
+          a.clicked +=  1
         }
         if (a?.clicked === this.clicksToHighlight) {
           const components = this.ecs.getComponents(entity)
@@ -59,7 +58,44 @@ class Highlight extends System {
           if (selected === undefined) throw new Error('Invalid entity!')
           selected.key = true
           info.renderer.highlight(entity)
+          info.renderer.addResizeArrows(entity)
         }
+      }
+    )
+    this.dispatch.on(
+      'onDragMove',
+      (
+        info: Readonly<{
+          renderer: Readonly<Renderer>
+          entity: number
+          point: Readonly<{
+            x: number
+            y: number
+          }>
+        }>
+      ) => {
+        const components = this.ecs.getComponents(info.entity)
+        const selected = components.get(Selected)
+        if (selected === undefined) throw new Error('Invalid entity!')
+        info.renderer.clearArrows(info.entity)
+        if (selected.key) {
+          info.renderer.addResizeArrows(info.entity)
+        }
+      }
+    )
+    this.dispatch.on(
+      'onDragEnd',
+      (
+        info: Readonly<{
+          renderer: Readonly<Renderer>
+          entity: number
+        }>
+      ) => {
+        const components = this.ecs.getComponents(info.entity)
+        const selected = components.get(Selected)
+        if (selected === undefined) throw new Error('Invalid entity!')
+        info.renderer.clearArrows(info.entity)
+        info.renderer.addResizeArrows(info.entity)
       }
     )
   }

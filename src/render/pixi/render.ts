@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import { TilingSprite } from '@pixi/picture'
@@ -22,8 +23,7 @@ class Pixi implements Renderer {
   private readonly state: {
     entityStates: (
       | {
-          clicked: boolean
-          offset: { x: number; y: number }
+          arrows: (PIXI.Sprite | PIXI.TilingSprite)[]
         }
       | undefined
     )[]
@@ -154,7 +154,10 @@ class Pixi implements Renderer {
       })
     }
     const onDragEnd = () => {
-      d.dispatch('onDragEnd', entity)
+      d.dispatch('onDragEnd', {
+        renderer: this,
+        entity,
+      })
     }
 
     sprite.addListener('mousedown', onDragStart)
@@ -179,17 +182,111 @@ class Pixi implements Renderer {
   }
 
   public async addResizeArrows(entity: number) {
+    this.clearArrows(entity)
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(entity)
     )) as PIXI.TilingSprite
+
+    const width = 4
+    const height = 4
+    const leftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    leftRect.width = width
+    leftRect.height = height
+    leftRect.tint = 0xff_ff_ff
+    leftRect.x = sprite.x - leftRect.width
+    leftRect.y = sprite.y + sprite.height / 2 - leftRect.height / 2
+    leftRect.interactive = true
+    this.viewport.addChild(leftRect)
+
+    const rightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    rightRect.width = width
+    rightRect.height = height
+    rightRect.tint = 0xff_ff_ff
+    rightRect.x = sprite.x + sprite.width
+    rightRect.y = sprite.y + sprite.height / 2 - rightRect.height / 2
+    rightRect.interactive = true
+    this.viewport.addChild(rightRect)
+
+    const topRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    topRect.width = width
+    topRect.height = height
+    topRect.tint = 0xff_ff_ff
+    topRect.x = sprite.x + sprite.width / 2 - width / 2
+    topRect.y = sprite.y - topRect.height
+    topRect.interactive = true
+    this.viewport.addChild(topRect)
+
+    const bottomRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    bottomRect.width = width
+    bottomRect.height = height
+    bottomRect.tint = 0xff_ff_ff
+    bottomRect.x = sprite.x + sprite.width / 2 - width / 2
+    bottomRect.y = sprite.y + sprite.height
+    bottomRect.interactive = true
+    this.viewport.addChild(bottomRect)
+
+    const topLeftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    topLeftRect.width = width
+    topLeftRect.height = height
+    topLeftRect.tint = 0xff_ff_ff
+    topLeftRect.x = sprite.x - topLeftRect.width
+    topLeftRect.y = sprite.y - topLeftRect.height
+    topLeftRect.interactive = true
+    this.viewport.addChild(topLeftRect)
+
+    const bottomLeftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    bottomLeftRect.width = width
+    bottomLeftRect.height = height
+    bottomLeftRect.tint = 0xff_ff_ff
+    bottomLeftRect.x = sprite.x - bottomLeftRect.width
+    bottomLeftRect.y = sprite.y + sprite.height
+    bottomLeftRect.interactive = true
+    this.viewport.addChild(bottomLeftRect)
+
+    const topRightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    topRightRect.width = width
+    topRightRect.height = height
+    topRightRect.tint = 0xff_ff_ff
+    topRightRect.x = sprite.x + sprite.width
+    topRightRect.y = sprite.y - topRightRect.height
+    topRightRect.interactive = true
+    this.viewport.addChild(topRightRect)
+
+    const bottomRightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
+    bottomRightRect.width = width
+    bottomRightRect.height = height
+    bottomRightRect.tint = 0xff_ff_ff
+    bottomRightRect.x = sprite.x + sprite.width
+    bottomRightRect.y = sprite.y + sprite.height
+    bottomRightRect.interactive = true
+    this.viewport.addChild(bottomRightRect)
+    this.state.entityStates[entity] = {
+      arrows: [
+        leftRect,
+        rightRect,
+        topRect,
+        bottomRect,
+        topLeftRect,
+        bottomLeftRect,
+        topRightRect,
+        bottomRightRect,
+      ],
+    }
   }
 
-  public async clearChildren(n: number): void {
+  public async clearArrows(n: number) {
+    const a = this.state.entityStates[n]
+    if (a === undefined) return
+    a.arrows.forEach((v) => {
+      this.viewport.removeChild(v)
+    })
+  }
+
+  public async clearHighlight(n: number) {
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(n)
     )) as PIXI.TilingSprite
     sprite.removeChildren()
-    console.log(n, sprite)
   }
 
   public async registerEntity(n: number, imgKey: string): Promise<void> {

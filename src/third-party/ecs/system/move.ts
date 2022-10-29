@@ -93,12 +93,20 @@ class Move extends System {
         })
       }
     )
-    this.dispatch.on('onDragEnd', (entity: number) => {
-      this.state.entityStates[entity] = {
-        clicked: false,
-        offset: { x: 0, y: 0 },
+    this.dispatch.on(
+      'onDragEnd',
+      (
+        info: Readonly<{
+          renderer: Readonly<Renderer>
+          entity: number
+        }>
+      ) => {
+        this.state.entityStates[info.entity] = {
+          clicked: false,
+          offset: { x: 0, y: 0 },
+        }
       }
-    })
+    )
   }
 
   public update() {}
