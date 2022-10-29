@@ -4,6 +4,7 @@ import { TilingSprite } from '@pixi/picture'
 
 import ResourceManager from '../../resource-manager/resource-manager'
 import { type Renderer, type RenderOptions } from '../interface'
+import type Dispatch from '../../dispatch/dispatch'
 
 class Pixi implements Renderer {
   private readonly renderer: PIXI.Renderer
@@ -13,6 +14,8 @@ class Pixi implements Renderer {
   private stage = new PIXI.Container()
 
   private readonly resourceManager: ResourceManager
+
+  private dispatch: Readonly<Dispatch> | undefined
 
   private viewport: Viewport
 
@@ -109,6 +112,10 @@ class Pixi implements Renderer {
     this.stage.addChild(this.viewport)
   }
 
+  public addDispatch(dispatch: Readonly<Dispatch>): void {
+    this.dispatch = dispatch
+  }
+
   public resize(width: number, height: number): void {
     this.renderer.resize(width, height)
     this.viewport.resize(width, height)
@@ -119,46 +126,37 @@ class Pixi implements Renderer {
   }
 
   private addEvents(sprite: Readonly<PIXI.TilingSprite>, entity: number) {
+    const d = this.dispatch
+    if (d === undefined) throw new Error('Dispatch is not defined yet!')
     const x = sprite
-    const grid = 1
     const onDragStart = (ev: Readonly<PIXI.InteractionEvent>) => {
       const point = this.viewport.toWorld(ev.data.global)
-      this.state.entityStates[entity] = {
-        clicked: true,
-
-        offset: {
-          x: x.x - (Math.round(point.x) / grid) * grid,
-
-          y: x.y - (Math.round(point.y) / grid) * grid,
-        },
+      const offset = {
+        x: x.x - Math.round(point.x),
+        y: x.y - Math.round(point.y),
       }
-      const outline = new PIXI.Graphics()
-      outline.beginFill(0xff_ff_00)
-      outline.lineStyle(1, 0xff_00_00)
-      outline.alpha = 0.5
-      outline.drawRect(0, 0, x.width, x.height)
-      x.addChild(outline)
+      d.dispatch('onDragStart', {
+        renderer: this,
+        entity,
+        offset,
+      })
     }
     const onDragMove = (ev: Readonly<PIXI.InteractionEvent>) => {
-      const a = this.state.entityStates[entity]
-      if (a === undefined) {
-        return
-      }
-      if (a.clicked) {
-        const b = this.viewport.getVisibleBounds()
-        const point = this.viewport.toWorld(ev.data.global)
-        if (b.x - point.x > 0 && b.x - point.x <= 30) {
-          this.viewport.position.x += 30
-        }
-        x.position.x = Number(Math.round(point.x / grid) * grid) + a.offset.x
-        x.position.y = Number(Math.round(point.y / grid) * grid) + a.offset.y
-      }
+      const point = this.viewport.toWorld(ev.data.global)
+      d.dispatch('onDragMove', {
+        renderer: this,
+        entity,
+
+        point: {
+          x: point.x,
+          y: point.y,
+        },
+      })
     }
     const onDragEnd = () => {
-      const a = this.state.entityStates[entity]
-      if (a !== undefined) a.clicked = false
-      x.removeChildren()
+      d.dispatch('onDragEnd', entity)
     }
+
     sprite.addListener('mousedown', onDragStart)
     sprite.addListener('touchdown', onDragStart)
     sprite.addListener('mousemove', onDragMove)
@@ -240,16 +238,18 @@ class Pixi implements Renderer {
     if (
       !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
     ) {
-      await this.registerEntity(options.entity, options.imgKey)
+      await this.registerEntity(options.entity, options.imgKey ?? '')
     }
 
     // sadly, we have to do this
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(options.entity)
     )) as PIXI.TilingSprite
-    sprite.position.set(options.x, options.y)
-    sprite.width = options.w
-    sprite.height = options.h
+    sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
+    sprite.width = options.w ?? sprite.width
+    sprite.height = options.h ?? sprite.height
+    sprite.alpha = options.alpha ?? 1
+    sprite.tint = options.tint ?? 0xff_ff_ff
     if (sprite.parent !== this.viewport) {
       this.viewport.addChild(sprite)
     }

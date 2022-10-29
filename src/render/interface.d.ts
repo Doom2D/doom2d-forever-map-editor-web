@@ -1,12 +1,14 @@
+import type Dispatch from "../dispatch/dispatch"
+
 interface RenderOptions {
-  alpha?: string,
+  alpha?: number,
   tint?: number,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
+  x?: number,
+  y?: number,
+  w?: number,
+  h?: number,
   entity: number,
-  imgKey: string,
+  imgKey?: string,
 }
 
 interface Renderer {
@@ -20,6 +22,7 @@ interface Renderer {
   resize(width: number, height: number): void
   lastMousePosition(): { x: number, y: number }
   deregisterAll(): void
+  addDispatch(dispatch: Dispatch): void
 }
 
 export { Renderer, RenderOptions }

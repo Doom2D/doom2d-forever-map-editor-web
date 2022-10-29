@@ -16,6 +16,8 @@ import ImageKey from '../../third-party/ecs/component/texture'
 import { PanelTexture } from '../../third-party/ecs/component/panel-texture'
 import PathComponent from '../../third-party/ecs/component/path'
 import type Texture from '../map/texture/texture'
+import { Move } from '../../third-party/ecs/system/move'
+import Dispatch from '../../dispatch/dispatch'
 
 // more like a Tab
 class ECSFromMap {
@@ -29,6 +31,10 @@ class ECSFromMap {
 
   private readonly mapCreatorSystem: EditorMapFromECS
 
+  private readonly dispatch: Dispatch
+
+  private readonly moveSystem: Move
+
   private renderRules: RenderRulesKey[] = []
 
   public constructor(
@@ -38,9 +44,11 @@ class ECSFromMap {
   ) {
     this.ECS = new ECS()
     this.pixi = new Pixi(this.drawSrc)
-    this.renderSystem = new RenderSystem(this.pixi)
     this.filterSystem = new RenderFilter(this.renderRules)
     this.mapCreatorSystem = new EditorMapFromECS()
+    this.dispatch = new Dispatch()
+    this.moveSystem = new Move(this.dispatch)
+    this.renderSystem = new RenderSystem(this.pixi, this.dispatch)
   }
 
   public giveECS() {
@@ -133,6 +141,8 @@ class ECSFromMap {
     this.ECS.addSystem(this.filterSystem)
     this.ECS.addSystem(this.renderSystem)
     this.ECS.addSystem(this.mapCreatorSystem)
+    this.ECS.addSystem(this.moveSystem)
+    this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)
     await this.cacheImagesForRender()
