@@ -18,6 +18,8 @@ import PathComponent from '../../third-party/ecs/component/path'
 import type Texture from '../map/texture/texture'
 import { Move } from '../../third-party/ecs/system/move'
 import Dispatch from '../../dispatch/dispatch'
+import { Highlight } from '../../third-party/ecs/system/highlight'
+import { Selected } from '../../third-party/ecs/component/selected'
 
 // more like a Tab
 class ECSFromMap {
@@ -35,6 +37,8 @@ class ECSFromMap {
 
   private readonly moveSystem: Move
 
+  private readonly highlightSystem: Highlight
+
   private renderRules: RenderRulesKey[] = []
 
   public constructor(
@@ -48,7 +52,8 @@ class ECSFromMap {
     this.mapCreatorSystem = new EditorMapFromECS()
     this.dispatch = new Dispatch()
     this.moveSystem = new Move(this.dispatch)
-    this.renderSystem = new RenderSystem(this.pixi, this.dispatch)
+    this.highlightSystem = new Highlight(this.dispatch)
+    this.renderSystem = new RenderSystem(this.pixi)
   }
 
   public giveECS() {
@@ -114,6 +119,7 @@ class ECSFromMap {
       const s = bindings.find((q) => q.texture === t)
       if (s === undefined) throw new Error('Texture is not found!')
       const textureComponent = new PanelTexture(s.entity)
+      const selected = new Selected(false)
       this.ECS.addComponent(entity, position)
       this.ECS.addComponent(entity, size)
       this.ECS.addComponent(entity, texture)
@@ -122,6 +128,7 @@ class ECSFromMap {
       this.ECS.addComponent(entity, typeComponent)
       this.ECS.addComponent(entity, flagComponent)
       this.ECS.addComponent(entity, textureComponent)
+      this.ECS.addComponent(entity, selected)
     }
   }
 
@@ -142,6 +149,7 @@ class ECSFromMap {
     this.ECS.addSystem(this.renderSystem)
     this.ECS.addSystem(this.mapCreatorSystem)
     this.ECS.addSystem(this.moveSystem)
+    this.ECS.addSystem(this.highlightSystem)
     this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)

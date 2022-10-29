@@ -2,6 +2,7 @@ import type Dispatch from '../../../dispatch/dispatch'
 import { type Renderer } from '../../../render/interface'
 import ForRender from '../component/for-render'
 import Position from '../component/position'
+import { Selected } from '../component/selected'
 import { Type } from '../component/type'
 import { System } from '../minimal-ecs'
 
@@ -28,13 +29,13 @@ class Move extends System {
 
   public entitiesLastSeenUpdate = -1
 
-  public constructor(private readonly dispatch: Dispatch) {
+  public constructor(private readonly dispatch: Readonly<Dispatch>) {
     super()
     this.dispatch.on(
       'onDragStart',
       (
         info: Readonly<{
-          renderer: Readonly<Renderer>,
+          renderer: Readonly<Renderer>
           entity: number
           offset: Readonly<{
             x: number
@@ -42,14 +43,29 @@ class Move extends System {
           }>
         }>
       ) => {
-        this.state.entityStates[info.entity] = {
-          clicked: true,
+        const components = this.ecs.getComponents(info.entity)
+        const selected = components.get(Selected)
+        if (selected === undefined) throw new Error('Invalid entity!')
+        if (selected.key) {
+          this.state.entityStates[info.entity] = {
+            clicked: true,
 
-          offset: {
-            x: Math.round(info.offset.x / this.grid) * this.grid,
+            offset: {
+              x: Math.round(info.offset.x / this.grid) * this.grid,
 
-            y: Math.round(info.offset.y / this.grid) * this.grid,
-          },
+              y: Math.round(info.offset.y / this.grid) * this.grid,
+            },
+          }
+        } else {
+          this.state.entityStates[info.entity] = {
+            clicked: false,
+
+            offset: {
+              x: 0,
+
+              y: 0,
+            },
+          }
         }
       }
     )
@@ -65,6 +81,9 @@ class Move extends System {
           }>
         }>
       ) => {
+        const components = this.ecs.getComponents(info.entity)
+        const selected = components.get(Selected)
+        if (selected === undefined) throw new Error('Invalid entity!')
         const a = this.state.entityStates[info.entity]
         if (a === undefined || !a.clicked) return
         info.renderer.render({
@@ -84,6 +103,5 @@ class Move extends System {
 
   public update() {}
 }
-
 
 export { Move }

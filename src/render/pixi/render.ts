@@ -166,6 +166,32 @@ class Pixi implements Renderer {
     sprite.addListener('touchendoutside', onDragEnd)
   }
 
+  public async highlight(n: number): void {
+    const sprite = (await this.resourceManager.getItem(
+      this.entityToString(n)
+    )) as PIXI.TilingSprite
+    const outline = new PIXI.Graphics()
+    outline.beginFill(0xff_ff_00)
+    outline.lineStyle(1, 0xff_00_00)
+    outline.alpha = 0.5
+    outline.drawRect(0, 0, sprite.width, sprite.height)
+    sprite.addChild(outline)
+  }
+
+  public async addResizeArrows(entity: number) {
+    const sprite = (await this.resourceManager.getItem(
+      this.entityToString(entity)
+    )) as PIXI.TilingSprite
+  }
+
+  public async clearChildren(n: number): void {
+    const sprite = (await this.resourceManager.getItem(
+      this.entityToString(n)
+    )) as PIXI.TilingSprite
+    sprite.removeChildren()
+    console.log(n, sprite)
+  }
+
   public async registerEntity(n: number, imgKey: string): Promise<void> {
     const entityString = this.entityToString(n)
     if (
@@ -235,23 +261,25 @@ class Pixi implements Renderer {
   }
 
   public async render(options: Readonly<RenderOptions>): void {
-    if (
-      !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
-    ) {
-      await this.registerEntity(options.entity, options.imgKey ?? '')
-    }
+    if (options.sprite === undefined || options.sprite === true) {
+      if (
+        !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
+      ) {
+        await this.registerEntity(options.entity, options.imgKey ?? '')
+      }
 
-    // sadly, we have to do this
-    const sprite = (await this.resourceManager.getItem(
-      this.entityToString(options.entity)
-    )) as PIXI.TilingSprite
-    sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
-    sprite.width = options.w ?? sprite.width
-    sprite.height = options.h ?? sprite.height
-    sprite.alpha = options.alpha ?? 1
-    sprite.tint = options.tint ?? 0xff_ff_ff
-    if (sprite.parent !== this.viewport) {
-      this.viewport.addChild(sprite)
+      // sadly, we have to do this
+      const sprite = (await this.resourceManager.getItem(
+        this.entityToString(options.entity)
+      )) as PIXI.TilingSprite
+      sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
+      sprite.width = options.w ?? sprite.width
+      sprite.height = options.h ?? sprite.height
+      sprite.alpha = options.alpha ?? 1
+      sprite.tint = options.tint ?? 0xff_ff_ff
+      if (sprite.parent !== this.viewport) {
+        this.viewport.addChild(sprite)
+      }
     }
   }
 }

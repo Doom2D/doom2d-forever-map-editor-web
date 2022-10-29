@@ -9,6 +9,8 @@ interface RenderOptions {
   h?: number,
   entity: number,
   imgKey?: string,
+  parent?: number,
+  sprite?: boolean,
 }
 
 interface Renderer {
@@ -23,6 +25,10 @@ interface Renderer {
   lastMousePosition(): { x: number, y: number }
   deregisterAll(): void
   addDispatch(dispatch: Dispatch): void
+  addResizeArrows()
+  clearChildren(n: number): void
+  highlight(n: number): void
+  removeHighlight(n: number): void
 }
 
 export { Renderer, RenderOptions }

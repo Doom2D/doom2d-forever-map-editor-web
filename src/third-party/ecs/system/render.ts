@@ -4,7 +4,7 @@ import ForRender from '../component/for-render'
 import Position from '../component/position'
 import Size from '../component/size'
 import Texture from '../component/texture'
-import Type from '../component/type'
+import { Type } from '../component/type'
 import PanelType from '../component/panel-type'
 import { type Entity, System } from '../minimal-ecs'
 
