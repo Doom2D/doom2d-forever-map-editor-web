@@ -309,6 +309,8 @@ class Pixi implements Renderer {
     topLeftRect.interactive = true
     this.viewport.addChild(topLeftRect)
 
+    addListeners('resizeTopLeft', 'topleft', topLeftRect)
+
     const bottomLeftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     bottomLeftRect.width = width
     bottomLeftRect.height = height
@@ -318,6 +320,8 @@ class Pixi implements Renderer {
     bottomLeftRect.interactive = true
     this.viewport.addChild(bottomLeftRect)
 
+    addListeners('resizeBottomLeft', 'bottomleft', bottomLeftRect)
+
     const topRightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     topRightRect.width = width
     topRightRect.height = height
@@ -326,6 +330,8 @@ class Pixi implements Renderer {
     topRightRect.y = sprite.y - topRightRect.height
     topRightRect.interactive = true
     this.viewport.addChild(topRightRect)
+
+    addListeners('resizeTopRight', 'topright', topRightRect)
 
     const bottomRightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     bottomRightRect.width = width
@@ -347,6 +353,8 @@ class Pixi implements Renderer {
         bottomRightRect,
       ],
     }
+
+    addListeners('resizeBottomRight', 'bottomright', bottomRightRect)
   }
 
   public async clearHighlight(n: number) {
