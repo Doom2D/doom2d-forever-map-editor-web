@@ -32,7 +32,7 @@ class Highlight extends System {
     super()
     this.dispatch.on(
       'onDragStart',
-      (info: { entity: number; renderer: Readonly<Renderer> }) => {
+      (info: Readonly<{ entity: number; renderer: Readonly<Renderer> }>) => {
         const entity = info.entity
         this.state.entityStates.forEach((v, i) => {
           if (v === undefined || i === entity) return
@@ -50,7 +50,7 @@ class Highlight extends System {
             clicked: 1,
           }
         } else {
-          a.clicked +=  1
+          a.clicked += 1
         }
         if (a?.clicked === this.clicksToHighlight) {
           const components = this.ecs.getComponents(entity)
@@ -59,27 +59,6 @@ class Highlight extends System {
           selected.key = true
           info.renderer.highlight(entity)
           info.renderer.addResizeArrows(entity)
-        }
-      }
-    )
-    this.dispatch.on(
-      'onDragMove',
-      (
-        info: Readonly<{
-          renderer: Readonly<Renderer>
-          entity: number
-          point: Readonly<{
-            x: number
-            y: number
-          }>
-        }>
-      ) => {
-        const components = this.ecs.getComponents(info.entity)
-        const selected = components.get(Selected)
-        if (selected === undefined) throw new Error('Invalid entity!')
-        info.renderer.clearArrows(info.entity)
-        if (selected.key) {
-          info.renderer.addResizeArrows(info.entity)
         }
       }
     )

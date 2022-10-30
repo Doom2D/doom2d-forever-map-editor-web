@@ -26,7 +26,7 @@ interface Renderer {
   deregisterAll(): unknown
   addDispatch(dispatch: Dispatch): unknown
   addResizeArrows(n: number)
-  addHighlight(n: number): unknown
+  highlight(n: number): unknown
   clearArrows(n: number): unknown
   clearHighlight(n: number): unknown
 }

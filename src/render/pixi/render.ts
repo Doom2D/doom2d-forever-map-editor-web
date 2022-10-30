@@ -58,6 +58,16 @@ class Pixi implements Renderer {
       .wheel()
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
     this.resourceManager = new ResourceManager()
+    this.viewport.addListener(
+      'pointerup',
+      (ev: Readonly<PIXI.InteractionEvent>) => {
+        const s = this.renderer.plugins.interaction.hitTest(ev.data.global)
+        const e = this.resourceManager.findCached(s)
+        this.dispatch?.dispatch('onMouseUp', {
+          e,
+        })
+      }
+    )
   }
 
   public lastMousePosition(): { x: number; y: number } {
@@ -121,8 +131,16 @@ class Pixi implements Renderer {
     this.viewport.resize(width, height)
   }
 
+  public clearArrows(n: number) {
+    const a = this.state.entityStates[n]
+    if (a === undefined) return
+    a.arrows.forEach((v) => {
+      this.viewport.removeChild(v)
+    })
+  }
+
   private entityToString(n: number) {
-    return `___${n}___`
+    return String(n)
   }
 
   private addEvents(sprite: Readonly<PIXI.TilingSprite>, entity: number) {
@@ -169,7 +187,7 @@ class Pixi implements Renderer {
     sprite.addListener('touchendoutside', onDragEnd)
   }
 
-  public async highlight(n: number): void {
+  public async highlight(n: number) {
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(n)
     )) as PIXI.TilingSprite
@@ -198,6 +216,57 @@ class Pixi implements Renderer {
     leftRect.interactive = true
     this.viewport.addChild(leftRect)
 
+    const addListeners = (name: string, direction: string, s: PIXI.Sprite) => {
+      s.addListener('pointerdown', () => {
+        this.dispatch?.dispatch('resizeStart', {
+          direction,
+          entity,
+
+          base: {
+            w: sprite.texture.baseTexture.realHeight,
+            h: sprite.texture.baseTexture.realWidth,
+          },
+
+          canonical: {
+            x: sprite.x,
+            y: sprite.y,
+            w: sprite.width,
+            h: sprite.height,
+          },
+        })
+      })
+
+      s.addListener('pointermove', (ev: Readonly<PIXI.InteractionEvent>) => {
+        const point = this.viewport.toWorld(ev.data.global)
+        const w = {
+          renderer: this,
+          entity,
+
+          arrow: {
+            x: leftRect.x,
+            y: leftRect.y,
+            w: leftRect.width,
+            h: leftRect.height,
+          },
+
+          sprite: {
+            x: sprite.x,
+            y: sprite.y,
+            w: sprite.width,
+            h: sprite.height,
+          },
+
+          point: {
+            x: point.x,
+            y: point.y,
+          },
+        }
+        this.dispatch?.dispatch(name, w)
+      })
+    }
+
+    addListeners('resizeLeft', 'left', leftRect)
+
     const rightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     rightRect.width = width
     rightRect.height = height
@@ -206,6 +275,8 @@ class Pixi implements Renderer {
     rightRect.y = sprite.y + sprite.height / 2 - rightRect.height / 2
     rightRect.interactive = true
     this.viewport.addChild(rightRect)
+
+    addListeners('resizeRight', 'right', rightRect)
 
     const topRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     topRect.width = width
@@ -274,14 +345,6 @@ class Pixi implements Renderer {
     }
   }
 
-  public async clearArrows(n: number) {
-    const a = this.state.entityStates[n]
-    if (a === undefined) return
-    a.arrows.forEach((v) => {
-      this.viewport.removeChild(v)
-    })
-  }
-
   public async clearHighlight(n: number) {
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(n)
@@ -347,7 +410,7 @@ class Pixi implements Renderer {
     await this.resourceManager.saveItem(key, texture, true)
   }
 
-  public async deleteEntity(n: number): void {
+  public async deleteEntity(n: number) {
     const entityString = this.entityToString(n)
     if (!this.resourceManager.cachedAtKey(entityString)) return
     const sprite = (await this.resourceManager.getItem(
@@ -357,14 +420,13 @@ class Pixi implements Renderer {
     this.viewport.removeChild(sprite)
   }
 
-  public async render(options: Readonly<RenderOptions>): void {
+  public async render(options: Readonly<RenderOptions>) {
     if (options.sprite === undefined || options.sprite === true) {
       if (
         !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
       ) {
         await this.registerEntity(options.entity, options.imgKey ?? '')
       }
-
       // sadly, we have to do this
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)

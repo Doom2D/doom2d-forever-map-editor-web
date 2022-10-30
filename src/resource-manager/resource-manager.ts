@@ -16,6 +16,15 @@ class ResourceManager {
     return this.getCached(key) !== undefined
   }
 
+  public findCached(w: unknown) {
+    for (const [k, v] of Object.entries(this.cacheObject)) {
+      if (v === w) {
+        return k
+      }
+    }
+    return undefined
+  }
+
   public async saveItem(key: string, value: unknown, cache = false, persist = false) {
     if (cache) {
       this.cacheObject[key] = value
