@@ -223,8 +223,8 @@ class Pixi implements Renderer {
           entity,
 
           base: {
-            w: sprite.texture.baseTexture.realHeight,
-            h: sprite.texture.baseTexture.realWidth,
+            w: sprite.texture.baseTexture.realWidth,
+            h: sprite.texture.baseTexture.realHeight,
           },
 
           canonical: {
@@ -243,10 +243,10 @@ class Pixi implements Renderer {
           entity,
 
           arrow: {
-            x: leftRect.x,
-            y: leftRect.y,
-            w: leftRect.width,
-            h: leftRect.height,
+            x: s.x,
+            y: s.y,
+            w: s.width,
+            h: s.height,
           },
 
           sprite: {

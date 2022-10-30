@@ -104,7 +104,7 @@ class Resize extends System {
         const pointGrid = Math.round(
           (info.point.x - info.sprite.x + info.arrow.w) / a.base.w
         )
-        if (pointGrid > 0 && pointGrid < grids) {
+        if (pointGrid > 0 && grids > 1) {
           const x = info.sprite.x + Math.abs(a.base.w)
           const w = info.sprite.w - Math.round(a.base.w)
           info.renderer.clearHighlight(info.entity)
@@ -115,7 +115,7 @@ class Resize extends System {
           })
           info.renderer.highlight(info.entity)
         }
-        if (pointGrid < 0) {
+        else if (pointGrid < 0) {
           const x = info.sprite.x - Math.abs(a.base.w)
           const w = info.sprite.w + Math.round(a.base.w)
           info.renderer.clearHighlight(info.entity)
@@ -161,7 +161,7 @@ class Resize extends System {
           (info.point.x - info.sprite.x + info.arrow.w) /
             a.base.w
         )
-        if (pointGrid > grids && pointGrid > 0) {
+        if (pointGrid > grids) {
           const x = info.sprite.x
           const w = info.sprite.w + Math.round(a.base.w)
           info.renderer.clearHighlight(info.entity)
@@ -172,7 +172,7 @@ class Resize extends System {
           })
           info.renderer.highlight(info.entity)
         }
-        if (pointGrid < grids && pointGrid > 0) {
+        else if (pointGrid < grids && grids > 1) {
           const x = info.sprite.x
           const w = info.sprite.w - Math.round(a.base.w)
           info.renderer.clearHighlight(info.entity)
@@ -196,6 +196,8 @@ class Resize extends System {
       }
     )
   }
+
+  public update(entities: Set<number>) {}
 }
 
 export { Resize }
