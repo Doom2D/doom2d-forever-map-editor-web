@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import type Dispatch from '../../../dispatch/dispatch'
 import { type Renderer } from '../../../render/interface'
 import ForRender from '../component/for-render'
@@ -10,7 +11,7 @@ class Resize extends System {
   private readonly state: {
     entityStates: (
       | {
-          clicked: 'left' | 'none' | 'right'
+          clicked: 'bottom' | 'left' | 'none' | 'right' | 'top'
           base: {
             w: number
             h: number
@@ -42,7 +43,7 @@ class Resize extends System {
       'resizeStart',
       (
         i: Readonly<{
-          direction: 'left' | 'none' | 'right'
+          direction: 'bottom' | 'left' | 'none' | 'right' | 'top'
           entity: number
           base: Readonly<{
             w: number
@@ -114,8 +115,7 @@ class Resize extends System {
             entity: info.entity,
           })
           info.renderer.highlight(info.entity)
-        }
-        else if (pointGrid < 0) {
+        } else if (pointGrid < 0) {
           const x = info.sprite.x - Math.abs(a.base.w)
           const w = info.sprite.w + Math.round(a.base.w)
           info.renderer.clearHighlight(info.entity)
@@ -158,8 +158,7 @@ class Resize extends System {
         if (a === undefined || a.clicked !== 'right') return
         const grids = info.sprite.w / a.base.w
         const pointGrid = Math.round(
-          (info.point.x - info.sprite.x + info.arrow.w) /
-            a.base.w
+          (info.point.x - info.sprite.x + info.arrow.w) / a.base.w
         )
         if (pointGrid > grids) {
           const x = info.sprite.x
@@ -171,14 +170,119 @@ class Resize extends System {
             entity: info.entity,
           })
           info.renderer.highlight(info.entity)
-        }
-        else if (pointGrid < grids && grids > 1) {
+        } else if (pointGrid < grids && grids > 1) {
           const x = info.sprite.x
           const w = info.sprite.w - Math.round(a.base.w)
           info.renderer.clearHighlight(info.entity)
           info.renderer.render({
             x,
             w,
+            entity: info.entity,
+          })
+          info.renderer.highlight(info.entity)
+        }
+      }
+    )
+
+    this.dispatch.on(
+      'resizeTop',
+      (
+        info: Readonly<{
+          renderer: Readonly<Renderer>
+          entity: number
+
+          arrow: Readonly<{
+            x: number
+            y: number
+            w: number
+            h: number
+          }>
+          sprite: Readonly<{
+            x: number
+            y: number
+            w: number
+            h: number
+          }>
+          point: Readonly<{
+            x: number
+            y: number
+          }>
+        }>
+      ) => {
+        const a = this.state.entityStates[info.entity]
+        if (a === undefined || a.clicked !== 'top') return
+        const grids = info.sprite.h / a.base.h
+        const pointGrid = Math.round((info.sprite.y - info.point.y + info.sprite.h + info.arrow.h) / a.base.h)
+        if (pointGrid < grids && grids > 1) {
+          const y = info.sprite.y + Math.abs(a.base.h)
+          const h = info.sprite.h - Math.round(a.base.h)
+          info.renderer.clearHighlight(info.entity)
+          info.renderer.render({
+            y,
+            h,
+            entity: info.entity,
+          })
+          info.renderer.highlight(info.entity)
+        } else if (pointGrid > grids) {
+          const y = info.sprite.y - Math.abs(a.base.h)
+          const h = info.sprite.h + Math.round(a.base.h)
+          info.renderer.clearHighlight(info.entity)
+          info.renderer.render({
+            y,
+            h,
+            entity: info.entity,
+          })
+          info.renderer.highlight(info.entity)
+        }
+      }
+    )
+
+    this.dispatch.on(
+      'resizeBottom',
+      (
+        info: Readonly<{
+          renderer: Readonly<Renderer>
+          entity: number
+
+          arrow: Readonly<{
+            x: number
+            y: number
+            w: number
+            h: number
+          }>
+          sprite: Readonly<{
+            x: number
+            y: number
+            w: number
+            h: number
+          }>
+          point: Readonly<{
+            x: number
+            y: number
+          }>
+        }>
+      ) => {
+        const a = this.state.entityStates[info.entity]
+        if (a === undefined || a.clicked !== 'bottom') return
+        const grids = info.sprite.h / a.base.h
+        const pointGrid = Math.abs(Math.round((info.sprite.y - info.point.y + info.arrow.h) / a.base.h))
+        if (pointGrid < grids && grids > 1) {
+          const y = info.sprite.y
+          const h = info.sprite.h - Math.round(a.base.h)
+          info.renderer.clearHighlight(info.entity)
+          info.renderer.render({
+            y,
+            h,
+            entity: info.entity,
+          })
+          info.renderer.highlight(info.entity)
+        } else if (pointGrid > grids) {
+          const y = info.sprite.y
+          const h = info.sprite.h + Math.round(a.base.h)
+          info.renderer.clearHighlight(info.entity)
+          info.renderer.render({
+            y,
+            h,
             entity: info.entity,
           })
           info.renderer.highlight(info.entity)

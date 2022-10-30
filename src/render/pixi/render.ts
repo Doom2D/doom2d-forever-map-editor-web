@@ -287,6 +287,8 @@ class Pixi implements Renderer {
     topRect.interactive = true
     this.viewport.addChild(topRect)
 
+    addListeners('resizeTop', 'top', topRect)
+
     const bottomRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     bottomRect.width = width
     bottomRect.height = height
@@ -295,6 +297,8 @@ class Pixi implements Renderer {
     bottomRect.y = sprite.y + sprite.height
     bottomRect.interactive = true
     this.viewport.addChild(bottomRect)
+
+    addListeners('resizeBottom', 'bottom', bottomRect)
 
     const topLeftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
     topLeftRect.width = width
