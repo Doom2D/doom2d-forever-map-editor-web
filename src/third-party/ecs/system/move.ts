@@ -98,9 +98,25 @@ class Move extends System {
       (
         info: Readonly<{
           renderer: Readonly<Renderer>
-          entity: number
+          entity: number,
+          point: Readonly<{
+            x: number
+            y: number
+          }>
         }>
       ) => {
+        const a = this.state.entityStates[info.entity]
+        if (a === undefined || !a.clicked) return
+        const components = this.ecs.getComponents(info.entity)
+        const pos = components.get(Position)
+        if (pos === undefined) throw new Error('Invalid entity!')
+        pos.set({
+          x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
+          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y
+        })
+        this.dispatch.dispatch('onSelectEntity', {
+          entity: info.entity,
+        })
         this.state.entityStates[info.entity] = {
           clicked: false,
           offset: { x: 0, y: 0 },

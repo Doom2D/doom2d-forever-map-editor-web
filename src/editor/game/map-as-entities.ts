@@ -21,6 +21,7 @@ import Dispatch from '../../dispatch/dispatch'
 import { Highlight } from '../../third-party/ecs/system/highlight'
 import { Selected } from '../../third-party/ecs/component/selected'
 import { Resize } from '../../third-party/ecs/system/resize'
+import { Message } from '../../third-party/ecs/system/message'
 
 // more like a Tab
 class ECSFromMap {
@@ -42,6 +43,8 @@ class ECSFromMap {
 
   private readonly resizeSystem: Resize
 
+  private messageSystem: Message
+
   private renderRules: RenderRulesKey[] = []
 
   public constructor(
@@ -58,6 +61,11 @@ class ECSFromMap {
     this.highlightSystem = new Highlight(this.dispatch)
     this.renderSystem = new RenderSystem(this.pixi)
     this.resizeSystem = new Resize(this.dispatch)
+    this.messageSystem = new Message(this.dispatch)
+  }
+
+  public giveDispatch() {
+    return this.dispatch
   }
 
   public giveECS() {
@@ -155,6 +163,7 @@ class ECSFromMap {
     this.ECS.addSystem(this.moveSystem)
     this.ECS.addSystem(this.highlightSystem)
     this.ECS.addSystem(this.resizeSystem)
+    this.ECS.addSystem(this.messageSystem)
     this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)

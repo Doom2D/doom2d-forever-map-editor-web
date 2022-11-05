@@ -65,6 +65,7 @@ class Pixi implements Renderer {
         const e = this.resourceManager.findCached(s)
         this.dispatch?.dispatch('onMouseUp', {
           e,
+          renderer: this,
         })
       }
     )
@@ -171,10 +172,16 @@ class Pixi implements Renderer {
         },
       })
     }
-    const onDragEnd = () => {
+    const onDragEnd = (ev: Readonly<PIXI.InteractionEvent>) => {
+      const point = this.viewport.toWorld(ev.data.global)
       d.dispatch('onDragEnd', {
         renderer: this,
         entity,
+
+        point: {
+          x: point.x,
+          y: point.y,
+        },
       })
     }
 

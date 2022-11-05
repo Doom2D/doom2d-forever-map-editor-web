@@ -4,6 +4,7 @@ import { type Renderer } from '../../../render/interface'
 import ForRender from '../component/for-render'
 import Position from '../component/position'
 import { Selected } from '../component/selected'
+import Size from '../component/size'
 import { Type } from '../component/type'
 import { System } from '../minimal-ecs'
 
@@ -119,6 +120,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'left') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.w / a.base.w
         const pointGrid = Math.round(
           (info.point.x - info.sprite.x + info.arrow.w) / a.base.w
@@ -132,6 +136,9 @@ class Resize extends System {
             w,
             entity: info.entity,
           })
+          size.set({
+            width: w,
+          })
           info.renderer.highlight(info.entity)
         } else if (pointGrid < 0) {
           const x = info.sprite.x - Math.abs(a.base.w)
@@ -141,6 +148,9 @@ class Resize extends System {
             x,
             w,
             entity: info.entity,
+          })
+          size.set({
+            width: w,
           })
           info.renderer.highlight(info.entity)
         }
@@ -174,28 +184,37 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'right') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.w / a.base.w
         const pointGrid = Math.round(
           (info.point.x - info.sprite.x + info.arrow.w) / a.base.w
         )
         if (pointGrid > grids) {
           const x = info.sprite.x
-          const w = info.sprite.w + Math.round(a.base.w)
+          const w = info.sprite.w + a.base.w
           info.renderer.clearHighlight(info.entity)
           info.renderer.render({
             x,
             w,
             entity: info.entity,
           })
+          size.set({
+            width: w,
+          })
           info.renderer.highlight(info.entity)
         } else if (pointGrid < grids && grids > 1) {
           const x = info.sprite.x
-          const w = info.sprite.w - Math.round(a.base.w)
+          const w = info.sprite.w - a.base.w
           info.renderer.clearHighlight(info.entity)
           info.renderer.render({
             x,
             w,
             entity: info.entity,
+          })
+          size.set({
+            width: w,
           })
           info.renderer.highlight(info.entity)
         }
@@ -229,6 +248,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'top') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.h / a.base.h
         const pointGrid = Math.round(
           (info.sprite.y - info.point.y + info.sprite.h + info.arrow.h) /
@@ -243,6 +265,9 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
+          size.set({
+            height: h,
+          })
           info.renderer.highlight(info.entity)
         } else if (pointGrid > grids) {
           const y = info.sprite.y - Math.abs(a.base.h)
@@ -252,6 +277,9 @@ class Resize extends System {
             y,
             h,
             entity: info.entity,
+          })
+          size.set({
+            height: h,
           })
           info.renderer.highlight(info.entity)
         }
@@ -285,6 +313,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'bottom') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.h / a.base.h
         const pointGrid = Math.abs(
           Math.round((info.sprite.y - info.point.y + info.arrow.h) / a.base.h)
@@ -298,6 +329,9 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
+          size.set({
+            height: h,
+          })
           info.renderer.highlight(info.entity)
         } else if (pointGrid > grids) {
           const y = info.sprite.y
@@ -307,6 +341,9 @@ class Resize extends System {
             y,
             h,
             entity: info.entity,
+          })
+          size.set({
+            height: h,
           })
           info.renderer.highlight(info.entity)
         }
@@ -340,6 +377,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'topleft') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
         const pointGridY = Math.round(
           (info.sprite.y - info.point.y + info.sprite.h + info.arrow.h) /
@@ -362,6 +402,10 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
+          size.set({
+            width: w,
+            height: h,
+          })
           info.renderer.highlight(info.entity)
         } else if (
           pointGridX > 0 &&
@@ -380,6 +424,10 @@ class Resize extends System {
             w,
             h,
             entity: info.entity,
+          })
+          size.set({
+            width: w,
+            height: h,
           })
           info.renderer.highlight(info.entity)
         }
@@ -413,6 +461,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'topright') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
         const pointGridY = Math.round(
           (info.sprite.y - info.point.y + info.sprite.h + info.arrow.h) /
@@ -435,6 +486,10 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
+          size.set({
+            width: w,
+            height: h,
+          })
           info.renderer.highlight(info.entity)
         } else if (
           pointGridX < gridsX &&
@@ -453,6 +508,10 @@ class Resize extends System {
             w,
             h,
             entity: info.entity,
+          })
+          size.set({
+            width: w,
+            height: h,
           })
           info.renderer.highlight(info.entity)
         }
@@ -486,6 +545,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'bottomleft') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
         const pointGridY = Math.abs(
           Math.round((info.sprite.y - info.point.y + info.arrow.h) / a.base.h)
@@ -507,6 +569,10 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
+          size.set({
+            width: w,
+            height: h,
+          })
           info.renderer.highlight(info.entity)
         } else if (
           pointGridX > 0 &&
@@ -525,6 +591,10 @@ class Resize extends System {
             w,
             h,
             entity: info.entity,
+          })
+          size.set({
+            width: w,
+            height: h,
           })
           info.renderer.highlight(info.entity)
         }
@@ -558,6 +628,9 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'bottomright') return
+        const components = this.ecs.getComponents(info.entity)
+        const size = components.get(Size)
+        if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
         const pointGridY = Math.abs(
           Math.round((info.sprite.y - info.point.y + info.arrow.h) / a.base.h)
@@ -580,6 +653,10 @@ class Resize extends System {
             entity: info.entity,
           })
           info.renderer.highlight(info.entity)
+          size.set({
+            width: w,
+            height: h,
+          })
         } else if (
           pointGridX < gridsX &&
           pointGridY < gridsY &&
@@ -598,6 +675,10 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
+          size.set({
+            width: w,
+            height: h,
+          })
           info.renderer.highlight(info.entity)
         }
       }
@@ -606,7 +687,12 @@ class Resize extends System {
     this.dispatch.on(
       'onMouseUp',
       (info: Readonly<{ e: number | undefined }>) => {
-        this.state.entityStates.forEach((v) => {
+        this.state.entityStates.forEach((v, i) => {
+          if (v !== undefined && v.clicked !== 'none') {
+            this.dispatch.dispatch('onSelectEntity', {
+              entity: i,
+            })
+          }
           // eslint-disable-next-line no-param-reassign
           if (v !== undefined) v.clicked = 'none'
         })

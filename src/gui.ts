@@ -1,5 +1,11 @@
 import type Dispatch from './dispatch/dispatch'
 import type { RenderRulesKey } from './editor/render/rules/rules'
+import Localization from './localization/interface'
+import {
+  valueIsNumbers,
+  valueIsString,
+  type MessageValue,
+} from './messager-types'
 import ResourceManager from './resource-manager/resource-manager'
 
 const guiStates = {
@@ -41,11 +47,13 @@ class HTMLInterface {
 
   private readonly exportButton: HTMLButtonElement
 
+  private readonly infoDiv: HTMLDivElement
+
   private state: guiStatesKey = guiStates.INIT
 
   private activeCanvas: HTMLCanvasElement | undefined
 
-  public constructor(private readonly dispatch: Readonly<Dispatch>) {
+  public constructor(private readonly dispatch: Readonly<Dispatch>, private readonly localization: Readonly<Localization>) {
     const doomlogo = document.querySelector<HTMLImageElement>('#doomlogo')
     const line = document.querySelector<HTMLHRElement>('#line')
     const mapdiv = document.querySelector<HTMLDivElement>('#mapdiv')
@@ -63,6 +71,7 @@ class HTMLInterface {
       document.querySelector<HTMLButtonElement>('#select-import')
     const exportButton =
       document.querySelector<HTMLButtonElement>('#select-export')
+    const infoDiv = document.querySelector<HTMLDivElement>('#infodiv')
     if (
       mapdiv === null ||
       leftbutton === null ||
@@ -76,7 +85,8 @@ class HTMLInterface {
       importButton === null ||
       exportButton === null ||
       layersDiv === null ||
-      emptyOption === null
+      emptyOption === null ||
+      infoDiv === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -93,22 +103,51 @@ class HTMLInterface {
     this.selectDiv = selectDiv
     this.importButton = importButton
     this.exportButton = exportButton
+    this.infoDiv = infoDiv
     this.addCallbacks()
 
     this.manager = new ResourceManager()
   }
 
+  public showInfo(a: MessageValue[]) {
+    const elements: (HTMLDivElement)[] = []
+    for (const [, v] of Object.entries(a)) {
+      if (valueIsNumbers(v, v.value)) {
+        const str = this.localization.getLocaleNameTranslation(v.localeName)
+        const label = document.createElement('label')
+        label.textContent = str
+        label.htmlFor = v.localeName
+        for (const [, q] of Object.entries(v.value)) {
+          const n = this.localization.getLocaleNameTranslation(q.localeName)
+          const input = document.createElement('input')
+          input.type = 'number'
+          input.id = q.localeName
+          input.value = String(q.val)
+          input.min = '0'
+          const l = document.createElement('label')
+          l.htmlFor = q.localeName
+          l.textContent = n
+          const d = document.createElement('div')
+          d.className = 'info-entry'
+          d.replaceChildren(l, input)
+          elements.push(d)
+        }
+      }
+    }
+    this.infoDiv.replaceChildren(...elements)
+  }
+
   public tick() {
     if (this.state === guiStates.INIT) {
       this.tools.replaceChildren(this.doomlogo, this.selectDiv, this.line)
-    }
-    if (this.state === guiStates.WAD_LOADED) {
+    } else if (this.state === guiStates.WAD_LOADED) {
       this.tools.replaceChildren(
         this.doomlogo,
         this.selectDiv,
         this.line,
         this.mapdiv,
-        this.layersDiv
+        this.layersDiv,
+        this.infoDiv
       )
     }
   }
@@ -123,9 +162,8 @@ class HTMLInterface {
     }
   }
 
-  public changeImportExportNames(
-    opts: Readonly<Record<string, 'export' | 'import'>>
-  ) {
+  public changeImportExportNames() {
+    const opts = this.localization.getImportExport()
     for (const [k, v] of Object.entries(opts)) {
       if (v === 'export') {
         this.exportButton.textContent = k
@@ -135,7 +173,8 @@ class HTMLInterface {
     }
   }
 
-  public changeRenderFlagsNames(opts: Record<string, RenderRulesKey>) {
+  public changeRenderFlagsNames() {
+    const opts = this.localization.getRenderRules()
     for (const [k, v] of Object.entries(opts)) {
       const element = document.querySelector(`#${v}_LABEL`)
       if (element === null) throw new Error('Invalid DOM element!')

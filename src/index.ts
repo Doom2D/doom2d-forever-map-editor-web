@@ -2,6 +2,7 @@ import Application from './application'
 import Dispatch from './dispatch/dispatch'
 import { HTMLInterface, guiStates } from './gui'
 import English from './localization/english'
+import { type MessageValue } from './messager-types'
 import isObject from './utility/is-object'
 import pathSplit from './utility/split-path'
 
@@ -11,17 +12,22 @@ let activeCanvas: HTMLCanvasElement | undefined
 
 const app = new Application('store')
 const dispatch = new Dispatch()
-const gui = new HTMLInterface(dispatch)
 const localization = new English()
-gui.changeRenderFlagsNames(localization.getRenderRules())
-gui.changeImportExportNames(localization.getImportExport())
+const gui = new HTMLInterface(dispatch, localization)
+gui.changeRenderFlagsNames()
+gui.changeImportExportNames()
 gui.tick()
 await app.init()
+let activeTabDispatch: Dispatch | undefined
 
 dispatch.on('onmapselect', async (name: unknown) => {
   if (typeof name !== 'string') throw new Error('Invalid return value!')
   if (activeCanvas === undefined) throw new Error('Canvas is undefined!')
   await app.loadMap(activeTab, name, activeCanvas)
+  activeTabDispatch = app.mapDispatch()
+  activeTabDispatch.on('onElementSelected', (data: MessageValue[]) => {
+    gui.showInfo(data)
+  })
 })
 
 dispatch.on('onruleselect', async (msg: unknown) => {

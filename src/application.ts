@@ -34,6 +34,11 @@ class Application {
     return mapObj.getUnparsed()
   }
 
+  public mapDispatch() {
+    if (this.loadedMap === undefined) throw new Error('Map is not defined yet!')
+    return this.loadedMap.giveDispatch()
+  }
+
   public updateRenderRule(opt: RenderRulesKey, remove: boolean) {
     if (this.loadedMap === undefined) throw new Error('Tried to change render rules before a map is loaded!')
     if (remove) {

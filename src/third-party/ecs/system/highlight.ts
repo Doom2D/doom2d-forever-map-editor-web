@@ -51,6 +51,9 @@ class Highlight extends System {
           }
         } else {
           a.clicked += 1
+          this.dispatch.dispatch('onSelectEntity', {
+            entity,
+          })
         }
         if (a?.clicked === this.clicksToHighlight) {
           const components = this.ecs.getComponents(entity)
@@ -59,6 +62,9 @@ class Highlight extends System {
           selected.key = true
           info.renderer.highlight(entity)
           info.renderer.addResizeArrows(entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity,
+          })
         }
       }
     )

@@ -88,6 +88,15 @@ class ECS {
     public removeSystem(system: System): void {
         this.systems.delete(system);
     }
+    public getEntitiesWithComponent(s: Set<Function>) {
+      const a: Set<number> = new Set()
+        for (const [k, v] of this.entities) {
+            if (v.hasAll(s)) {
+              a.add(k)
+            }
+        }
+        return a
+    }
     public update(): void {
         for (let [system, entities] of this.systems.entries()) {
             system.update(entities)
