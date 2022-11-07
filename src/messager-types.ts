@@ -28,6 +28,17 @@ interface MessageSelectLocale {
   localeName: string
 }
 
+function messageValueIsNumbers(src: string[], x: unknown): x is number {
+  if (src[0] === 'POSITION') return true
+  if (src[0] === 'DIMENSION') return true
+  return false
+}
+
+function messageValueIsSelectLocale(src: string[], x: unknown): x is string {
+  if (src[0] === 'PANELTYPE') return true
+  return false
+}
+
 function valueIsNumbers(
   m: Readonly<MessageValue>,
   v: Readonly<unknown[]>
@@ -74,5 +85,7 @@ export {
   valueIsSelect,
   valueIsPosition,
   valueIsSelectLocale,
-  valueIsBoolean
+  valueIsBoolean,
+  messageValueIsNumbers,
+  messageValueIsSelectLocale
 }

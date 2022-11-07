@@ -38,6 +38,8 @@ class UpdateRender extends System {
           w: size.w,
           h: size.h,
         })
+
+        this.dispatch.dispatch('updateRender', {})
         this.render.clearArrows(data.entity)
         await this.render.clearHighlight(data.entity)
         if (selected === undefined) throw new Error('Invalid entity!')

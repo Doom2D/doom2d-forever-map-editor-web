@@ -7,6 +7,7 @@ import Texture from '../component/texture'
 import { Type } from '../component/type'
 import PanelType from '../component/panel-type'
 import { type Entity, System } from '../minimal-ecs'
+import Dispatch from '../../../dispatch/dispatch'
 
 class Render extends System {
   public readonly componentsRequired = new Set<Function>([
@@ -19,20 +20,41 @@ class Render extends System {
 
   public entitiesLastSeenUpdate = -1
 
+  private readonly state: {
+    entityStates: (
+      | {
+          order: number
+        }
+      | undefined
+    )[]
+  } = {
+    entityStates: [],
+  }
+
   public constructor(
-    private readonly rendererImplementation: Readonly<Renderer>
+    private readonly rendererImplementation: Readonly<Renderer>,
+    private readonly dispatch: Readonly<Dispatch>
   ) {
     super()
+    this.dispatch.on('updateRender', () => {
+      this.updateRender(this.ecs.getEntitiesWithComponent(new Set([ForRender])))
+    })
   }
 
   public init() {
     this.rendererImplementation.init()
   }
 
-  public update(entities: Readonly<Set<Entity>>): void {
+  private updateRender(entities: Readonly<Set<Entity>>) {
     this.entitiesLastSeenUpdate = entities.size
     const renderArray: {
-      ordnung: number
+      entity: number
+      opts: RenderOptions
+    }[] = []
+    const panelArr: {
+      entity: number
+      id: number
+      typeOrder: number
       opts: RenderOptions
     }[] = []
     for (const [, v] of Object.entries(Array.from(entities))) {
@@ -46,8 +68,16 @@ class Render extends System {
         if (type.key === 'panel') {
           const typeComponent = components.get(PanelType)
           const ordnung = typeComponent.key.giveRenderOrder()
-          renderArray.push({
-            ordnung,
+          this.rendererImplementation.deleteEntity(v)
+          this.state.entityStates[v] = {
+            order: ordnung,
+          }
+          panelArr.push({
+            entity: v,
+
+            id: v,
+
+            typeOrder: ordnung,
 
             opts: {
               x: pos.x,
@@ -63,11 +93,23 @@ class Render extends System {
         this.rendererImplementation.deleteEntity(v)
       }
     }
-    for (const [, v] of Object.entries(
-      renderArray.slice().sort((a, b) => a.ordnung - b.ordnung)
-    )) {
+    renderArray.push(
+      ...panelArr
+        .slice()
+        .sort((a, b) => a.id - b.id)
+        .sort((a, b) => a.typeOrder - b.typeOrder)
+        .map((x) => ({
+          opts: x.opts,
+          entity: x.entity,
+        }))
+    )
+    for (const [, v] of Object.entries(renderArray)) {
       this.rendererImplementation.render(v.opts)
     }
+  }
+
+  public update(entities: Readonly<Set<Entity>>): void {
+    this.updateRender(entities)
   }
 
   public async saveImage(key: string, img: Readonly<HTMLImageElement>) {

@@ -26,6 +26,7 @@ dispatch.on('onmapselect', async (name: unknown) => {
   await app.loadMap(activeTab, name, activeCanvas)
   activeTabDispatch = app.mapDispatch()
   activeTabDispatch.on('onElementSelected', (data: MessageValue[]) => {
+    console.log(data)
     gui.showInfo(data)
   })
 })

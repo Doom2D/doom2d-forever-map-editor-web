@@ -65,7 +65,7 @@ class ECSFromMap {
     this.dispatch = new Dispatch()
     this.moveSystem = new Move(this.dispatch)
     this.highlightSystem = new Highlight(this.dispatch)
-    this.renderSystem = new RenderSystem(this.pixi)
+    this.renderSystem = new RenderSystem(this.pixi, this.dispatch)
     this.resizeSystem = new Resize(this.dispatch)
     this.messageSystem = new Message(this.dispatch)
     this.receiveMessageSystem = new ReceiveMessage(this.dispatch)

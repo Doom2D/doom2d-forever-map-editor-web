@@ -3,6 +3,7 @@ import type { RenderRulesKey } from './editor/render/rules/rules'
 import Localization from './localization/interface'
 import {
   valueIsNumbers,
+  valueIsSelectLocale,
   valueIsString,
   type MessageValue,
 } from './messager-types'
@@ -53,8 +54,9 @@ class HTMLInterface {
   private state: guiStatesKey = guiStates.INIT
 
   private info: (() => {
-    src: string[];
-    val: number;
+    src: string[]
+    val: unknown
+    entity: number
 })[] = []
 
   private activeCanvas: HTMLCanvasElement | undefined
@@ -124,10 +126,10 @@ class HTMLInterface {
   public showInfo(a: MessageValue[]) {
     const funcs: (() => {
       src: string[]
-      val: number
+      val: unknown
       entity: number,
   })[] = []
-    const elements: HTMLDivElement[] = []
+    const elements: (Element)[] = []
     for (const [, v] of Object.entries(a)) {
       if (valueIsNumbers(v, v.value)) {
         const str = this.localization.getLocaleNameTranslation(v.localeName)
@@ -159,6 +161,33 @@ class HTMLInterface {
           d.replaceChildren(l, input)
           elements.push(d)
         }
+      } else if (valueIsSelectLocale(v, v.value)) {
+        const str = this.localization.getLocaleNameTranslation(v.localeName)
+        const select = document.createElement('select')
+        select.id = v.localeName
+        const l = document.createElement('label')
+        l.htmlFor = v.localeName
+        l.textContent = str
+        for (const [, q] of Object.entries(v.value)) {
+          const option = document.createElement('option')
+          option.value = q.val
+          option.text = this.localization.getLocaleNameTranslation(q.localeName)
+          select.appendChild(option)
+        }
+        const r = () => { return {
+          src: [v.localeName],
+          val: select.value,
+          entity: v.entity,
+        } }
+        funcs.push(r)
+        select.addEventListener('change', () => {
+          this.applyInfo()
+        })
+        const d = document.createElement('div')
+        d.className = 'info-entry'
+        d.replaceChildren(l, select)
+        elements.push(d)
+        console.log(str)
       }
     }
     this.info = []

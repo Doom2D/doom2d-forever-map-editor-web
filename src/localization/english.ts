@@ -9,7 +9,23 @@ class English implements Localization {
     'Y': 'Y',
     'DIMENSION': 'Dimensions:',
     'WIDTH': 'Width',
-    'HEIGHT': 'Height'
+    'HEIGHT': 'Height',
+    'PANEL_NONE': 'None',
+    'PANEL_FORE': 'Foreground',
+    'PANEL_BACK': 'Background',
+    'PANEL_WALL': 'Wall',
+    'PANEL_WATER': 'Water',
+    'PANEL_ACID1': 'Acid1',
+    'PANEL_ACID2': 'Acid2',
+    'PANEL_STEP': 'Step',
+    'PANEL_LIFTUP': 'Lift Up',
+    'PANEL_LIFTDOWN': 'Lift Down',
+    'PANEL_OPENDOOR': 'Open door',
+    'PANEL_CLOSEDOOR': 'Closed door',
+    'PANEL_BLOCKMON': 'Monster block',
+    'PANEL_LIFTLEFT': 'Lift Left',
+    'PANEL_LIFTRIGHT': 'Lift Right',
+    'PANELTYPE': 'Panel type'
   }
   public getRenderRules = () => ({
     'Hidden ': RenderRules.RENDER_HIDDEN,

@@ -91,16 +91,25 @@ class Message extends System {
       entity: e,
     }
     const typeArr = [
-      ptype.key.giveSrcString(),
+      {
+        val: ptype.key.giveSrcString(),
+        localeName: ptype.key.giveSrcString(),
+      },
       ...Array.from(
-        Object.values(panelTypes).filter((v) => v !== ptype.key.giveSrcString())
+        Object.values(panelTypes)
+          .filter((v) => v !== ptype.key.giveSrcString())
+          .map((v) => ({
+            val: v,
+            localeName: v,
+          }))
       ),
     ]
     const typeInfo: MessageValue = {
       type: 'selectlocale',
-      localeName: 'TYPE',
+      localeName: 'PANELTYPE',
       // eslint-disable-next-line putout/putout
       value: typeArr,
+      entity: e,
     }
     const textureArr = Array.from(
       this.ecs.getEntitiesWithComponent(new Set([Type]))
@@ -123,7 +132,7 @@ class Message extends System {
       .map((v) => v[1])
     const textureInfo: MessageValue = {
       type: 'select',
-      localeName: 'TEXTURE',
+      localeName: 'PANELTEXTURE',
       // eslint-disable-next-line putout/putout
       value: textureArr,
 

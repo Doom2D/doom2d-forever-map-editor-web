@@ -18,4 +18,10 @@ const panelTypes = {
 
 type panelTypesKey = typeof panelTypes[keyof typeof panelTypes]
 
-export { panelTypes, type panelTypesKey }
+function isStringPanelType(x: unknown): x is panelTypesKey {
+  // eslint-disable-next-line unicorn/prefer-includes
+  return Object.values(panelTypes).some((v) => x === v)
+}
+
+export { panelTypes, type panelTypesKey, isStringPanelType }
+
