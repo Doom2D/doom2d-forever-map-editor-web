@@ -7,12 +7,15 @@ interface MessageValue {
     | 'selectlocale'
     | 'string'
   localeName: string
+  entity: number
   value: unknown[]
 }
 
 interface MessageNumbers {
   val: number
   localeName: string
+  max: number
+  min: number
 }
 
 interface MessageSelect {

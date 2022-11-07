@@ -30,6 +30,10 @@ dispatch.on('onmapselect', async (name: unknown) => {
   })
 })
 
+dispatch.on('onElementInfoApply', (data: unknown) => {
+  app.applyInfo(data)
+})
+
 dispatch.on('onruleselect', async (msg: unknown) => {
   if (
     !isObject(msg) ||

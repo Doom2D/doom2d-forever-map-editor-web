@@ -7,6 +7,7 @@ import {
   type MessageValue,
 } from './messager-types'
 import ResourceManager from './resource-manager/resource-manager'
+import { clamp } from './utility/clamp'
 
 const guiStates = {
   INIT: 0,
@@ -50,6 +51,11 @@ class HTMLInterface {
   private readonly infoDiv: HTMLDivElement
 
   private state: guiStatesKey = guiStates.INIT
+
+  private info: (() => {
+    src: string[];
+    val: number;
+})[] = []
 
   private activeCanvas: HTMLCanvasElement | undefined
 
@@ -109,8 +115,19 @@ class HTMLInterface {
     this.manager = new ResourceManager()
   }
 
+  public applyInfo() {
+    for (const [, v] of Object.entries(this.info)) {
+      this.dispatch.dispatch('onElementInfoApply', v())
+    }
+  }
+
   public showInfo(a: MessageValue[]) {
-    const elements: (HTMLDivElement)[] = []
+    const funcs: (() => {
+      src: string[]
+      val: number
+      entity: number,
+  })[] = []
+    const elements: HTMLDivElement[] = []
     for (const [, v] of Object.entries(a)) {
       if (valueIsNumbers(v, v.value)) {
         const str = this.localization.getLocaleNameTranslation(v.localeName)
@@ -123,7 +140,17 @@ class HTMLInterface {
           input.type = 'number'
           input.id = q.localeName
           input.value = String(q.val)
-          input.min = '0'
+          input.min = String(q.min)
+          input.max = String(q.max)
+          const r = () => { return {
+            src: [v.localeName, q.localeName],
+            val: clamp(input.valueAsNumber, Number(input.min), Number(input.max)),
+            entity: v.entity,
+          } }
+          funcs.push(r)
+          input.addEventListener('input', () => {
+            this.applyInfo()
+          })
           const l = document.createElement('label')
           l.htmlFor = q.localeName
           l.textContent = n
@@ -134,6 +161,8 @@ class HTMLInterface {
         }
       }
     }
+    this.info = []
+    this.info.push(...funcs)
     this.infoDiv.replaceChildren(...elements)
   }
 

@@ -56,12 +56,18 @@ class Message extends System {
         {
           localeName: 'X',
           val: pos.x,
+          min: Number.MIN_SAFE_INTEGER,
+          max: Number.MAX_SAFE_INTEGER,
         },
         {
           localeName: 'Y',
           val: pos.y,
+          min: Number.MIN_SAFE_INTEGER,
+          max: Number.MAX_SAFE_INTEGER,
         },
       ],
+
+      entity: e,
     }
     const dimensionsInfo: MessageValue = {
       type: 'numbers',
@@ -71,12 +77,18 @@ class Message extends System {
         {
           localeName: 'WIDTH',
           val: size.w,
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
         },
         {
           localeName: 'HEIGHT',
           val: size.h,
+          min: 1,
+          max: Number.MAX_SAFE_INTEGER,
         },
       ],
+
+      entity: e,
     }
     const typeArr = [
       ptype.key.giveSrcString(),
@@ -114,6 +126,8 @@ class Message extends System {
       localeName: 'TEXTURE',
       // eslint-disable-next-line putout/putout
       value: textureArr,
+
+      entity: e,
     }
     return [posInfo, dimensionsInfo, typeInfo, textureInfo]
   }

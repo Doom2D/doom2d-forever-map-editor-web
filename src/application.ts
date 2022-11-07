@@ -25,6 +25,11 @@ class Application {
     return n
   }
 
+  public applyInfo(data: unknown) {
+    const d = this.mapDispatch()
+    d.dispatch('onElementInfoApply', data)
+  }
+
   public getTabsAmount() {
     return this.tabs
   }

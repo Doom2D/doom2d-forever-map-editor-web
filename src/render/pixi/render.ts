@@ -132,12 +132,28 @@ class Pixi implements Renderer {
     this.viewport.resize(width, height)
   }
 
+  public clearAllArrows() {
+    for (const [, v] of Object.entries(this.state)) {
+      for (const [, w] of Object.entries(v)) {
+        if (w?.arrows !== undefined) {
+          for (const [, a] of Object.entries(w.arrows)) {
+            this.viewport.removeChild(a)
+          }
+        }
+      }
+    }
+  }
+
   public clearArrows(n: number) {
     const a = this.state.entityStates[n]
     if (a === undefined) return
-    a.arrows.forEach((v) => {
+    for (const [, v] of Object.entries(a.arrows)) {
       this.viewport.removeChild(v)
-    })
+    }
+  }
+
+  private clearSpriteHighlight(sprite: Readonly<PIXI.Sprite | PIXI.TilingSprite>) {
+    sprite.removeChildren()
   }
 
   private entityToString(n: number) {
@@ -203,11 +219,12 @@ class Pixi implements Renderer {
     outline.lineStyle(1, 0xff_00_00)
     outline.alpha = 0.5
     outline.drawRect(0, 0, sprite.width, sprite.height)
+    this.clearSpriteHighlight(sprite)
     sprite.addChild(outline)
   }
 
   public async addResizeArrows(entity: number) {
-    this.clearArrows(entity)
+    // this.clearArrows(entity)
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(entity)
     )) as PIXI.TilingSprite
@@ -348,6 +365,7 @@ class Pixi implements Renderer {
     bottomRightRect.y = sprite.y + sprite.height
     bottomRightRect.interactive = true
     this.viewport.addChild(bottomRightRect)
+    this.clearAllArrows()
     this.state.entityStates[entity] = {
       arrows: [
         leftRect,
