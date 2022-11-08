@@ -12,6 +12,7 @@ import Size from '../component/size'
 import { System } from '../minimal-ecs'
 import IdComponent from '../component/id'
 import { PanelTexture } from '../component/panel-texture'
+import Alpha from '../component/alpha'
 
 class ReceiveMessage extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -74,6 +75,12 @@ class ReceiveMessage extends System {
             ei.key = id.key
           }
           id.key = val
+        } else if (data.src[0] === 'ALPHA') {
+          const val = data.val
+          if (!messageValueIsNumbers(data.src, val)) throw new Error('Invalid message!')
+          const alpha = c.get(Alpha)
+          if (alpha === undefined) throw new Error('Invalid entity!')
+          alpha.set(val)
         } else if (data.src[0] === 'PANELTYPE') {
           const val = data.val
           if (!messageValueIsSelectLocale(data.src, val))

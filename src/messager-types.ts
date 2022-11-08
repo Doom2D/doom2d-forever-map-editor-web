@@ -32,6 +32,7 @@ function messageValueIsNumbers(src: string[], x: unknown): x is number {
   if (src[0] === 'POSITION') return true
   if (src[0] === 'DIMENSION') return true
   if (src[0] === 'ID') return true
+  if (src[0] === 'ALPHA') return true
   return false
 }
 

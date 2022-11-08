@@ -9,6 +9,7 @@ import Size from '../component/size'
 import { Type } from '../component/type'
 import { System } from '../minimal-ecs'
 import IdComponent from '../component/id'
+import Alpha from '../component/alpha'
 
 class Message extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -43,12 +44,14 @@ class Message extends System {
     const ptype = components.get(PanelTypeComponent)
     const ptexture = components.get(PanelTexture)
     const id = components.get(IdComponent)
+    const alpha = components.get(Alpha)
     if (
       pos === undefined ||
       size === undefined ||
       ptype === undefined ||
       ptexture === undefined ||
-      id === undefined
+      id === undefined ||
+      alpha === undefined
     )
       throw new Error('Invalid entity highlighted!')
     const posInfo: MessageValue = {
@@ -159,7 +162,22 @@ class Message extends System {
 
       entity: e,
     }
-    return [posInfo, dimensionsInfo, typeInfo, textureInfo, idInfo]
+    const alphaInfo: MessageValue = {
+      type: 'numbers',
+      localeName: 'ALPHA',
+
+      value: [
+        {
+          localeName: 'ALPHAVALUE',
+          val: alpha.key,
+          min: 0,
+          max: 1,
+        },
+      ],
+
+      entity: e,
+    }
+    return [posInfo, dimensionsInfo, typeInfo, textureInfo, idInfo, alphaInfo]
   }
 
   public update() {}

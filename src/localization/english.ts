@@ -28,6 +28,7 @@ class English implements Localization {
     'PANELTYPE': 'Panel type',
     'IDVALUE': 'ID',
     'PANELTEXTURE': 'Texture',
+    'ALPHAVALUE': 'Alpha',
   }
   public getRenderRules = () => ({
     'Hidden ': RenderRules.RENDER_HIDDEN,

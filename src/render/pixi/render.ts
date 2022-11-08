@@ -505,7 +505,7 @@ class Pixi implements Renderer {
       sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
       sprite.width = options.w ?? sprite.width
       sprite.height = options.h ?? sprite.height
-      sprite.alpha = options.alpha ?? 1
+      if (options.alpha !== undefined) sprite.alpha = options.alpha
       sprite.tint = options.tint ?? 0xff_ff_ff
       if (sprite.parent !== this.viewport) {
         this.viewport.addChild(sprite)
