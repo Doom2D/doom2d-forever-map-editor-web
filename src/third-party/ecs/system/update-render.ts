@@ -30,16 +30,9 @@ class UpdateRender extends System {
 
         const components = this.ecs.getComponents(data.entity)
         const selected = components.get(Selected)
-
-        this.render.render({
-          entity: data.entity,
-          x: pos.x,
-          y: pos.y,
-          w: size.w,
-          h: size.h,
+        this.dispatch.dispatch('updateRender', {
+          entities: [data.entity],
         })
-
-        this.dispatch.dispatch('updateRender', {})
         this.render.clearArrows(data.entity)
         await this.render.clearHighlight(data.entity)
         if (selected === undefined) throw new Error('Invalid entity!')

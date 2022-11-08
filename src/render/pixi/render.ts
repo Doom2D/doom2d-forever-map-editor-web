@@ -25,6 +25,7 @@ class Pixi implements Renderer {
       | {
           arrows: (PIXI.Sprite | PIXI.TilingSprite)[]
           cleared: boolean
+          imgKey: string
         }
       | undefined
     )[]
@@ -393,12 +394,25 @@ class Pixi implements Renderer {
     sprite.removeChildren()
   }
 
+  private async cloneSprite() {
+
+  }
+
+  private async updateSpriteTexture(
+    sprite: PIXI.Sprite | PIXI.TilingSprite,
+    imgKey: string
+  ) {
+    const texture = (await this.resourceManager.getItem(imgKey)) as PIXI.Texture
+    sprite.texture = texture
+  }
+
   public async registerEntity(n: number, imgKey: string): Promise<void> {
     const entityString = this.entityToString(n)
     if (this.state.entityStates[n] === undefined) {
       this.state.entityStates[n] = {
         arrows: [],
         cleared: false,
+        imgKey,
       }
     }
     if (
@@ -481,6 +495,15 @@ class Pixi implements Renderer {
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)
       )) as PIXI.TilingSprite
+      if (
+        options.imgKey !== undefined && this.state.entityStates[options.entity] !== undefined &&
+        this.state.entityStates[options.entity]?.imgKey !== options.imgKey
+      ) {
+        console.log(this.viewport.children.indexOf(sprite), sprite.parent)
+        await this.updateSpriteTexture(sprite, options.imgKey)
+        this.state.entityStates[options.entity].imgKey = options.imgKey
+        console.log(this.viewport.children.indexOf(sprite), sprite.parent)
+      }
       sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
       sprite.width = options.w ?? sprite.width
       sprite.height = options.h ?? sprite.height

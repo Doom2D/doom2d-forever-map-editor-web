@@ -9,15 +9,11 @@ import PanelType from '../component/panel-type'
 import { type Entity, System } from '../minimal-ecs'
 import type Dispatch from '../../../dispatch/dispatch'
 import IdComponent from '../component/id'
+import { PanelTexture } from '../component/panel-texture'
+import PathComponent from '../component/path'
 
 class Render extends System {
-  public readonly componentsRequired = new Set<Function>([
-    Position,
-    Size,
-    Texture,
-    ForRender,
-    Type,
-  ])
+  public readonly componentsRequired = new Set<Function>([ForRender])
 
   public entitiesLastSeenUpdate = -1
 
@@ -37,8 +33,15 @@ class Render extends System {
     private readonly dispatch: Readonly<Dispatch>
   ) {
     super()
-    this.dispatch.on('updateRender', () => {
+    this.dispatch.on('updateRender', (a: {
+      entities: number[]
+    }) => {
       this.updateRender(this.ecs.getEntitiesWithComponent(new Set([ForRender])))
+      for (const [, v] of Object.entries(a.entities)) {
+        this.rendererImplementation.render({
+          entity: v,
+        })
+      }
     })
   }
 
@@ -46,7 +49,18 @@ class Render extends System {
     this.rendererImplementation.init()
   }
 
-  private updateRender(entities: Readonly<Set<Entity>>) {
+  public async update(entities: Readonly<Set<Entity>>) {
+    await this.updateRender(entities)
+  }
+
+  public async saveImage(key: string, img: Readonly<HTMLImageElement>) {
+    await (async () => {
+      await this.rendererImplementation.saveImage(key, img)
+    })()
+    return true
+  }
+
+  private async updateRender(entities: Readonly<Set<Entity>>) {
     this.entitiesLastSeenUpdate = entities.size
     const renderArray: {
       entity: number
@@ -60,24 +74,24 @@ class Render extends System {
     }[] = []
     for (const [, v] of Object.entries(Array.from(entities))) {
       const components = this.ecs.getComponents(v)
-      const pos = components.get(Position)
-      const size = components.get(Size)
-      const texture = components.get(Texture)
       const shouldRender = components.get(ForRender)
+      if (shouldRender === undefined) throw new Error('Invalid entity!')
       const type = components.get(Type)
-      const id = components.get(IdComponent)
-      if (
-        pos === undefined ||
-        size === undefined ||
-        texture === undefined ||
-        shouldRender === undefined ||
-        type === undefined ||
-        id === undefined
-      ) {
-        throw new Error('Invalid entity!')
-      }
+      if (type === undefined) throw new Error('Invalid entity!')
       if (shouldRender.shouldRender()) {
         if (type.key === 'panel') {
+          const pos = components.get(Position)
+          const size = components.get(Size)
+          const id = components.get(IdComponent)
+          const textureId = components.get(PanelTexture)
+          if (
+            pos === undefined ||
+            size === undefined ||
+            id === undefined ||
+            textureId === undefined
+          ) {
+            throw new Error('Invalid entity!')
+          }
           const typeComponent = components.get(PanelType)
           if (typeComponent === undefined) throw new Error('Invalid entity!')
           const ordnung = typeComponent.key.giveRenderOrder()
@@ -85,6 +99,11 @@ class Render extends System {
           this.state.entityStates[v] = {
             order: ordnung,
           }
+          const textureComponent = this.ecs.getComponents(textureId.key)
+          const p = textureComponent.get(PathComponent)
+          if (p === undefined)
+            throw new Error('Invalid texture associated with the panel!')
+          const imgKey = p.key.asThisEditorPath(false)
           panelArr.push({
             entity: v,
 
@@ -98,7 +117,7 @@ class Render extends System {
               w: size.w,
               h: size.h,
               entity: v,
-              imgKey: texture.key,
+              imgKey,
             },
           })
         }
@@ -117,19 +136,8 @@ class Render extends System {
         }))
     )
     for (const [, v] of Object.entries(renderArray)) {
-      this.rendererImplementation.render(v.opts)
+      await this.rendererImplementation.render(v.opts)
     }
-  }
-
-  public update(entities: Readonly<Set<Entity>>): void {
-    this.updateRender(entities)
-  }
-
-  public async saveImage(key: string, img: Readonly<HTMLImageElement>) {
-    await (async () => {
-      await this.rendererImplementation.saveImage(key, img)
-    })()
-    return true
   }
 }
 

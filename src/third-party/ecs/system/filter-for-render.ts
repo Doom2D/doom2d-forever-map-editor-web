@@ -10,9 +10,7 @@ import { panelFlags } from '../../../editor/map/panel/flag/flags'
 
 class RenderFilter extends System {
   public readonly componentsRequired = new Set<Function>([
-    Texture,
     ForRender,
-    Type,
   ])
 
   public entitiesLastSeenUpdate = -1
@@ -31,10 +29,12 @@ class RenderFilter extends System {
       const components = this.ecs.getComponents(entity)
       const shouldRender = components.get(ForRender)
       const type = components.get(Type)
+      if (shouldRender === undefined || type === undefined) throw new Error('Invalid entity!')
       const k = type.key
       if (k === 'panel') {
         const flagComponent = components.get(PanelFlags)
         const typeComponent = components.get(PanelType)
+        if (flagComponent === undefined || typeComponent === undefined) throw new Error('Invalid entity!')
         const y = flagComponent.key.giveFlags()
         const x = typeComponent.key.giveRenderOrder()
         if (

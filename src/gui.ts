@@ -3,6 +3,7 @@ import type { RenderRulesKey } from './editor/render/rules/rules'
 import Localization from './localization/interface'
 import {
   valueIsNumbers,
+  valueIsSelect,
   valueIsSelectLocale,
   valueIsString,
   type MessageValue,
@@ -188,7 +189,31 @@ class HTMLInterface {
         d.className = 'info-entry'
         d.replaceChildren(l, select)
         elements.push(d)
-        console.log(str)
+      } else if (valueIsSelect(v, v.value)) {
+        const select = document.createElement('select')
+        select.id = v.localeName
+        const l = document.createElement('label')
+        l.htmlFor = v.localeName
+        l.textContent = this.localization.getLocaleNameTranslation(v.localeName)
+        for (const [, q] of Object.entries(v.value)) {
+          const option = document.createElement('option')
+          option.value = q.val
+          option.text = q.localeName
+          select.appendChild(option)
+        }
+        const r = () => { return {
+          src: [v.localeName],
+          val: select.value,
+          entity: v.entity,
+        } }
+        funcs.push(r)
+        select.addEventListener('change', () => {
+          this.applyInfo()
+        })
+        const d = document.createElement('div')
+        d.className = 'info-entry'
+        d.replaceChildren(l, select)
+        elements.push(d)
       }
     }
     this.info = []

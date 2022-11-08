@@ -40,6 +40,11 @@ function messageValueIsSelectLocale(src: string[], x: unknown): x is string {
   return false
 }
 
+function messageValueIsSelect(src: string[], x: unknown): x is string {
+  if (src[0] === 'PANELTEXTURE') return true
+  return false
+}
+
 function valueIsNumbers(
   m: Readonly<MessageValue>,
   v: Readonly<unknown[]>
@@ -88,5 +93,6 @@ export {
   valueIsSelectLocale,
   valueIsBoolean,
   messageValueIsNumbers,
-  messageValueIsSelectLocale
+  messageValueIsSelectLocale,
+  messageValueIsSelect
 }

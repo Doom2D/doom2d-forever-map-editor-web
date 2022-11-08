@@ -3,6 +3,7 @@ import PanelType from '../../../editor/map/panel/type/type'
 import { isStringPanelType, panelTypes } from '../../../editor/map/panel/type/types'
 import {
   messageValueIsNumbers,
+  messageValueIsSelect,
   messageValueIsSelectLocale,
 } from '../../../messager-types'
 import PanelTypeComponent from '../component/panel-type'
@@ -10,6 +11,7 @@ import Position from '../component/position'
 import Size from '../component/size'
 import { System } from '../minimal-ecs'
 import IdComponent from '../component/id'
+import { PanelTexture } from '../component/panel-texture'
 
 class ReceiveMessage extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -80,6 +82,12 @@ class ReceiveMessage extends System {
           if (type === undefined) throw new Error('Invalid message!')
           if (!isStringPanelType(val)) throw new Error('Invalid panel type!')
           type.key = new PanelType(val)
+        } else if (data.src[0] === 'PANELTEXTURE') {
+          const val = data.val
+          if (!messageValueIsSelect(data.src, val)) throw new Error('Invalid message!')
+          const ptexture = c.get(PanelTexture)
+          if (ptexture === undefined) throw new Error('Invalid message!')
+          ptexture.key = Number(val)
         }
         this.dispatch.dispatch('shouldUpdateRender', {
           entity: data.entity,
