@@ -136,7 +136,7 @@ class Render extends System {
         }))
     )
     for (const [, v] of Object.entries(renderArray)) {
-      await this.rendererImplementation.render(v.opts)
+      this.rendererImplementation.render(v.opts)
     }
   }
 }

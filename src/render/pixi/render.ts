@@ -500,9 +500,11 @@ class Pixi implements Renderer {
         this.state.entityStates[options.entity]?.imgKey !== options.imgKey
       ) {
         console.log(this.viewport.children.indexOf(sprite), sprite.parent)
-        await this.updateSpriteTexture(sprite, options.imgKey)
+        // debugger
+        this.updateSpriteTexture(sprite, options.imgKey)
         this.state.entityStates[options.entity].imgKey = options.imgKey
         console.log(this.viewport.children.indexOf(sprite), sprite.parent)
+        // debugger
       }
       sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
       sprite.width = options.w ?? sprite.width
