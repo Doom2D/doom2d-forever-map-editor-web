@@ -79,6 +79,10 @@ class EditorMap {
       ) {
         throw new Error('Invalid panel in parsed map!')
       }
+      let alpha = 0
+      if (v.alpha !== undefined) {
+        alpha = Number(v.alpha)
+      }
       const texture = this.bindings[v.texture.toLocaleLowerCase()]
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (texture === undefined)
@@ -89,6 +93,7 @@ class EditorMap {
         texture,
         type: v.type,
         flags: v.flags,
+        alpha,
       })
       this.panels.push(panel)
     }

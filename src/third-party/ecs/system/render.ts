@@ -11,6 +11,7 @@ import type Dispatch from '../../../dispatch/dispatch'
 import IdComponent from '../component/id'
 import { PanelTexture } from '../component/panel-texture'
 import PathComponent from '../component/path'
+import Alpha from '../component/alpha'
 
 class Render extends System {
   public readonly componentsRequired = new Set<Function>([ForRender])
@@ -84,11 +85,13 @@ class Render extends System {
           const size = components.get(Size)
           const id = components.get(IdComponent)
           const textureId = components.get(PanelTexture)
+          const alpha = components.get(Alpha)
           if (
             pos === undefined ||
             size === undefined ||
             id === undefined ||
-            textureId === undefined
+            textureId === undefined ||
+            alpha === undefined
           ) {
             throw new Error('Invalid entity!')
           }
@@ -117,6 +120,7 @@ class Render extends System {
               w: size.w,
               h: size.h,
               entity: v,
+              alpha: alpha.key,
               imgKey,
             },
           })

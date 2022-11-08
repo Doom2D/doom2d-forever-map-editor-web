@@ -1,5 +1,6 @@
 import type Texture from '../texture/texture'
 
+import { PanelAlpha } from './alpha/alpha'
 import PanelFlag from './flag/flag'
 import PanelType from './type/type'
 
@@ -14,6 +15,8 @@ class Panel {
 
   private readonly flag: Readonly<PanelFlag>
 
+  private readonly alpha: Readonly<PanelAlpha>
+
   public constructor(
     a: Readonly<{
       position: Readonly<{ x: number; y: number }>
@@ -21,6 +24,7 @@ class Panel {
       texture: Readonly<Texture>
       type: string
       flags: unknown
+      alpha: number
     }>
   ) {
     this.position = {
@@ -34,6 +38,7 @@ class Panel {
     this.texture = a.texture
     this.type = new PanelType(a.type)
     this.flag = new PanelFlag(a.flags)
+    this.alpha = new PanelAlpha(a.alpha)
   }
 
   public givePosition() {
@@ -62,6 +67,10 @@ class Panel {
 
   public giveRenderOrder() {
     return this.type.giveRenderOrder()
+  }
+
+  public giveAlpha() {
+    return this.alpha
   }
 }
 

@@ -25,6 +25,7 @@ import { Message } from '../../third-party/ecs/system/send-message'
 import { ReceiveMessage } from '../../third-party/ecs/system/receive-message'
 import { UpdateRender } from '../../third-party/ecs/system/update-render'
 import IdComponent from '../../third-party/ecs/component/id'
+import Alpha from '../../third-party/ecs/component/alpha'
 
 // more like a Tab
 class ECSFromMap {
@@ -136,6 +137,7 @@ class ECSFromMap {
       const typeComponent = new PanelTypeComponent(v.giveType())
       const flagComponent = new PanelFlags(v.giveFlag())
       const type = new Type('panel')
+      const alpha = new Alpha(v.giveAlpha().getFloat())
       const t = v.giveTexture()
       const s = bindings.find((q) => q.texture === t)
       if (s === undefined) throw new Error('Texture is not found!')
@@ -150,6 +152,7 @@ class ECSFromMap {
       this.ECS.addComponent(entity, textureComponent)
       this.ECS.addComponent(entity, selected)
       this.ECS.addComponent(entity, id)
+      this.ECS.addComponent(entity, alpha)
       i += 1
     }
   }
