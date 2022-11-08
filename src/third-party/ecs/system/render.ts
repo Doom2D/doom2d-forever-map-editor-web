@@ -7,7 +7,8 @@ import Texture from '../component/texture'
 import { Type } from '../component/type'
 import PanelType from '../component/panel-type'
 import { type Entity, System } from '../minimal-ecs'
-import Dispatch from '../../../dispatch/dispatch'
+import type Dispatch from '../../../dispatch/dispatch'
+import IdComponent from '../component/id'
 
 class Render extends System {
   public readonly componentsRequired = new Set<Function>([
@@ -64,9 +65,21 @@ class Render extends System {
       const texture = components.get(Texture)
       const shouldRender = components.get(ForRender)
       const type = components.get(Type)
+      const id = components.get(IdComponent)
+      if (
+        pos === undefined ||
+        size === undefined ||
+        texture === undefined ||
+        shouldRender === undefined ||
+        type === undefined ||
+        id === undefined
+      ) {
+        throw new Error('Invalid entity!')
+      }
       if (shouldRender.shouldRender()) {
         if (type.key === 'panel') {
           const typeComponent = components.get(PanelType)
+          if (typeComponent === undefined) throw new Error('Invalid entity!')
           const ordnung = typeComponent.key.giveRenderOrder()
           this.rendererImplementation.deleteEntity(v)
           this.state.entityStates[v] = {
@@ -75,7 +88,7 @@ class Render extends System {
           panelArr.push({
             entity: v,
 
-            id: v,
+            id: id.key,
 
             typeOrder: ordnung,
 

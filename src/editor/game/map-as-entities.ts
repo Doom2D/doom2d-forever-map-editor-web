@@ -24,6 +24,7 @@ import { Resize } from '../../third-party/ecs/system/resize'
 import { Message } from '../../third-party/ecs/system/send-message'
 import { ReceiveMessage } from '../../third-party/ecs/system/receive-message'
 import { UpdateRender } from '../../third-party/ecs/system/update-render'
+import IdComponent from '../../third-party/ecs/component/id'
 
 // more like a Tab
 class ECSFromMap {
@@ -123,10 +124,12 @@ class ECSFromMap {
         entity,
       })
     }
+    let i = 0
     for (const [, v] of Object.entries(this.map.givePanels())) {
       const entity = this.ECS.addEntity()
       const pos = v.givePosition()
       const dimensions = v.giveDimensions()
+      const id = new IdComponent(i)
       const position = new Position(pos.x, pos.y)
       const size = new Size(dimensions.width, dimensions.height)
       const pathStr = v.giveTexture().givePath().asThisEditorPath(false)
@@ -149,6 +152,8 @@ class ECSFromMap {
       this.ECS.addComponent(entity, flagComponent)
       this.ECS.addComponent(entity, textureComponent)
       this.ECS.addComponent(entity, selected)
+      this.ECS.addComponent(entity, id)
+      i += 1
     }
   }
 

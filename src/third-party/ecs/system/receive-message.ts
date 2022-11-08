@@ -9,6 +9,7 @@ import PanelTypeComponent from '../component/panel-type'
 import Position from '../component/position'
 import Size from '../component/size'
 import { System } from '../minimal-ecs'
+import IdComponent from '../component/id'
 
 class ReceiveMessage extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -52,6 +53,25 @@ class ReceiveMessage extends System {
               height: val,
             })
           }
+        } else if (data.src[0] === 'ID') {
+          const val = data.val
+          if (!messageValueIsNumbers(data.src, val)) throw new Error('Invalid message!')
+          const id = c.get(IdComponent)
+          if (id === undefined) throw new Error('Invalid entity!')
+          const entities = this.ecs.getEntitiesWithComponent(new Set([IdComponent]))
+          const sameId = Array.from(entities).find((v) => {
+            const ec = this.ecs.getComponents(v)
+            const ei = ec.get(IdComponent)
+            if (ei === undefined) throw new Error('Invalid entity!')
+            return ei.key === val
+          })
+          if (sameId !== undefined) {
+            const ec = this.ecs.getComponents(sameId)
+            const ei = ec.get(IdComponent)
+            if (ei === undefined) throw new Error('Invalid entity!')
+            ei.key = id.key
+          }
+          id.key = val
         } else if (data.src[0] === 'PANELTYPE') {
           const val = data.val
           if (!messageValueIsSelectLocale(data.src, val))

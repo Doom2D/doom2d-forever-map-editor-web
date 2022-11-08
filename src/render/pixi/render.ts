@@ -24,6 +24,7 @@ class Pixi implements Renderer {
     entityStates: (
       | {
           arrows: (PIXI.Sprite | PIXI.TilingSprite)[]
+          cleared: boolean
         }
       | undefined
     )[]
@@ -152,7 +153,9 @@ class Pixi implements Renderer {
     }
   }
 
-  private clearSpriteHighlight(sprite: Readonly<PIXI.Sprite | PIXI.TilingSprite>) {
+  private clearSpriteHighlight(
+    sprite: Readonly<PIXI.Sprite | PIXI.TilingSprite>
+  ) {
     sprite.removeChildren()
   }
 
@@ -170,6 +173,7 @@ class Pixi implements Renderer {
         x: x.x - Math.round(point.x),
         y: x.y - Math.round(point.y),
       }
+      console.log('dragStart')
       d.dispatch('onDragStart', {
         renderer: this,
         entity,
@@ -366,18 +370,18 @@ class Pixi implements Renderer {
     bottomRightRect.interactive = true
     this.viewport.addChild(bottomRightRect)
     this.clearAllArrows()
-    this.state.entityStates[entity] = {
-      arrows: [
-        leftRect,
-        rightRect,
-        topRect,
-        bottomRect,
-        topLeftRect,
-        bottomLeftRect,
-        topRightRect,
-        bottomRightRect,
-      ],
-    }
+    const u = this.state.entityStates[entity]
+    if (u === undefined) throw new Error('Invalid entity!')
+    u.arrows = [
+      leftRect,
+      rightRect,
+      topRect,
+      bottomRect,
+      topLeftRect,
+      bottomLeftRect,
+      topRightRect,
+      bottomRightRect,
+    ]
 
     addListeners('resizeBottomRight', 'bottomright', bottomRightRect)
   }
@@ -391,6 +395,12 @@ class Pixi implements Renderer {
 
   public async registerEntity(n: number, imgKey: string): Promise<void> {
     const entityString = this.entityToString(n)
+    if (this.state.entityStates[n] === undefined) {
+      this.state.entityStates[n] = {
+        arrows: [],
+        cleared: false,
+      }
+    }
     if (
       imgKey === '[]_water_0' ||
       imgKey === '[]_water_1' ||
@@ -453,6 +463,9 @@ class Pixi implements Renderer {
     const sprite = (await this.resourceManager.getItem(
       entityString
     )) as PIXI.TilingSprite
+    this.clearArrows(n)
+    this.clearSpriteHighlight(sprite)
+    // sprite.removeAllListeners()
     // eslint-disable-next-line unicorn/prefer-dom-node-remove
     this.viewport.removeChild(sprite)
   }

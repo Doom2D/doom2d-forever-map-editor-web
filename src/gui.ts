@@ -9,6 +9,7 @@ import {
 } from './messager-types'
 import ResourceManager from './resource-manager/resource-manager'
 import { clamp } from './utility/clamp'
+import { debounce } from './utility/debounce'
 
 const guiStates = {
   INIT: 0,
@@ -150,9 +151,9 @@ class HTMLInterface {
             entity: v.entity,
           } }
           funcs.push(r)
-          input.addEventListener('input', () => {
+          input.addEventListener('input', debounce(() => {
             this.applyInfo()
-          })
+          }, 200))
           const l = document.createElement('label')
           l.htmlFor = q.localeName
           l.textContent = n

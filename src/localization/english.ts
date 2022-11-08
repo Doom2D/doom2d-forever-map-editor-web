@@ -25,7 +25,8 @@ class English implements Localization {
     'PANEL_BLOCKMON': 'Monster block',
     'PANEL_LIFTLEFT': 'Lift Left',
     'PANEL_LIFTRIGHT': 'Lift Right',
-    'PANELTYPE': 'Panel type'
+    'PANELTYPE': 'Panel type',
+    'IDVALUE': 'ID',
   }
   public getRenderRules = () => ({
     'Hidden ': RenderRules.RENDER_HIDDEN,
