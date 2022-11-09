@@ -1,8 +1,13 @@
 import type Dispatch from '../../../dispatch/dispatch'
 import PanelType from '../../../editor/map/panel/type/type'
-import { isStringPanelType, panelTypes } from '../../../editor/map/panel/type/types'
 import {
+  isStringPanelType,
+  panelTypes,
+} from '../../../editor/map/panel/type/types'
+import {
+  messageValueIsBoolean,
   messageValueIsNumbers,
+  messageValueIsPosition,
   messageValueIsSelect,
   messageValueIsSelectLocale,
 } from '../../../messager-types'
@@ -13,6 +18,7 @@ import { System } from '../minimal-ecs'
 import IdComponent from '../component/id'
 import { PanelTexture } from '../component/panel-texture'
 import Alpha from '../component/alpha'
+import Platform from '../component/panel-platform'
 
 class ReceiveMessage extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -58,10 +64,13 @@ class ReceiveMessage extends System {
           }
         } else if (data.src[0] === 'ID') {
           const val = data.val
-          if (!messageValueIsNumbers(data.src, val)) throw new Error('Invalid message!')
+          if (!messageValueIsNumbers(data.src, val))
+            throw new Error('Invalid message!')
           const id = c.get(IdComponent)
           if (id === undefined) throw new Error('Invalid entity!')
-          const entities = this.ecs.getEntitiesWithComponent(new Set([IdComponent]))
+          const entities = this.ecs.getEntitiesWithComponent(
+            new Set([IdComponent])
+          )
           const sameId = Array.from(entities).find((v) => {
             const ec = this.ecs.getComponents(v)
             const ei = ec.get(IdComponent)
@@ -77,7 +86,8 @@ class ReceiveMessage extends System {
           id.key = val
         } else if (data.src[0] === 'ALPHA') {
           const val = data.val
-          if (!messageValueIsNumbers(data.src, val)) throw new Error('Invalid message!')
+          if (!messageValueIsNumbers(data.src, val))
+            throw new Error('Invalid message!')
           const alpha = c.get(Alpha)
           if (alpha === undefined) throw new Error('Invalid entity!')
           alpha.set(val)
@@ -91,10 +101,40 @@ class ReceiveMessage extends System {
           type.key = new PanelType(val)
         } else if (data.src[0] === 'PANELTEXTURE') {
           const val = data.val
-          if (!messageValueIsSelect(data.src, val)) throw new Error('Invalid message!')
+          if (!messageValueIsSelect(data.src, val))
+            throw new Error('Invalid message!')
           const ptexture = c.get(PanelTexture)
           if (ptexture === undefined) throw new Error('Invalid message!')
           ptexture.key = Number(val)
+        } else if (data.src[0] === 'PLATFORMINFO') {
+          const val = data.val
+          const platform = c.get(Platform)
+          console.log(data)
+          if (platform === undefined) throw new Error('Invalid entity!')
+          if (messageValueIsBoolean(data.src, val)) {
+            if (data.src[1] === 'PLATFORMACTIVEINFOVALUE') {
+              platform.moveActive = val
+            } else if (data.src[1] === 'PLATFORMONCEINFOVALUE') {
+              platform.moveOnce = val
+            } else {
+              throw new Error('Invalid message!')
+            }
+          } else if (messageValueIsPosition(data.src, val)) {
+            if (data.src[1] === 'PLATFORMMOVESPEEDVALUE') {
+              console.log(data)
+              if (data.src[2] === 'X') {
+                platform.movespeed.set({
+                  x: val,
+                })
+              } else if (data.src[2] === 'Y') {
+                platform.movespeed.set({
+                  y: val,
+                })
+              }
+            }
+          } else {
+            throw new Error('Invalid message!')
+          }
         }
         this.dispatch.dispatch('shouldUpdateRender', {
           entity: data.entity,

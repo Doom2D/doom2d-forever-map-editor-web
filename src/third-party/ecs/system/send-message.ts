@@ -10,6 +10,7 @@ import { Type } from '../component/type'
 import { System } from '../minimal-ecs'
 import IdComponent from '../component/id'
 import Alpha from '../component/alpha'
+import Platform from '../component/panel-platform'
 
 class Message extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -45,13 +46,15 @@ class Message extends System {
     const ptexture = components.get(PanelTexture)
     const id = components.get(IdComponent)
     const alpha = components.get(Alpha)
+    const platform = components.get(Platform)
     if (
       pos === undefined ||
       size === undefined ||
       ptype === undefined ||
       ptexture === undefined ||
       id === undefined ||
-      alpha === undefined
+      alpha === undefined ||
+      platform === undefined
     )
       throw new Error('Invalid entity highlighted!')
     const posInfo: MessageValue = {
@@ -177,7 +180,65 @@ class Message extends System {
 
       entity: e,
     }
-    return [posInfo, dimensionsInfo, typeInfo, textureInfo, idInfo, alphaInfo]
+    const platformBoolInfo: MessageValue = {
+      type: 'boolean',
+      localeName: 'PLATFORMINFO',
+
+      value: [
+        {
+          localeName: 'PLATFORMACTIVEINFOVALUE',
+          val: Boolean(platform.moveActive),
+        },
+        {
+          localeName: 'PLATFORMONCEINFOVALUE',
+          val: Boolean(platform.moveOnce),
+        },
+      ],
+
+      entity: e,
+    }
+    const apply = (
+      p: Readonly<{
+        x: number
+        y: number
+      }>
+    ) => [
+      {
+        val: p.x,
+        localeName: 'X',
+        min: Number.MIN_SAFE_INTEGER,
+        max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        val: p.y,
+        localeName: 'Y',
+        min: Number.MIN_SAFE_INTEGER,
+        max: Number.MAX_SAFE_INTEGER,
+      },
+    ]
+    const platformPosInfo: MessageValue = {
+      type: 'position',
+      localeName: 'PLATFORMINFO',
+
+      value: [
+        {
+          localeName: 'PLATFORMMOVESPEEDVALUE',
+          val: apply(platform.movespeed),
+        },
+      ],
+
+      entity: e,
+    }
+    return [
+      posInfo,
+      dimensionsInfo,
+      typeInfo,
+      textureInfo,
+      idInfo,
+      alphaInfo,
+      platformBoolInfo,
+      platformPosInfo,
+    ]
   }
 
   public update() {}

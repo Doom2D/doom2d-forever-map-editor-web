@@ -28,6 +28,17 @@ interface MessageSelectLocale {
   localeName: string
 }
 
+interface MessageBoolean {
+  val: boolean
+  localeName: string
+}
+
+interface MessagePosition {
+  val: [MessageNumbers, MessageNumbers]
+  localeName: string
+  localeNames: [string, string]
+}
+
 function messageValueIsNumbers(src: string[], x: unknown): x is number {
   if (src[0] === 'POSITION') return true
   if (src[0] === 'DIMENSION') return true
@@ -43,6 +54,24 @@ function messageValueIsSelectLocale(src: string[], x: unknown): x is string {
 
 function messageValueIsSelect(src: string[], x: unknown): x is string {
   if (src[0] === 'PANELTEXTURE') return true
+  return false
+}
+
+function messageValueIsBoolean(src: string[], x: unknown): x is boolean {
+  if (src[0] === 'PLATFORMINFO') {
+    if (src[1] === 'PLATFORMACTIVEINFOVALUE') return true
+    if (src[1] === 'PLATFORMONCEINFOVALUE') return true
+  }
+  return false
+}
+
+function messageValueIsPosition(src: string[], x: unknown): x is number {
+  if (src[0] === 'PLATFORMINFO') {
+    if (src[1] === 'PLATFORMMOVESPEEDVALUE') {
+      if (src[2] === 'X') return true
+      if (src[2] === 'Y') return true
+    }
+  }
   return false
 }
 
@@ -74,14 +103,14 @@ function valueIsSelectLocale(m: Readonly<MessageValue>, v: Readonly<unknown[]>):
 function valueIsPosition(
   m: Readonly<MessageValue>,
   v: Readonly<unknown[]>
-): v is never[] {
+): v is MessagePosition[] {
   return m.type === 'position'
 }
 
 function valueIsBoolean(
   m: Readonly<MessageValue>,
   v: Readonly<unknown[]>
-): v is never[] {
+): v is MessageBoolean[] {
   return m.type === 'boolean'
 }
 
@@ -95,5 +124,7 @@ export {
   valueIsBoolean,
   messageValueIsNumbers,
   messageValueIsSelectLocale,
-  messageValueIsSelect
+  messageValueIsSelect,
+  messageValueIsBoolean,
+  messageValueIsPosition
 }

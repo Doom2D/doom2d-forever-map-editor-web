@@ -65,10 +65,17 @@ class Pixi implements Renderer {
       (ev: Readonly<PIXI.InteractionEvent>) => {
         const s = this.renderer.plugins.interaction.hitTest(ev.data.global)
         const e = this.resourceManager.findCached(s)
-        this.dispatch?.dispatch('onMouseUp', {
-          e,
-          renderer: this,
-        })
+        if (e === undefined) {
+          this.dispatch?.dispatch('onMouseInAir', {
+            entity: -1,
+            renderer: this,
+          })
+        } else {
+          this.dispatch?.dispatch('onMouseUpGeneral', {
+            entity: e,
+            renderer: this,
+          })
+        }
       }
     )
   }
@@ -153,7 +160,6 @@ class Pixi implements Renderer {
       this.viewport.removeChild(v)
     }
   }
-
   private clearSpriteHighlight(
     sprite: Readonly<PIXI.Sprite | PIXI.TilingSprite>
   ) {
@@ -169,6 +175,7 @@ class Pixi implements Renderer {
     if (d === undefined) throw new Error('Dispatch is not defined yet!')
     const x = sprite
     const onDragStart = (ev: Readonly<PIXI.InteractionEvent>) => {
+      if (this.selecting) return
       const point = this.viewport.toWorld(ev.data.global)
       const offset = {
         x: x.x - Math.round(point.x),
@@ -182,6 +189,7 @@ class Pixi implements Renderer {
       })
     }
     const onDragMove = (ev: Readonly<PIXI.InteractionEvent>) => {
+      if (this.selecting) return
       const point = this.viewport.toWorld(ev.data.global)
       d.dispatch('onDragMove', {
         renderer: this,
@@ -194,6 +202,7 @@ class Pixi implements Renderer {
       })
     }
     const onDragEnd = (ev: Readonly<PIXI.InteractionEvent>) => {
+      if (this.selecting) return
       const point = this.viewport.toWorld(ev.data.global)
       d.dispatch('onDragEnd', {
         renderer: this,
@@ -247,6 +256,7 @@ class Pixi implements Renderer {
 
     const addListeners = (name: string, direction: string, s: PIXI.Sprite) => {
       s.addListener('pointerdown', () => {
+        if (this.selecting) return
         this.dispatch?.dispatch('resizeStart', {
           direction,
           entity,
@@ -266,6 +276,7 @@ class Pixi implements Renderer {
       })
 
       s.addListener('pointermove', (ev: Readonly<PIXI.InteractionEvent>) => {
+        if (this.selecting) return
         const point = this.viewport.toWorld(ev.data.global)
         const w = {
           renderer: this,
@@ -393,11 +404,6 @@ class Pixi implements Renderer {
     )) as PIXI.TilingSprite
     sprite.removeChildren()
   }
-
-  private async cloneSprite() {
-
-  }
-
   private async updateSpriteTexture(
     sprite: PIXI.Sprite | PIXI.TilingSprite,
     imgKey: string
@@ -491,12 +497,12 @@ class Pixi implements Renderer {
       ) {
         await this.registerEntity(options.entity, options.imgKey ?? '')
       }
-      // sadly, we have to do this
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)
       )) as PIXI.TilingSprite
       if (
-        options.imgKey !== undefined && this.state.entityStates[options.entity] !== undefined &&
+        options.imgKey !== undefined &&
+        this.state.entityStates[options.entity] !== undefined &&
         this.state.entityStates[options.entity]?.imgKey !== options.imgKey
       ) {
         this.updateSpriteTexture(sprite, options.imgKey)

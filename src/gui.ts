@@ -2,7 +2,9 @@ import type Dispatch from './dispatch/dispatch'
 import type { RenderRulesKey } from './editor/render/rules/rules'
 import Localization from './localization/interface'
 import {
+  valueIsBoolean,
   valueIsNumbers,
+  valueIsPosition,
   valueIsSelect,
   valueIsSelectLocale,
   valueIsString,
@@ -214,6 +216,76 @@ class HTMLInterface {
         d.className = 'info-entry'
         d.replaceChildren(l, select)
         elements.push(d)
+      } else if (valueIsBoolean(v, v.value)) {
+        const str = this.localization.getLocaleNameTranslation(v.localeName)
+        const label = document.createElement('label')
+        label.textContent = str
+        label.htmlFor = v.localeName
+        console.log(v)
+        for (const [, q] of Object.entries(v.value)) {
+          const n = this.localization.getLocaleNameTranslation(q.localeName)
+          const input = document.createElement('input')
+          input.type = 'checkbox'
+          input.id = q.localeName
+          if (q.val) input.checked = true
+          else input.checked = false
+          const r = () => { return {
+            src: [v.localeName, q.localeName],
+            val: Boolean(input.checked),
+            entity: v.entity,
+          } }
+          funcs.push(r)
+          input.addEventListener('click', () => {
+            this.applyInfo()
+          })
+          const l = document.createElement('label')
+          l.htmlFor = q.localeName
+          l.textContent = n
+          const d = document.createElement('div')
+          d.className = 'info-entry'
+          d.replaceChildren(l, input)
+          elements.push(d)
+        }
+      } else if (valueIsPosition(v, v.value)) {
+        for (const [, q] of Object.entries(v.value)) {
+          const d = document.createElement('div')
+          d.className = 'info-entry'
+          const l = document.createElement('button')
+          // l.htmlFor = q.localeName
+          l.textContent = this.localization.getLocaleNameTranslation(q.localeName)
+          const y = () => {
+            this.dispatch.dispatch('onSelectPositionStart', {
+              entity: v.entity
+            })
+          }
+          l.addEventListener('click', () => {
+            y()
+          })
+          d.appendChild(l)
+          for (const [, i] of Object.entries(q.val)) {
+            const input = document.createElement('input')
+            input.type = 'number'
+            input.id = q.localeName
+            input.value = String(i.val)
+            input.min = String(i.min)
+            input.max = String(i.max)
+            const r = () => { return {
+              src: [v.localeName, q.localeName, i.localeName],
+              val: clamp(input.valueAsNumber, Number(input.min), Number(input.max)),
+              entity: v.entity,
+            } }
+            funcs.push(r)
+            input.addEventListener('input', debounce(() => {
+              this.applyInfo()
+            }, 200))
+            const l = document.createElement('label')
+            l.htmlFor = i.localeName
+            l.textContent = this.localization.getLocaleNameTranslation(i.localeName)
+            d.appendChild(l)
+            d.appendChild(input)
+          }
+          elements.push(d)
+        }
       }
     }
     this.info = []

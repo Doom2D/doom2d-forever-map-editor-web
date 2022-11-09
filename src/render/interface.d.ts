@@ -29,6 +29,7 @@ interface Renderer {
   highlight(n: number): unknown
   clearArrows(n: number): unknown
   clearHighlight(n: number): unknown
+  selectStart(n: number): unknown
 }
 
 export { Renderer, RenderOptions }

@@ -1,86 +1,46 @@
 import { System } from '../minimal-ecs'
-import ForRender from '../component/for-render'
-import Position from '../component/position'
-import { Type } from '../component/type'
 import type Dispatch from '../../../dispatch/dispatch'
 import { Selected } from '../component/selected'
 import { type Renderer } from '../../../render/interface'
+import { Highlighted } from '../component/highlighted'
 
 class Highlight extends System {
-  public readonly componentsRequired = new Set<Function>([
-    Position,
-    ForRender,
-    Type,
-  ])
+  public readonly componentsRequired = new Set<Function>([Selected])
 
   public entitiesLastSeenUpdate = -1
 
-  private readonly clicksToHighlight = 2
-
-  private readonly state: {
-    entityStates: (
-      | {
-          clicked: number
-        }
-      | undefined
-    )[]
-  } = {
-    entityStates: [],
-  }
+  private readonly clicksToHighlight = 1
 
   public constructor(private readonly dispatch: Readonly<Dispatch>) {
     super()
     this.dispatch.on(
-      'onDragStart',
-      (info: Readonly<{ entity: number; renderer: Readonly<Renderer> }>) => {
-        const entity = info.entity
-        this.state.entityStates.forEach((v, i) => {
-          if (v === undefined || i === entity) return
-          const components = this.ecs.getComponents(i)
-          v.clicked = 0
-          const selected = components.get(Selected)
-          info.renderer.clearArrows(i)
-          info.renderer.clearHighlight(i)
-          if (selected === undefined) throw new Error('Invalid entity!')
-          selected.key = false
-        })
-        const a = this.state.entityStates[entity]
-        if (this.state.entityStates[entity] === undefined) {
-          this.state.entityStates[entity] = {
-            clicked: 1,
-          }
-        } else {
-          a.clicked += 1
-          this.dispatch.dispatch('onSelectEntity', {
-            entity,
-          })
-        }
-        if (a?.clicked === this.clicksToHighlight) {
-          const components = this.ecs.getComponents(entity)
-          const selected = components.get(Selected)
-          if (selected === undefined) throw new Error('Invalid entity!')
-          selected.key = true
-          info.renderer.highlight(entity)
-          info.renderer.addResizeArrows(entity)
-          this.dispatch.dispatch('onSelectEntity', {
-            entity,
-          })
-        }
+      'onDeselectEntity',
+      (
+        a: Readonly<{
+          entity: number
+          renderer: Readonly<Renderer>
+        }>
+      ) => {
+        const c = this.ecs.getComponents(a.entity)
+        const highlight = c.get(Highlighted)
+        if (highlight === undefined) throw new Error('Invalid entity!')
+        highlight.key = false
+        a.renderer.clearHighlight(a.entity)
       }
     )
     this.dispatch.on(
-      'onDragEnd',
+      'onSelectEntity',
       (
-        info: Readonly<{
-          renderer: Readonly<Renderer>
+        a: Readonly<{
           entity: number
+          renderer: Readonly<Renderer>
         }>
       ) => {
-        const components = this.ecs.getComponents(info.entity)
-        const selected = components.get(Selected)
-        if (selected === undefined) throw new Error('Invalid entity!')
-        info.renderer.clearArrows(info.entity)
-        info.renderer.addResizeArrows(info.entity)
+        const c = this.ecs.getComponents(a.entity)
+        const highlight = c.get(Highlighted)
+        if (highlight === undefined) throw new Error('Invalid entity!')
+        highlight.key = true
+        a.renderer.highlight(a.entity)
       }
     )
   }

@@ -26,7 +26,10 @@ class EditorMap {
 
   private readonly textures: Texture[] = []
 
-  public constructor(private readonly src: Readonly<Record<string, unknown>>, private readonly filename: string) {
+  public constructor(
+    private readonly src: Readonly<Record<string, unknown>>,
+    private readonly filename: string
+  ) {
     const thisIsForLater: Record<string, unknown>[] = []
     for (const [k, v] of Object.entries(src)) {
       if (typeof v === 'string') {
@@ -83,6 +86,31 @@ class EditorMap {
       if (v.alpha !== undefined) {
         alpha = Number(v.alpha)
       }
+      const moveSpeed: number[] = [0, 0]
+      const sizeSpeed: number[] = [0, 0]
+      const moveStart: number[] = [0, 0]
+      const moveEnd: number[] = [0, 0]
+      const sizeEnd: number[] = [0, 0]
+      let moveActive = false
+      let moveOnce = false
+      const apply = (arr: unknown, srcArr: number[]) => {
+        if (
+          arr !== undefined &&
+          Array.isArray(arr) &&
+          typeof arr[0] === 'number' &&
+          typeof arr[1] === 'number'
+        ) {
+          srcArr[0] = arr[0]
+          srcArr[1] = arr[1]
+        }
+      }
+      apply(v.move_speed, moveSpeed)
+      apply(v.size_speed, sizeSpeed)
+      apply(v.move_start, moveStart)
+      apply(v.move_end, moveEnd)
+      apply(v.size_end, sizeEnd)
+      if (typeof v.move_active === 'boolean') moveActive = v.move_active
+      if (typeof v.move_once === 'boolean') moveOnce = v.move_once
       const texture = this.bindings[v.texture.toLocaleLowerCase()]
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (texture === undefined)
@@ -94,6 +122,13 @@ class EditorMap {
         type: v.type,
         flags: v.flags,
         alpha,
+        moveSpeed,
+        sizeSpeed,
+        moveStart,
+        moveEnd,
+        sizeEnd,
+        moveActive,
+        moveOnce,
       })
       this.panels.push(panel)
     }

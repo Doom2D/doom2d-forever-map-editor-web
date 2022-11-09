@@ -31,6 +31,17 @@ dispatch.on('onmapselect', async (name: unknown) => {
   })
 })
 
+dispatch.on(
+  'onSelectPositionStart',
+  (
+    data: Readonly<{
+      entity: number
+    }>
+  ) => {
+    app.selectPositionStart(data)
+  }
+)
+
 dispatch.on('onElementInfoApply', (data: unknown) => {
   app.applyInfo(data)
 })

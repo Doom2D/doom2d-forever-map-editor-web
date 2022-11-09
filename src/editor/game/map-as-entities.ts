@@ -12,13 +12,12 @@ import PanelFlags from '../../third-party/ecs/component/panel-flag'
 import RenderFilter from '../../third-party/ecs/system/filter-for-render'
 import { type RenderRulesKey } from '../render/rules/rules'
 import { EditorMapFromECS } from '../../third-party/ecs/system/create-editormap'
-import ImageKey from '../../third-party/ecs/component/texture'
 import { PanelTexture } from '../../third-party/ecs/component/panel-texture'
 import PathComponent from '../../third-party/ecs/component/path'
 import type Texture from '../map/texture/texture'
 import { Move } from '../../third-party/ecs/system/move'
 import Dispatch from '../../dispatch/dispatch'
-import { Highlight } from '../../third-party/ecs/system/highlight'
+import { Select } from '../../third-party/ecs/system/select'
 import { Selected } from '../../third-party/ecs/component/selected'
 import { Resize } from '../../third-party/ecs/system/resize'
 import { Message } from '../../third-party/ecs/system/send-message'
@@ -26,6 +25,14 @@ import { ReceiveMessage } from '../../third-party/ecs/system/receive-message'
 import { UpdateRender } from '../../third-party/ecs/system/update-render'
 import IdComponent from '../../third-party/ecs/component/id'
 import Alpha from '../../third-party/ecs/component/alpha'
+import Platform from '../../third-party/ecs/component/panel-platform'
+import { SelectPosition } from '../../third-party/ecs/system/select-position'
+import Moveable from '../../third-party/ecs/component/moveable'
+import { Highlighted } from '../../third-party/ecs/component/highlighted'
+import Resizeable from '../../third-party/ecs/component/resizeable'
+import { Resizing } from '../../third-party/ecs/component/resizing'
+import { StartResizing } from '../../third-party/ecs/system/start-resizing'
+import { Highlight } from '../../third-party/ecs/system/highlight'
 
 // more like a Tab
 class ECSFromMap {
@@ -43,7 +50,7 @@ class ECSFromMap {
 
   private readonly moveSystem: Move
 
-  private readonly highlightSystem: Highlight
+  private readonly selectSystem: Select
 
   private readonly resizeSystem: Resize
 
@@ -52,6 +59,12 @@ class ECSFromMap {
   private readonly receiveMessageSystem: ReceiveMessage
 
   private readonly updataRenderSystem: UpdateRender
+
+  private readonly selectPositionSystem: SelectPosition
+
+  private readonly startResizingSystem: StartResizing
+
+  private readonly highlightSystem: Highlight
 
   private renderRules: RenderRulesKey[] = []
 
@@ -66,12 +79,15 @@ class ECSFromMap {
     this.mapCreatorSystem = new EditorMapFromECS()
     this.dispatch = new Dispatch()
     this.moveSystem = new Move(this.dispatch)
-    this.highlightSystem = new Highlight(this.dispatch)
+    this.selectSystem = new Select(this.dispatch)
     this.renderSystem = new RenderSystem(this.pixi, this.dispatch)
     this.resizeSystem = new Resize(this.dispatch)
     this.messageSystem = new Message(this.dispatch)
     this.receiveMessageSystem = new ReceiveMessage(this.dispatch)
     this.updataRenderSystem = new UpdateRender(this.dispatch, this.pixi)
+    this.selectPositionSystem = new SelectPosition(this.dispatch, this.pixi)
+    this.startResizingSystem = new StartResizing(this.dispatch)
+    this.highlightSystem = new Highlight(this.dispatch)
   }
 
   public giveDispatch() {
@@ -142,7 +158,26 @@ class ECSFromMap {
       const s = bindings.find((q) => q.texture === t)
       if (s === undefined) throw new Error('Texture is not found!')
       const textureComponent = new PanelTexture(s.entity)
-      const selected = new Selected(false)
+      const selected = new Selected(0)
+      const highlighted = new Highlighted(false)
+      const moveable = new Moveable(false)
+      const resizeable = new Resizeable(false)
+      const resizing = new Resizing(false)
+      const applyPlatform = (
+        p: Readonly<{
+          x: number
+          y: number
+        }>
+      ) => new Position(p.x, p.y)
+      const platform = v.givePlatform()
+      const platformComponent = new Platform(platform.getMoveActive())
+      platformComponent.moveActive = platform.getMoveActive()
+      platformComponent.moveOnce = platform.getMoveOnce()
+      platformComponent.movespeed = applyPlatform(platform.getMoveSpeed())
+      platformComponent.sizespeed = applyPlatform(platform.getSizeSpeed())
+      platformComponent.movestart = applyPlatform(platform.getMoveStart())
+      platformComponent.moveEnd = applyPlatform(platform.getMoveEnd())
+      platformComponent.sizeEnd = applyPlatform(platform.getSizeEnd())
       this.ECS.addComponent(entity, position)
       this.ECS.addComponent(entity, size)
       this.ECS.addComponent(entity, shouldRender)
@@ -153,6 +188,11 @@ class ECSFromMap {
       this.ECS.addComponent(entity, selected)
       this.ECS.addComponent(entity, id)
       this.ECS.addComponent(entity, alpha)
+      this.ECS.addComponent(entity, platformComponent)
+      this.ECS.addComponent(entity, moveable)
+      this.ECS.addComponent(entity, highlighted)
+      this.ECS.addComponent(entity, resizeable)
+      this.ECS.addComponent(entity, resizing)
       i += 1
     }
   }
@@ -170,15 +210,18 @@ class ECSFromMap {
 
   public async init() {
     this.renderSystem.init()
+    this.ECS.addSystem(this.selectSystem)
+    this.ECS.addSystem(this.highlightSystem)
     this.ECS.addSystem(this.filterSystem)
     this.ECS.addSystem(this.renderSystem)
     this.ECS.addSystem(this.mapCreatorSystem)
     this.ECS.addSystem(this.moveSystem)
-    this.ECS.addSystem(this.highlightSystem)
     this.ECS.addSystem(this.resizeSystem)
     this.ECS.addSystem(this.messageSystem)
     this.ECS.addSystem(this.receiveMessageSystem)
     this.ECS.addSystem(this.updataRenderSystem)
+    this.ECS.addSystem(this.selectPositionSystem)
+    this.ECS.addSystem(this.startResizingSystem)
     this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)

@@ -3,6 +3,8 @@ import type Dispatch from '../../../dispatch/dispatch'
 import { type Renderer } from '../../../render/interface'
 import ForRender from '../component/for-render'
 import Position from '../component/position'
+import Resizeable from '../component/resizeable'
+import { Resizing } from '../component/resizing'
 import { Selected } from '../component/selected'
 import Size from '../component/size'
 import { Type } from '../component/type'
@@ -39,11 +41,7 @@ class Resize extends System {
     entityStates: [],
   }
 
-  public readonly componentsRequired = new Set<Function>([
-    Position,
-    ForRender,
-    Type,
-  ])
+  public readonly componentsRequired = new Set<Function>([Resizeable])
 
   public entitiesLastSeenUpdate = -1
 
@@ -120,7 +118,11 @@ class Resize extends System {
       ) => {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'left') return
+        console.log(a, 'resizingLeft')
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.w / a.base.w
@@ -185,6 +187,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'right') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.w / a.base.w
@@ -249,6 +254,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'top') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.h / a.base.h
@@ -314,6 +322,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'bottom') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const grids = info.sprite.h / a.base.h
@@ -378,6 +389,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'topleft') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
@@ -462,6 +476,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'topright') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
@@ -546,6 +563,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'bottomleft') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
@@ -629,6 +649,9 @@ class Resize extends System {
         const a = this.state.entityStates[info.entity]
         if (a === undefined || a.clicked !== 'bottomright') return
         const components = this.ecs.getComponents(info.entity)
+        const resizing = components.get(Resizing)
+        if (resizing === undefined) throw new Error('Invalid entity!')
+        if (!resizing.key) return
         const size = components.get(Size)
         if (size === undefined) throw new Error('Invalid entity!')
         const gridsY = info.sprite.h / a.base.h
@@ -681,21 +704,6 @@ class Resize extends System {
           })
           info.renderer.highlight(info.entity)
         }
-      }
-    )
-
-    this.dispatch.on(
-      'onMouseUp',
-      (info: Readonly<{ e: number | undefined }>) => {
-        this.state.entityStates.forEach((v, i) => {
-          if (v !== undefined && v.clicked !== 'none') {
-            this.dispatch.dispatch('onSelectEntity', {
-              entity: i,
-            })
-          }
-          // eslint-disable-next-line no-param-reassign
-          if (v !== undefined) v.clicked = 'none'
-        })
       }
     )
   }

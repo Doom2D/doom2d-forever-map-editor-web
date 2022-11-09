@@ -29,6 +29,9 @@ class English implements Localization {
     'IDVALUE': 'ID',
     'PANELTEXTURE': 'Texture',
     'ALPHAVALUE': 'Alpha',
+    'PLATFORMACTIVEINFOVALUE': 'Platform active',
+    'PLATFORMONCEINFOVALUE': 'Move once',
+    'PLATFORMMOVESPEEDVALUE': 'Move speed',
   }
   public getRenderRules = () => ({
     'Hidden ': RenderRules.RENDER_HIDDEN,

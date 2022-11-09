@@ -34,6 +34,14 @@ class Application {
     return this.tabs
   }
 
+  public selectPositionStart(
+    a: Readonly<{
+      entity: number
+    }>
+  ) {
+    this.mapDispatch().dispatch('selectPositionStart', a)
+  }
+
   public getMapJSON(src: Readonly<ArrayBuffer | string>) {
     const mapObj = new convertedMap(src)
     return mapObj.getUnparsed()
@@ -45,7 +53,8 @@ class Application {
   }
 
   public updateRenderRule(opt: RenderRulesKey, remove: boolean) {
-    if (this.loadedMap === undefined) throw new Error('Tried to change render rules before a map is loaded!')
+    if (this.loadedMap === undefined)
+      throw new Error('Tried to change render rules before a map is loaded!')
     if (remove) {
       this.loadedMap.addRule(opt)
     } else {

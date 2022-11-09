@@ -2,6 +2,7 @@ import type Texture from '../texture/texture'
 
 import { PanelAlpha } from './alpha/alpha'
 import PanelFlag from './flag/flag'
+import { PanelPlatform } from './platform/platform'
 import PanelType from './type/type'
 
 class Panel {
@@ -17,6 +18,8 @@ class Panel {
 
   private readonly alpha: Readonly<PanelAlpha>
 
+  private readonly platform: Readonly<PanelPlatform>
+
   public constructor(
     a: Readonly<{
       position: Readonly<{ x: number; y: number }>
@@ -25,6 +28,13 @@ class Panel {
       type: string
       flags: unknown
       alpha: number
+      moveSpeed: Readonly<number[]>
+      sizeSpeed: Readonly<number[]>
+      moveStart: Readonly<number[]>
+      moveEnd: Readonly<number[]>
+      sizeEnd: Readonly<number[]>
+      moveActive: boolean
+      moveOnce: boolean
     }>
   ) {
     this.position = {
@@ -39,6 +49,14 @@ class Panel {
     this.type = new PanelType(a.type)
     this.flag = new PanelFlag(a.flags)
     this.alpha = new PanelAlpha(a.alpha)
+    this.platform = new PanelPlatform()
+    this.platform.setMoveSpeed(a.moveSpeed[0], a.moveSpeed[1])
+    this.platform.setSizeSpeed(a.sizeSpeed[0], a.sizeSpeed[1])
+    this.platform.setMoveStart(a.moveStart[0], a.moveStart[1])
+    this.platform.setMoveEnd(a.moveEnd[0], a.moveEnd[1])
+    this.platform.setSizeEnd(a.sizeEnd[0], a.sizeEnd[1])
+    this.platform.setMoveActive(a.moveActive)
+    this.platform.setMoveOnce(a.moveOnce)
   }
 
   public givePosition() {
@@ -71,6 +89,10 @@ class Panel {
 
   public giveAlpha() {
     return this.alpha
+  }
+
+  public givePlatform() {
+    return this.platform
   }
 }
 

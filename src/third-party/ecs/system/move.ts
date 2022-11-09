@@ -1,7 +1,9 @@
 import type Dispatch from '../../../dispatch/dispatch'
 import { type Renderer } from '../../../render/interface'
 import ForRender from '../component/for-render'
+import Moveable from '../component/moveable'
 import Position from '../component/position'
+import { Resizing } from '../component/resizing'
 import { Selected } from '../component/selected'
 import { Type } from '../component/type'
 import { System } from '../minimal-ecs'
@@ -12,7 +14,6 @@ class Move extends System {
   private readonly state: {
     entityStates: (
       | {
-          clicked: boolean
           offset: { x: number; y: number }
         }
       | undefined
@@ -21,11 +22,7 @@ class Move extends System {
     entityStates: [],
   }
 
-  public readonly componentsRequired = new Set<Function>([
-    Position,
-    ForRender,
-    Type,
-  ])
+  public readonly componentsRequired = new Set<Function>([Position, Selected])
 
   public entitiesLastSeenUpdate = -1
 
@@ -45,25 +42,16 @@ class Move extends System {
       ) => {
         const components = this.ecs.getComponents(info.entity)
         const selected = components.get(Selected)
-        if (selected === undefined) throw new Error('Invalid entity!')
-        if (selected.key) {
+        const moveable = components.get(Moveable)
+        if (selected === undefined || moveable === undefined)
+          throw new Error('Invalid entity!')
+        if (selected.key > 0) {
+          moveable.key = true
           this.state.entityStates[info.entity] = {
-            clicked: true,
-
             offset: {
               x: Math.round(info.offset.x / this.grid) * this.grid,
 
               y: Math.round(info.offset.y / this.grid) * this.grid,
-            },
-          }
-        } else {
-          this.state.entityStates[info.entity] = {
-            clicked: false,
-
-            offset: {
-              x: 0,
-
-              y: 0,
             },
           }
         }
@@ -83,9 +71,12 @@ class Move extends System {
       ) => {
         const components = this.ecs.getComponents(info.entity)
         const selected = components.get(Selected)
-        if (selected === undefined) throw new Error('Invalid entity!')
+        const moveable = components.get(Moveable)
+        if (selected === undefined || moveable === undefined)
+          throw new Error('Invalid entity!')
+        if (!moveable.key) return
         const a = this.state.entityStates[info.entity]
-        if (a === undefined || !a.clicked) return
+        if (a === undefined) return
         info.renderer.render({
           entity: info.entity,
           x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
@@ -98,7 +89,7 @@ class Move extends System {
       (
         info: Readonly<{
           renderer: Readonly<Renderer>
-          entity: number,
+          entity: number
           point: Readonly<{
             x: number
             y: number
@@ -106,21 +97,17 @@ class Move extends System {
         }>
       ) => {
         const a = this.state.entityStates[info.entity]
-        if (a === undefined || !a.clicked) return
+        if (a === undefined) return
         const components = this.ecs.getComponents(info.entity)
+        const moveable = components.get(Moveable)
+        if (moveable === undefined) throw new Error('Invalid entity!')
+        moveable.key = false
         const pos = components.get(Position)
         if (pos === undefined) throw new Error('Invalid entity!')
         pos.set({
           x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
-          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y
+          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,
         })
-        this.dispatch.dispatch('onSelectEntity', {
-          entity: info.entity,
-        })
-        this.state.entityStates[info.entity] = {
-          clicked: false,
-          offset: { x: 0, y: 0 },
-        }
       }
     )
   }
