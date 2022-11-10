@@ -25,6 +25,15 @@ class ResourceManager {
     return undefined
   }
 
+  public removeItem(key: string, cache = false, persist = false) {
+    if (cache) {
+      this.cacheObject[key] = undefined
+    }
+    if (persist) {
+      throw new Error('Not implemented!')
+    }
+  }
+
   public async saveItem(key: string, value: unknown, cache = false, persist = false) {
     if (cache) {
       this.cacheObject[key] = value

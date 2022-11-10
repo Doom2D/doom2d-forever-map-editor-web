@@ -17,29 +17,14 @@ class UpdateRender extends System {
     super()
     this.dispatch.on(
       'shouldUpdateRender',
-      async (
+      (
         data: Readonly<{
           entity: number
         }>
       ) => {
-        const c = this.ecs.getComponents(data.entity)
-        const pos = c.get(Position)
-        const size = c.get(Size)
-        if (pos === undefined || size === undefined)
-          throw new Error('Invalid entity!')
-
-        const components = this.ecs.getComponents(data.entity)
-        const selected = components.get(Selected)
         this.dispatch.dispatch('updateRender', {
           entities: [data.entity],
         })
-        this.render.clearArrows(data.entity)
-        await this.render.clearHighlight(data.entity)
-        if (selected === undefined) throw new Error('Invalid entity!')
-        if (selected.key) {
-          await this.render.highlight(data.entity)
-          await this.render.addResizeArrows(data.entity)
-        }
       }
     )
   }

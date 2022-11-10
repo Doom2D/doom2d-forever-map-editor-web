@@ -67,7 +67,7 @@ function messageValueIsBoolean(src: string[], x: unknown): x is boolean {
 
 function messageValueIsPosition(src: string[], x: unknown): x is number {
   if (src[0] === 'PLATFORMINFO') {
-    if (src[1] === 'PLATFORMMOVESPEEDVALUE') {
+    if (src[1] === 'PLATFORMMOVESTARTVALUE' || src[1] === 'PLATFORMMOVEENDVALUE') {
       if (src[2] === 'X') return true
       if (src[2] === 'Y') return true
     }
@@ -126,5 +126,6 @@ export {
   messageValueIsSelectLocale,
   messageValueIsSelect,
   messageValueIsBoolean,
-  messageValueIsPosition
+  messageValueIsPosition,
+  type MessagePosition,
 }

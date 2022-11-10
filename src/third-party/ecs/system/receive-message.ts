@@ -120,14 +120,24 @@ class ReceiveMessage extends System {
               throw new Error('Invalid message!')
             }
           } else if (messageValueIsPosition(data.src, val)) {
-            if (data.src[1] === 'PLATFORMMOVESPEEDVALUE') {
-              console.log(data)
+            if (data.src[1] === 'PLATFORMMOVESTARTVALUE') {
               if (data.src[2] === 'X') {
-                platform.movespeed.set({
+                platform.movestart.set({
                   x: val,
                 })
               } else if (data.src[2] === 'Y') {
-                platform.movespeed.set({
+                platform.movestart.set({
+                  y: val,
+                })
+              }
+            }
+            if (data.src[1] === 'PLATFORMMOVEENDVALUE') {
+              if (data.src[2] === 'X') {
+                platform.moveEnd.set({
+                  x: val,
+                })
+              } else if (data.src[2] === 'Y') {
+                platform.moveEnd.set({
                   y: val,
                 })
               }

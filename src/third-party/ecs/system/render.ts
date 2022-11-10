@@ -34,9 +34,7 @@ class Render extends System {
     private readonly dispatch: Readonly<Dispatch>
   ) {
     super()
-    this.dispatch.on('updateRender', (a: {
-      entities: number[]
-    }) => {
+    this.dispatch.on('updateRender', (a: { entities: number[] }) => {
       this.updateRender(this.ecs.getEntitiesWithComponent(new Set([ForRender])))
       for (const [, v] of Object.entries(a.entities)) {
         this.rendererImplementation.render({
@@ -98,7 +96,7 @@ class Render extends System {
           const typeComponent = components.get(PanelType)
           if (typeComponent === undefined) throw new Error('Invalid entity!')
           const ordnung = typeComponent.key.giveRenderOrder()
-          this.rendererImplementation.deleteEntity(v)
+          this.rendererImplementation.removeEntity(v)
           this.state.entityStates[v] = {
             order: ordnung,
           }
@@ -126,7 +124,7 @@ class Render extends System {
           })
         }
       } else {
-        this.rendererImplementation.deleteEntity(v)
+        this.rendererImplementation.removeEntity(v)
       }
     }
     renderArray.push(

@@ -37,6 +37,8 @@ class Application {
   public selectPositionStart(
     a: Readonly<{
       entity: number
+      src: unknown
+      msg: unknown
     }>
   ) {
     this.mapDispatch().dispatch('selectPositionStart', a)

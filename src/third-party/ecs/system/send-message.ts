@@ -222,8 +222,12 @@ class Message extends System {
 
       value: [
         {
-          localeName: 'PLATFORMMOVESPEEDVALUE',
-          val: apply(platform.movespeed),
+          localeName: 'PLATFORMMOVESTARTVALUE',
+          val: apply(platform.movestart),
+        },
+        {
+          localeName: 'PLATFORMMOVEENDVALUE',
+          val: apply(platform.moveEnd),
         },
       ],
 

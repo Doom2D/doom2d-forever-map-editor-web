@@ -70,17 +70,19 @@ class Move extends System {
         }>
       ) => {
         const components = this.ecs.getComponents(info.entity)
-        const selected = components.get(Selected)
         const moveable = components.get(Moveable)
-        if (selected === undefined || moveable === undefined)
-          throw new Error('Invalid entity!')
+        if (moveable === undefined) throw new Error('Invalid entity!')
         if (!moveable.key) return
-        const a = this.state.entityStates[info.entity]
-        if (a === undefined) return
         info.renderer.render({
           entity: info.entity,
-          x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
-          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,
+
+          x:
+            Math.round(info.point.x / this.grid) * this.grid +
+            (this.state.entityStates[info.entity]?.offset.x ?? 0),
+
+          y:
+            Math.round(info.point.y / this.grid) * this.grid +
+            (this.state.entityStates[info.entity]?.offset.y ?? 0),
         })
       }
     )

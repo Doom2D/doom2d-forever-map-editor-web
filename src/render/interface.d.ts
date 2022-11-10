@@ -18,6 +18,7 @@ interface Renderer {
   saveImage(key: string, src: HTMLImageElement): Promise<unknown>
   registerEntity(n: number, imgKey: string): Promise<unknown>
   deleteEntity(n: number): unknown
+  removeEntity(n: number): unknown
   render(options: RenderOptions): unknown
   update(): unknown
   clear(): unknown

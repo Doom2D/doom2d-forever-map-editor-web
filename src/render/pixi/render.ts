@@ -399,10 +399,12 @@ class Pixi implements Renderer {
   }
 
   public async clearHighlight(n: number) {
-    const sprite = (await this.resourceManager.getItem(
-      this.entityToString(n)
-    )) as PIXI.TilingSprite
-    sprite.removeChildren()
+    try {
+      const sprite = (await this.resourceManager.getItem(
+        this.entityToString(n)
+      )) as PIXI.TilingSprite
+      sprite.removeChildren()
+    } catch {}
   }
   private async updateSpriteTexture(
     sprite: PIXI.Sprite | PIXI.TilingSprite,
@@ -477,17 +479,26 @@ class Pixi implements Renderer {
     await this.resourceManager.saveItem(key, texture, true)
   }
 
-  public async deleteEntity(n: number) {
-    const entityString = this.entityToString(n)
-    if (!this.resourceManager.cachedAtKey(entityString)) return
-    const sprite = (await this.resourceManager.getItem(
-      entityString
-    )) as PIXI.TilingSprite
+  public async removeEntity(n: number) {
+    try {
+      const entityString = this.entityToString(n)
+      if (!this.resourceManager.cachedAtKey(entityString)) return
+      const sprite = (await this.resourceManager.getItem(
+        entityString
+      )) as PIXI.TilingSprite
+      this.clearSpriteHighlight(sprite)
+      // sprite.removeAllListeners()
+      // eslint-disable-next-line unicorn/prefer-dom-node-remove
+      this.viewport.removeChild(sprite)
+    } catch {
+
+    }
     this.clearArrows(n)
-    this.clearSpriteHighlight(sprite)
-    // sprite.removeAllListeners()
-    // eslint-disable-next-line unicorn/prefer-dom-node-remove
-    this.viewport.removeChild(sprite)
+  }
+
+  public async deleteEntity(n: number) {
+    await this.removeEntity(n)
+    this.resourceManager.removeItem(this.entityToString(n), true, false)
   }
 
   public async render(options: Readonly<RenderOptions>) {
@@ -512,7 +523,7 @@ class Pixi implements Renderer {
       sprite.width = options.w ?? sprite.width
       sprite.height = options.h ?? sprite.height
       if (options.alpha !== undefined) sprite.alpha = options.alpha
-      sprite.tint = options.tint ?? 0xff_ff_ff
+      if (options.tint !== undefined) sprite.tint = options.tint
       if (sprite.parent !== this.viewport) {
         this.viewport.addChild(sprite)
       }

@@ -255,7 +255,9 @@ class HTMLInterface {
           l.textContent = this.localization.getLocaleNameTranslation(q.localeName)
           const y = () => {
             this.dispatch.dispatch('onSelectPositionStart', {
-              entity: v.entity
+              entity: v.entity,
+              src: v,
+              msg: q,
             })
           }
           l.addEventListener('click', () => {
