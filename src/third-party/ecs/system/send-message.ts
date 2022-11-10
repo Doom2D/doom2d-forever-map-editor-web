@@ -11,6 +11,7 @@ import { System } from '../minimal-ecs'
 import IdComponent from '../component/id'
 import Alpha from '../component/alpha'
 import Platform from '../component/panel-platform'
+import { Highlighted } from '../component/highlighted'
 
 class Message extends System {
   public readonly componentsRequired = new Set<Function>([Position])
@@ -33,6 +34,8 @@ class Message extends System {
         const components = this.ecs.getComponents(e)
         const type = components.get(Type)
         if (type === undefined) throw new Error('Invalid entity highlighted!')
+        const h = components.get(Highlighted)
+        if (h?.never ?? false) return
         if (type.key === 'panel') {
           const m = this.panelMessage(e)
           this.dispatch.dispatch('onElementSelected', m)
