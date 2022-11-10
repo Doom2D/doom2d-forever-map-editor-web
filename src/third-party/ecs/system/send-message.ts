@@ -19,6 +19,9 @@ class Message extends System {
 
   public constructor(private readonly dispatch: Readonly<Dispatch>) {
     super()
+    this.dispatch.on('onMouseInAir', () => {
+      this.dispatch.dispatch('onElementSelected', [])
+    })
     this.dispatch.on(
       'onSelectEntity',
       (
