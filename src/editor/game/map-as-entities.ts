@@ -33,6 +33,7 @@ import Resizeable from '../../third-party/ecs/component/resizeable'
 import { Resizing } from '../../third-party/ecs/component/resizing'
 import { StartResizing } from '../../third-party/ecs/system/start-resizing'
 import { Highlight } from '../../third-party/ecs/system/highlight'
+import { SelectSize } from '../../third-party/ecs/system/select-size'
 
 // more like a Tab
 class ECSFromMap {
@@ -66,6 +67,8 @@ class ECSFromMap {
 
   private readonly highlightSystem: Highlight
 
+  private readonly selectSizeSystem: SelectSize
+
   private renderRules: RenderRulesKey[] = []
 
   public constructor(
@@ -88,6 +91,7 @@ class ECSFromMap {
     this.selectPositionSystem = new SelectPosition(this.dispatch, this.pixi)
     this.startResizingSystem = new StartResizing(this.dispatch)
     this.highlightSystem = new Highlight(this.dispatch)
+    this.selectSizeSystem = new SelectSize(this.dispatch, this.pixi)
   }
 
   public giveDispatch() {
@@ -222,6 +226,7 @@ class ECSFromMap {
     this.ECS.addSystem(this.updataRenderSystem)
     this.ECS.addSystem(this.selectPositionSystem)
     this.ECS.addSystem(this.startResizingSystem)
+    this.ECS.addSystem(this.selectSizeSystem)
     this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)

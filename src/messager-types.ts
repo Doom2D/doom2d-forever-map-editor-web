@@ -5,6 +5,7 @@ interface MessageValue {
     | 'position'
     | 'select'
     | 'selectlocale'
+    | 'size'
     | 'string'
   localeName: string
   entity: number
@@ -31,6 +32,12 @@ interface MessageSelectLocale {
 interface MessageBoolean {
   val: boolean
   localeName: string
+}
+
+interface MessagePosition {
+  val: [MessageNumbers, MessageNumbers]
+  localeName: string
+  localeNames: [string, string]
 }
 
 interface MessagePosition {
@@ -67,10 +74,20 @@ function messageValueIsBoolean(src: string[], x: unknown): x is boolean {
 
 function messageValueIsPosition(src: string[], x: unknown): x is number {
   if (src[0] === 'PLATFORMINFO') {
-    if (src[1] === 'PLATFORMMOVESTARTVALUE' || src[1] === 'PLATFORMMOVEENDVALUE') {
+    if (
+      src[1] === 'PLATFORMMOVESTARTVALUE' ||
+      src[1] === 'PLATFORMMOVEENDVALUE'
+    ) {
       if (src[2] === 'X') return true
       if (src[2] === 'Y') return true
     }
+  }
+  return false
+}
+
+function messageValueIsSize(src: string[], x: unknown): x is number {
+  if (src[0] === 'PLATFORMINFO') {
+    if (src[1] === 'PLATFORMSIZEENDVALUE') return true
   }
   return false
 }
@@ -96,7 +113,10 @@ function valueIsSelect(
   return m.type === 'select'
 }
 
-function valueIsSelectLocale(m: Readonly<MessageValue>, v: Readonly<unknown[]>): v is MessageSelectLocale[] {
+function valueIsSelectLocale(
+  m: Readonly<MessageValue>,
+  v: Readonly<unknown[]>
+): v is MessageSelectLocale[] {
   return m.type === 'selectlocale'
 }
 
@@ -114,6 +134,10 @@ function valueIsBoolean(
   return m.type === 'boolean'
 }
 
+function valueIsSize(m: Readonly<MessageValue>, v: Readonly<unknown[]>): v is MessagePosition[] {
+  return m.type === 'size'
+}
+
 export {
   type MessageValue,
   valueIsNumbers,
@@ -122,10 +146,12 @@ export {
   valueIsPosition,
   valueIsSelectLocale,
   valueIsBoolean,
+  valueIsSize,
   messageValueIsNumbers,
   messageValueIsSelectLocale,
   messageValueIsSelect,
   messageValueIsBoolean,
   messageValueIsPosition,
+  messageValueIsSize,
   type MessagePosition,
 }

@@ -7,6 +7,7 @@ import {
   valueIsPosition,
   valueIsSelect,
   valueIsSelectLocale,
+  valueIsSize,
   valueIsString,
   type MessageValue,
 } from './messager-types'
@@ -246,15 +247,16 @@ class HTMLInterface {
           d.replaceChildren(l, input)
           elements.push(d)
         }
-      } else if (valueIsPosition(v, v.value)) {
+      } else if (valueIsPosition(v, v.value) || valueIsSize(v, v.value)) {
         for (const [, q] of Object.entries(v.value)) {
           const d = document.createElement('div')
           d.className = 'info-entry'
           const l = document.createElement('button')
           // l.htmlFor = q.localeName
           l.textContent = this.localization.getLocaleNameTranslation(q.localeName)
+          const event = (valueIsPosition(v, v.value) ? 'onSelectPositionStart' : 'onSelectSizeStart')
           const y = () => {
-            this.dispatch.dispatch('onSelectPositionStart', {
+            this.dispatch.dispatch(event, {
               entity: v.entity,
               src: v,
               msg: q,

@@ -42,6 +42,15 @@ dispatch.on(
   }
 )
 
+dispatch.on(
+  'onSelectSizeStart',
+  (
+    data: unknown
+  ) => {
+    app.selectSizeStart(data)
+  }
+)
+
 dispatch.on('onElementInfoApply', (data: unknown) => {
   app.applyInfo(data)
 })

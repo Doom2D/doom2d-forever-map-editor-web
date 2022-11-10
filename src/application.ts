@@ -44,6 +44,10 @@ class Application {
     this.mapDispatch().dispatch('selectPositionStart', a)
   }
 
+  public selectSizeStart(a: unknown) {
+    this.mapDispatch().dispatch('selectSizeStart', a)
+  }
+
   public getMapJSON(src: Readonly<ArrayBuffer | string>) {
     const mapObj = new convertedMap(src)
     return mapObj.getUnparsed()

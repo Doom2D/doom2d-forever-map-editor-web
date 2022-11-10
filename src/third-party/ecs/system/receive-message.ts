@@ -10,6 +10,7 @@ import {
   messageValueIsPosition,
   messageValueIsSelect,
   messageValueIsSelectLocale,
+  messageValueIsSize,
 } from '../../../messager-types'
 import PanelTypeComponent from '../component/panel-type'
 import Position from '../component/position'
@@ -142,7 +143,20 @@ class ReceiveMessage extends System {
                 })
               }
             }
+          } else if (messageValueIsSize(data.src, val)) {
+            if (data.src[1] === 'PLATFORMSIZEENDVALUE') {
+              if (data.src[2] === 'X') {
+                platform.sizeEnd.set({
+                  x: val,
+                })
+              } else if (data.src[2] === 'Y') {
+                platform.sizeEnd.set({
+                  y: val,
+                })
+              }
+            }
           } else {
+            console.log(data, val)
             throw new Error('Invalid message!')
           }
         }

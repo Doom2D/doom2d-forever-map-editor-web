@@ -32,6 +32,7 @@ class English implements Localization {
     'PLATFORMACTIVEINFOVALUE': 'Platform active',
     'PLATFORMONCEINFOVALUE': 'Move once',
     'PLATFORMMOVESPEEDVALUE': 'Move speed',
+    'PLATFORMSIZEENDVALUE': 'Size end'
   }
   public getRenderRules = () => ({
     'Hidden ': RenderRules.RENDER_HIDDEN,

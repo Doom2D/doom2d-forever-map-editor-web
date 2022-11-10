@@ -233,6 +233,19 @@ class Message extends System {
 
       entity: e,
     }
+    const platformSizeInfo: MessageValue = {
+      type: 'size',
+      localeName: 'PLATFORMINFO',
+
+      value: [
+        {
+          localeName: 'PLATFORMSIZEENDVALUE',
+          val: apply(platform.sizeEnd),
+        },
+      ],
+
+      entity: e,
+    }
     return [
       posInfo,
       dimensionsInfo,
@@ -242,6 +255,7 @@ class Message extends System {
       alphaInfo,
       platformBoolInfo,
       platformPosInfo,
+      platformSizeInfo,
     ]
   }
 

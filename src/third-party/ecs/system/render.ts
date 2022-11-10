@@ -12,6 +12,8 @@ import IdComponent from '../component/id'
 import { PanelTexture } from '../component/panel-texture'
 import PathComponent from '../component/path'
 import Alpha from '../component/alpha'
+import { Highlighted } from '../component/highlighted'
+import Resizeable from '../component/resizeable'
 
 class Render extends System {
   public readonly componentsRequired = new Set<Function>([ForRender])
@@ -63,12 +65,16 @@ class Render extends System {
     this.entitiesLastSeenUpdate = entities.size
     const renderArray: {
       entity: number
+      highlight: boolean
+      arrows: boolean
       opts: RenderOptions
     }[] = []
     const panelArr: {
       entity: number
       id: number
       typeOrder: number
+      highlight: boolean
+      arrows: boolean
       opts: RenderOptions
     }[] = []
     for (const [, v] of Object.entries(Array.from(entities))) {
@@ -84,6 +90,10 @@ class Render extends System {
           const id = components.get(IdComponent)
           const textureId = components.get(PanelTexture)
           const alpha = components.get(Alpha)
+          const highlighted = components.get(Highlighted)
+          const resizeable = components.get(Resizeable)
+          let highlight = highlighted?.key ?? false
+          let arrows = resizeable?.key ?? false
           if (
             pos === undefined ||
             size === undefined ||
@@ -112,6 +122,10 @@ class Render extends System {
 
             typeOrder: ordnung,
 
+            highlight,
+
+            arrows,
+
             opts: {
               x: pos.x,
               y: pos.y,
@@ -133,12 +147,22 @@ class Render extends System {
         .sort((a, b) => a.id - b.id)
         .sort((a, b) => a.typeOrder - b.typeOrder)
         .map((x) => ({
+          highlight: x.highlight,
+          arrows: x.arrows,
           opts: x.opts,
           entity: x.entity,
         }))
     )
     for (const [, v] of Object.entries(renderArray)) {
       this.rendererImplementation.render(v.opts)
+      if (v.arrows) {
+        this.rendererImplementation.clearArrows(v.entity)
+        this.rendererImplementation.addResizeArrows(v.entity)
+      }
+      if (v.highlight) {
+        this.rendererImplementation.clearHighlight(v.entity)
+        this.rendererImplementation.highlight(v.entity)
+      }
     }
   }
 }
