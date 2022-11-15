@@ -76,10 +76,16 @@ class Application {
     return this.loadedMap.giveTextures()
   }
 
+  public createTexture(data: unknown) {
+    if (this.loadedMap === undefined) throw new Error('Map is not loaded yet!')
+    this.mapDispatch().dispatch('onRequestTextureCreate', data)
+  }
+
   public changeTexture(data: unknown) {
     if (this.loadedMap === undefined) throw new Error('Map is not loaded yet!')
     this.mapDispatch().dispatch('onRequestTextureChange', data)
   }
+
   public async saveWadImages(tab: number, persistent = false) {
     const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
     const saved = new wadResourcesSaved(wad, this.manager)

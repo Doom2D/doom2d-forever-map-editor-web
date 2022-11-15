@@ -49,6 +49,15 @@ class TextureMessage extends System {
         dispatch.dispatch('shouldUpdateRender', {})
       }
     )
+    this.dispatch.on('onRequestTextureCreate', (data: {}) => {
+      const e = this.ecs.addEntity()
+      const type = new Type('texture')
+      const path = new PathComponent(new ResourcePath([], '', ''))
+      this.ecs.addComponent(e, type)
+      this.ecs.addComponent(e, path)
+      this.dispatch.dispatch('onRequestTextureCreated', {})
+      console.log('updatedTexture')
+    })
   }
 
   public createNewTexture(src: string) {

@@ -350,6 +350,11 @@ class HTMLInterface {
     entity: number;
     names: Readonly<string[]>;
 }>[]) {
+  this.textureCreateButton.textContent = this.localization.getLocaleNameTranslation('CREATETEXTUREENTITY')
+  this.textureCreateButton.onclick = (ev) => {
+    this.dispatch.dispatch('onRequestTextureCreate', {})
+    this.dispatch.dispatch('onTextureMenuCreate', {})
+  }
   this.textureDiv.replaceChildren(this.textureCreateButton)
   for (const [k, v] of Object.entries(data)) {
     const select = document.createElement('select')

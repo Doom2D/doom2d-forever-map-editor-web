@@ -37,6 +37,10 @@ dispatch.on('onRequestTextureChange', (data: unknown) => {
   app.changeTexture(data)
 })
 
+dispatch.on('onRequestTextureCreate', (data: unknown) => {
+  app.createTexture(data)
+})
+
 dispatch.on('onTextureMenuCreate', async () => {
   const i = await app.requestTextures()
   gui.populateTextureMenu(i)

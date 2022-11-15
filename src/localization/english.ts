@@ -34,7 +34,8 @@ class English implements Localization {
     'PLATFORMMOVESPEEDVALUE': 'Move speed',
     'PLATFORMMOVESTARTVALUE': 'Move start',
     'PLATFORMMOVEENDVALUE': 'Move end',
-    'PLATFORMSIZEENDVALUE': 'Size end'
+    'PLATFORMSIZEENDVALUE': 'Size end',
+    'CREATETEXTUREENTITY': 'Create new texture element',
   }
 
   private menuButtonNames: Record<string, string> = {
