@@ -1,3 +1,4 @@
+/* eslint-disable promise/avoid-new */
 import Position from '../../third-party/ecs/component/position'
 import Size from '../../third-party/ecs/component/size'
 import { ECS } from '../../third-party/ecs/minimal-ecs'
@@ -34,6 +35,7 @@ import { Resizing } from '../../third-party/ecs/component/resizing'
 import { StartResizing } from '../../third-party/ecs/system/start-resizing'
 import { Highlight } from '../../third-party/ecs/system/highlight'
 import { SelectSize } from '../../third-party/ecs/system/select-size'
+import { TextureMessage } from '../../third-party/ecs/system/texture-message'
 
 // more like a Tab
 class ECSFromMap {
@@ -69,6 +71,8 @@ class ECSFromMap {
 
   private readonly selectSizeSystem: SelectSize
 
+  private readonly textureMessageSystem: TextureMessage
+
   private renderRules: RenderRulesKey[] = []
 
   public constructor(
@@ -92,6 +96,7 @@ class ECSFromMap {
     this.startResizingSystem = new StartResizing(this.dispatch)
     this.highlightSystem = new Highlight(this.dispatch)
     this.selectSizeSystem = new SelectSize(this.dispatch, this.pixi)
+    this.textureMessageSystem = new TextureMessage(this.dispatch, this.manager)
   }
 
   public giveDispatch() {
@@ -126,6 +131,10 @@ class ECSFromMap {
 
   public reload() {
     this.ECS.update()
+  }
+
+  public giveTextures() {
+    return this.textureMessageSystem.giveTextures()
   }
 
   private registerEntitiesFromMap() {
@@ -227,6 +236,7 @@ class ECSFromMap {
     this.ECS.addSystem(this.selectPositionSystem)
     this.ECS.addSystem(this.startResizingSystem)
     this.ECS.addSystem(this.selectSizeSystem)
+    this.ECS.addSystem(this.textureMessageSystem)
     this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)
@@ -236,8 +246,9 @@ class ECSFromMap {
 
   public async cacheImagesForRender() {
     const promises: Promise<void>[] = []
+    console.log(this.manager)
     for (const [, v] of Object.entries(this.map.giveTextures())) {
-      const pathStr = v.givePath().asThisEditorPath(false)
+      const pathStr = v.givePath().asThisEditorPath(true)
       const cacheImage = (async () => {
         const x = pathStr
         const element = (await this.manager.getItem(

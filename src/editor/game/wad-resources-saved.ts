@@ -38,7 +38,7 @@ class wadResourcesSaved {
             await animTexture.init()
             if (cache) {
               await this.m.saveItem(
-                v.file.path.asThisEditorPath(false),
+                v.file.path.asThisEditorPath(true),
                 v.image,
                 true,
                 false
@@ -65,7 +65,7 @@ class wadResourcesSaved {
           } else {
             if (cache) {
               await this.m.saveItem(
-                v.file.path.asThisEditorPath(false),
+                v.file.path.asThisEditorPath(true),
                 v.image,
                 true,
                 false

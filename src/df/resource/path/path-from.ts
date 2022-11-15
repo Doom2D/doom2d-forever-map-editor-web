@@ -26,4 +26,25 @@ function ResourcePathFromRegularPath(str: string) {
   return new ResourcePath(path.directories, path.fileName, '')
 }
 
-export { ResourcePathFromWad, ResourcePathFromZipObject, ResourcePathFromGamePath, ResourcePathFromRegularPath }
+function ResourcePathFromEditorPath(str: string) {
+  const src: string[] = []
+  let basename = ''
+  let fileSrc = ''
+  const f = str.indexOf('[')
+  const g = str.indexOf(']')
+  fileSrc = f === -1 || g === -1 ? '' : str.slice(f + 1, g)
+  const y = str.slice(g + 1).split('/')
+  if (y.length > 1) {
+    src.push(...y.slice(0, -1))
+  }
+  ;[basename] = y.slice(-1)
+  return new ResourcePath(src, basename, fileSrc)
+}
+
+export {
+  ResourcePathFromWad,
+  ResourcePathFromZipObject,
+  ResourcePathFromGamePath,
+  ResourcePathFromRegularPath,
+  ResourcePathFromEditorPath,
+}

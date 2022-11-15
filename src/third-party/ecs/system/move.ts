@@ -73,6 +73,14 @@ class Move extends System {
         const moveable = components.get(Moveable)
         if (moveable === undefined) throw new Error('Invalid entity!')
         if (!moveable.key) return
+        const a = this.state.entityStates[info.entity]
+        if (a === undefined) return
+        const pos = components.get(Position)
+        if (pos === undefined) throw new Error('Invalid entity!')
+        pos.set({
+          x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
+          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,
+        })
         info.renderer.render({
           entity: info.entity,
 
@@ -98,17 +106,13 @@ class Move extends System {
           }>
         }>
       ) => {
-        const a = this.state.entityStates[info.entity]
-        if (a === undefined) return
         const components = this.ecs.getComponents(info.entity)
         const moveable = components.get(Moveable)
         if (moveable === undefined) throw new Error('Invalid entity!')
         moveable.key = false
-        const pos = components.get(Position)
-        if (pos === undefined) throw new Error('Invalid entity!')
-        pos.set({
-          x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
-          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,
+        this.dispatch.dispatch('onSelectEntity', {
+          entity: info.entity,
+          renderer: info.renderer,
         })
       }
     )

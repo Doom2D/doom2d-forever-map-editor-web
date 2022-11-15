@@ -36,6 +36,21 @@ class English implements Localization {
     'PLATFORMMOVEENDVALUE': 'Move end',
     'PLATFORMSIZEENDVALUE': 'Size end'
   }
+
+  private menuButtonNames: Record<string, string> = {
+    'layersbutton': 'Layers',
+    'texturebutton': 'Texture',
+    'mainbutton': 'Main',
+  }
+
+  public getAllMenuButtonsTranslation = () => {
+    return this.menuButtonNames
+  }
+
+  public getMenuButtonTranslation = (m: string) => {
+    return this.menuButtonNames[m] ?? m
+  }
+
   public getRenderRules = () => ({
     'Hidden ': RenderRules.RENDER_HIDDEN,
     'Background ': RenderRules.RENDER_BACKGROUND,

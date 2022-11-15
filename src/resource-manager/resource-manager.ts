@@ -34,6 +34,14 @@ class ResourceManager {
     }
   }
 
+  public getAllCached(): string[] {
+    return Object.keys(this.cacheObject)
+  }
+
+  public async getAllPersistent(): Promise<Readonly<string[]>> {
+    return this.db !== undefined ? await this.db.getAllKeys() : []
+  }
+
   public async saveItem(key: string, value: unknown, cache = false, persist = false) {
     if (cache) {
       this.cacheObject[key] = value

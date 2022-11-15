@@ -16,6 +16,8 @@ const localization = new English()
 const gui = new HTMLInterface(dispatch, localization)
 gui.changeRenderFlagsNames()
 gui.changeImportExportNames()
+gui.changeMenuButtonNames()
+gui.setState(guiStates.INIT)
 gui.tick()
 await app.init()
 let activeTabDispatch: Dispatch | undefined
@@ -31,6 +33,15 @@ dispatch.on('onmapselect', async (name: unknown) => {
   })
 })
 
+dispatch.on('onRequestTextureChange', (data: unknown) => {
+  app.changeTexture(data)
+})
+
+dispatch.on('onTextureMenuCreate', async () => {
+  const i = await app.requestTextures()
+  gui.populateTextureMenu(i)
+})
+
 dispatch.on(
   'onSelectPositionStart',
   (
@@ -42,14 +53,9 @@ dispatch.on(
   }
 )
 
-dispatch.on(
-  'onSelectSizeStart',
-  (
-    data: unknown
-  ) => {
-    app.selectSizeStart(data)
-  }
-)
+dispatch.on('onSelectSizeStart', (data: unknown) => {
+  app.selectSizeStart(data)
+})
 
 dispatch.on('onElementInfoApply', (data: unknown) => {
   app.applyInfo(data)
@@ -75,7 +81,7 @@ dispatch.on('onimportclick', async () => {
   const name = pathSplit(file.name)
   await app.loadWad(activeTab, content, name.fileName)
   await app.saveWadImages(tab, true)
-  gui.setState(guiStates.WAD_LOADED)
+  gui.setState(guiStates.LOADED)
   gui.addOptionsToMapSelect(await app.getMaps(activeTab))
   activeCanvas = await gui.allocateCanvas(activeTab)
   await gui.setActiveCanvas(activeTab)

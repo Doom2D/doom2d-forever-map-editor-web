@@ -17,24 +17,23 @@ import { debounce } from './utility/debounce'
 
 const guiStates = {
   INIT: 0,
-  WAIT_FOR_LOAD: 1,
-  WAD_LOADED: 2,
-  IMPORT: 3,
-  EXPORT: 4,
+  LOADED: 1,
+  LAYERS: 2,
+  CREATE_TEXTURE: 3,
 } as const
 
 type guiStatesKey = typeof guiStates[keyof typeof guiStates]
 
 class HTMLInterface {
-  public readonly mapdiv: HTMLDivElement
+  private readonly mapdiv: HTMLDivElement
 
-  public readonly leftMapButton: HTMLButtonElement
+  private readonly leftMapButton: HTMLButtonElement
 
-  public readonly rightMapButton: HTMLButtonElement
+  private readonly rightMapButton: HTMLButtonElement
 
-  public readonly mapSelect: HTMLSelectElement
+  private readonly mapSelect: HTMLSelectElement
 
-  public readonly area: HTMLDivElement
+  private readonly area: HTMLDivElement
 
   private readonly tools: HTMLDivElement
 
@@ -55,6 +54,18 @@ class HTMLInterface {
   private readonly exportButton: HTMLButtonElement
 
   private readonly infoDiv: HTMLDivElement
+
+  private readonly menuDiv: HTMLDivElement
+
+  private readonly layersButton: HTMLButtonElement
+
+  private readonly textureButton: HTMLButtonElement
+
+  private readonly mainButton: HTMLButtonElement
+
+  private readonly textureDiv: HTMLDivElement
+
+  private readonly textureCreateButton: HTMLButtonElement
 
   private state: guiStatesKey = guiStates.INIT
 
@@ -85,6 +96,12 @@ class HTMLInterface {
     const exportButton =
       document.querySelector<HTMLButtonElement>('#select-export')
     const infoDiv = document.querySelector<HTMLDivElement>('#infodiv')
+    const menuDiv = document.querySelector<HTMLDivElement>('#menudiv')
+    const layersButton = document.querySelector<HTMLButtonElement>('#layersbutton')
+    const textureButton = document.querySelector<HTMLButtonElement>('#texturebutton')
+    const mainButton = document.querySelector<HTMLButtonElement>('#mainbutton')
+    const textureDiv = document.querySelector<HTMLDivElement>('#texturediv')
+    const textureCreateButton = document.querySelector<HTMLButtonElement>('#texturecreatebutton')
     if (
       mapdiv === null ||
       leftbutton === null ||
@@ -99,7 +116,13 @@ class HTMLInterface {
       exportButton === null ||
       layersDiv === null ||
       emptyOption === null ||
-      infoDiv === null
+      infoDiv === null ||
+      menuDiv === null ||
+      layersButton === null ||
+      textureButton === null ||
+      mainButton === null ||
+      textureDiv === null ||
+      textureCreateButton === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -117,6 +140,12 @@ class HTMLInterface {
     this.importButton = importButton
     this.exportButton = exportButton
     this.infoDiv = infoDiv
+    this.menuDiv = menuDiv
+    this.layersButton = layersButton
+    this.textureButton = textureButton
+    this.mainButton = mainButton
+    this.textureDiv = textureDiv
+    this.textureCreateButton = textureCreateButton
     this.addCallbacks()
 
     this.manager = new ResourceManager()
@@ -300,16 +329,59 @@ class HTMLInterface {
   public tick() {
     if (this.state === guiStates.INIT) {
       this.tools.replaceChildren(this.doomlogo, this.selectDiv, this.line)
-    } else if (this.state === guiStates.WAD_LOADED) {
+    } else if (this.state === guiStates.LOADED) {
+      this.tools.replaceChildren(this.doomlogo, this.selectDiv, this.mapdiv, this.line, this.menuDiv, this.infoDiv)
+    } else if (this.state === guiStates.LAYERS) {
       this.tools.replaceChildren(
         this.doomlogo,
         this.selectDiv,
-        this.line,
         this.mapdiv,
+        this.line,
+        this.menuDiv,
         this.layersDiv,
-        this.infoDiv
       )
+    } else if (this.state === guiStates.CREATE_TEXTURE) {
+      this.dispatch.dispatch('onTextureMenuCreate', {})
+      this.tools.replaceChildren(this.doomlogo, this.selectDiv, this.mapdiv, this.line, this.menuDiv, this.textureCreateButton, this.textureDiv)
     }
+  }
+
+  public populateTextureMenu(data: Readonly<{
+    entity: number;
+    names: Readonly<string[]>;
+}>[]) {
+  this.textureDiv.replaceChildren(this.textureCreateButton)
+  for (const [k, v] of Object.entries(data)) {
+    const select = document.createElement('select')
+    select.id = String(v.entity)
+    const l = document.createElement('label')
+    l.htmlFor = String(v.entity)
+    l.textContent = `Texture ${Number(k)}.`
+    const r = () => {
+      return {
+        val: select.value,
+        entity: v.entity
+      }
+    }
+    select.addEventListener('click', (ev) => {
+      const result = r()
+      const data = {
+        entity: result.entity,
+        newPath: result.val,
+      }
+      this.dispatch.dispatch('onRequestTextureChange', data)
+    })
+    for (const [, q] of Object.entries(v.names)) {
+      const option = document.createElement('option')
+      option.value = q
+      option.text = q
+      select.appendChild(option)
+    }
+    const d = document.createElement('div')
+    d.className = 'texture-entry'
+    d.replaceChildren(l, select)
+    this.textureDiv.appendChild(d)
+  }
   }
 
   public addOptionsToMapSelect(src: Readonly<string[]>) {
@@ -322,6 +394,14 @@ class HTMLInterface {
     }
   }
 
+  public changeMenuButtonNames() {
+    const opts = this.localization.getAllMenuButtonsTranslation()
+    for (const [k, v] of Object.entries(opts)) {
+      const element = document.querySelector(`#${k}`)
+      if (element === null) throw new Error('Invalid DOM element!')
+      element.textContent = v
+    }
+  }
   public changeImportExportNames() {
     const opts = this.localization.getImportExport()
     for (const [k, v] of Object.entries(opts)) {
@@ -365,6 +445,21 @@ class HTMLInterface {
 
     this.importButton.addEventListener('click', () => {
       this.dispatch.dispatch('onimportclick', {})
+    })
+
+    this.layersButton.addEventListener('click', () => {
+      this.setState(guiStates.LAYERS)
+      this.tick()
+    })
+
+    this.textureButton.addEventListener('click', () => {
+      this.setState(guiStates.CREATE_TEXTURE)
+      this.tick()
+    })
+    
+    this.mainButton.addEventListener('click', () => {
+      this.setState(guiStates.LOADED)
+      this.tick()
     })
   }
 

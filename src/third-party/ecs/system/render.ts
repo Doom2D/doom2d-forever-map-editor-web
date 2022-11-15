@@ -36,14 +36,21 @@ class Render extends System {
     private readonly dispatch: Readonly<Dispatch>
   ) {
     super()
-    this.dispatch.on('updateRender', (a: { entities: number[] }) => {
-      this.updateRender(this.ecs.getEntitiesWithComponent(new Set([ForRender])))
-      for (const [, v] of Object.entries(a.entities)) {
-        this.rendererImplementation.render({
-          entity: v,
-        })
+    this.dispatch.on(
+      'updateRender',
+      (a: { entities: (number | undefined)[] }) => {
+        this.updateRender(
+          this.ecs.getEntitiesWithComponent(new Set([ForRender]))
+        )
+        for (const [, v] of Object.entries(a.entities)) {
+          if (v !== undefined) {
+            this.rendererImplementation.render({
+              entity: v,
+            })
+          }
+        }
       }
-    })
+    )
   }
 
   public init() {
@@ -114,7 +121,7 @@ class Render extends System {
           const p = textureComponent.get(PathComponent)
           if (p === undefined)
             throw new Error('Invalid texture associated with the panel!')
-          const imgKey = p.key.asThisEditorPath(false)
+          const imgKey = p.key.asThisEditorPath(true)
           panelArr.push({
             entity: v,
 

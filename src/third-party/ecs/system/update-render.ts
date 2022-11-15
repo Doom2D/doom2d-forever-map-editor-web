@@ -19,7 +19,7 @@ class UpdateRender extends System {
       'shouldUpdateRender',
       (
         data: Readonly<{
-          entity: number
+          entity: number | undefined
         }>
       ) => {
         this.dispatch.dispatch('updateRender', {

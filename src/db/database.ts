@@ -55,6 +55,21 @@ class Database {
     const transaction = this.db.transaction(this.store, 'readwrite')
     return await this.addItem(transaction, this.store, v, key)
   }
+
+  public async getAllKeys() {
+    const transaction = this.db.transaction(this.store, 'readonly')
+    const request = transaction.objectStore(this.store).getAllKeys()
+    const promise = new Promise<Readonly<string[]>>((resolve, reject) => {
+      request.addEventListener('error', () => {
+        reject(Error('Transaction error!'))
+      })
+
+      request.addEventListener('success', () => {
+        resolve(request.result.map(String))
+      })
+    })
+    return await promise
+  }
 }
 
 async function openIDB(store = 'store') {

@@ -1,4 +1,7 @@
-import { compareResourceBasename, compareResourcePaths } from '../../df/compare-names'
+import {
+  compareResourceBasename,
+  compareResourcePaths,
+} from '../../df/compare-names'
 import type { DFWad } from '../../df/resource/wad/dfwad'
 import type ResourceManager from '../../resource-manager/resource-manager'
 import isObject from '../../utility/is-object'
@@ -24,7 +27,11 @@ class mapResourcesCached {
         (async () => {
           const x = i
           const p = x.givePath()
-          if (compareResourceBasename(p, '_water_0') || compareResourceBasename(p, '_water_1') || compareResourceBasename(p, '_water_2')) {
+          if (
+            compareResourceBasename(p, '_water_0') ||
+            compareResourceBasename(p, '_water_1') ||
+            compareResourceBasename(p, '_water_2')
+          ) {
             return false
           }
           const u = x.isAnimated()
@@ -43,15 +50,16 @@ class mapResourcesCached {
             )
             await bild.init()
             const image = await loadImage(bild.giveBuffer())
-            await this.m.saveItem(p.asThisEditorPath(false), image, true, false)
+            await this.m.saveItem(p.asThisEditorPath(true), image, true, false)
           } else {
-            const response = await this.m.getItem(`${p.asThisEditorPath(true)}`)
-            if (response === null)
-              throw new Error('Error loading texture!')
+            const response = await this.m.getItem(
+              `${p.asThisEditorPath(true)}[FULL]`
+            )
+            if (response === null) throw new Error('Error loading texture!')
             const bild = new Bild(response)
             await bild.init()
             const image = await loadImage(bild.giveBuffer())
-            await this.m.saveItem(p.asThisEditorPath(false), image, true, false)
+            await this.m.saveItem(p.asThisEditorPath(true), image, true, false)
           }
           return true
         })()

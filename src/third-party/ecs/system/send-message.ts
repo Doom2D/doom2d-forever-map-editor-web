@@ -137,7 +137,7 @@ class Message extends System {
       .map((v) => {
         const c = this.ecs.getComponents(v)
         const t = c.get(PathComponent)
-        return [v, t?.key.asRegularPath()]
+        return [v, t?.key.asRegularPath(true)]
       })
       .sort((v1, v2) => {
         if (v1[0] === ptexture.key) return -1
@@ -146,7 +146,7 @@ class Message extends System {
       })
       .map((v) => ({
         val: v[0],
-        localeName: v[1],
+        localeName: `${String(v[0])}. ${String(v[1])}`,
       }))
     const textureInfo: MessageValue = {
       type: 'select',

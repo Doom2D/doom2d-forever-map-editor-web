@@ -141,7 +141,10 @@ class Resize extends System {
           size.set({
             width: w,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (pointGrid < 0) {
           const x = info.sprite.x - Math.abs(a.base.w)
           const w = info.sprite.w + Math.round(a.base.w)
@@ -154,7 +157,10 @@ class Resize extends System {
           size.set({
             width: w,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -208,7 +214,10 @@ class Resize extends System {
           size.set({
             width: w,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (pointGrid < grids && grids > 1) {
           const x = info.sprite.x
           const w = info.sprite.w - a.base.w
@@ -221,7 +230,10 @@ class Resize extends System {
           size.set({
             width: w,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -276,7 +288,10 @@ class Resize extends System {
           size.set({
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (pointGrid > grids) {
           const y = info.sprite.y - Math.abs(a.base.h)
           const h = info.sprite.h + Math.round(a.base.h)
@@ -289,7 +304,10 @@ class Resize extends System {
           size.set({
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -343,7 +361,10 @@ class Resize extends System {
           size.set({
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (pointGrid > grids) {
           const y = info.sprite.y
           const h = info.sprite.h + Math.round(a.base.h)
@@ -356,7 +377,10 @@ class Resize extends System {
           size.set({
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -420,7 +444,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (
           pointGridX > 0 &&
           pointGridY < gridsY &&
@@ -443,7 +470,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -507,7 +537,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (
           pointGridX < gridsX &&
           pointGridY < gridsY &&
@@ -530,7 +563,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -593,7 +629,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         } else if (
           pointGridX > 0 &&
           pointGridY < gridsY &&
@@ -616,7 +655,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )
@@ -675,10 +717,13 @@ class Resize extends System {
             h,
             entity: info.entity,
           })
-          info.renderer.highlight(info.entity)
           size.set({
             width: w,
             height: h,
+          })
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
           })
         } else if (
           pointGridX < gridsX &&
@@ -702,7 +747,10 @@ class Resize extends System {
             width: w,
             height: h,
           })
-          info.renderer.highlight(info.entity)
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: info.entity,
+            renderer: info.renderer,
+          })
         }
       }
     )

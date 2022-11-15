@@ -60,6 +60,7 @@ class imagesFromWad {
         await p()
       }
     }
+    console.log(images)
     return images
   }
 }

@@ -63,6 +63,7 @@ class Pixi implements Renderer {
     this.viewport.addListener(
       'pointerup',
       (ev: Readonly<PIXI.InteractionEvent>) => {
+        if (ev.data.originalEvent.shiftKey) return
         const s = this.renderer.plugins.interaction.hitTest(ev.data.global)
         const e = this.resourceManager.findCached(s)
         if (e === undefined) {
@@ -175,7 +176,7 @@ class Pixi implements Renderer {
     if (d === undefined) throw new Error('Dispatch is not defined yet!')
     const x = sprite
     const onDragStart = (ev: Readonly<PIXI.InteractionEvent>) => {
-      if (this.selecting) return
+      if (ev.data.originalEvent.shiftKey) return
       const point = this.viewport.toWorld(ev.data.global)
       const offset = {
         x: x.x - Math.round(point.x),
@@ -189,7 +190,6 @@ class Pixi implements Renderer {
       })
     }
     const onDragMove = (ev: Readonly<PIXI.InteractionEvent>) => {
-      if (this.selecting) return
       const point = this.viewport.toWorld(ev.data.global)
       d.dispatch('onDragMove', {
         renderer: this,
@@ -202,7 +202,7 @@ class Pixi implements Renderer {
       })
     }
     const onDragEnd = (ev: Readonly<PIXI.InteractionEvent>) => {
-      if (this.selecting) return
+      if (ev.data.originalEvent.shiftKey) return
       const point = this.viewport.toWorld(ev.data.global)
       d.dispatch('onDragEnd', {
         renderer: this,
@@ -255,8 +255,8 @@ class Pixi implements Renderer {
     this.viewport.addChild(leftRect)
 
     const addListeners = (name: string, direction: string, s: PIXI.Sprite) => {
-      s.addListener('pointerdown', () => {
-        if (this.selecting) return
+      s.addListener('pointerdown', (ev: Readonly<PIXI.InteractionEvent>) => {
+        if (ev.data.originalEvent.shiftKey) return
         this.dispatch?.dispatch('resizeStart', {
           direction,
           entity,
@@ -276,7 +276,6 @@ class Pixi implements Renderer {
       })
 
       s.addListener('pointermove', (ev: Readonly<PIXI.InteractionEvent>) => {
-        if (this.selecting) return
         const point = this.viewport.toWorld(ev.data.global)
         const w = {
           renderer: this,

@@ -72,11 +72,13 @@ class SelectPosition extends System {
         const texture = components.get(PanelTexture)
         const typec = components.get(PanelTypeComponent)
         const flagc = components.get(PanelFlags)
+        const pos = components.get(Position)
         if (
           size === undefined ||
           texture === undefined ||
           typec === undefined ||
-          flagc === undefined
+          flagc === undefined ||
+          pos === undefined
         )
           throw new Error('Invalid entity!')
         const textureComponents = this.ecs.getComponents(texture.key)
@@ -86,6 +88,8 @@ class SelectPosition extends System {
         this.info.imgKey = texturePath.key.asThisEditorPath(false)
         this.info.size.width = size.w
         this.info.size.height = size.h
+        this.info.pos.x = pos.x
+        this.info.pos.y = pos.y
         const position = new Position(0, 0)
         const sizet = new Size(this.info.size.width, this.info.size.height)
         const shouldRender = new ForRender(true)
@@ -160,6 +164,10 @@ class SelectPosition extends System {
             val: pos.y,
             entity: this.info.id,
           })
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: this.info.id,
+            renderer: this.renderer,
+          })
           this.clearShadow()
         }
       }
@@ -186,6 +194,10 @@ class SelectPosition extends System {
             entity: this.info.id,
           })
           this.clearShadow()
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: this.info.id,
+            renderer: this.renderer,
+          })
         }
       }
     )

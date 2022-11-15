@@ -70,6 +70,16 @@ class Application {
     this.loadedMap.reload()
   }
 
+  public requestTextures() {
+    if (this.loadedMap === undefined)
+      throw new Error('Texture menu before a map is loaded!')
+    return this.loadedMap.giveTextures()
+  }
+
+  public changeTexture(data: unknown) {
+    if (this.loadedMap === undefined) throw new Error('Map is not loaded yet!')
+    this.mapDispatch().dispatch('onRequestTextureChange', data)
+  }
   public async saveWadImages(tab: number, persistent = false) {
     const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
     const saved = new wadResourcesSaved(wad, this.manager)
@@ -77,9 +87,11 @@ class Application {
   }
 
   public async saveMapImages(tab: number, map: Readonly<EditorMap>) {
+    console.log('saveMapImages0')
     const wad = (await this.manager.getItem(`wad${tab}`)) as DFWad
     const cached = new mapResourcesCached(wad, map, this.manager)
     await cached.save(true, false)
+    console.log('saveMapImages')
   }
 
   public async loadWad(tab: number, src: Readonly<ArrayBuffer>, name: string) {
