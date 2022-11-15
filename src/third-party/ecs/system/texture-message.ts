@@ -9,7 +9,10 @@ import { Resizing } from '../component/resizing'
 import PathComponent from '../component/path'
 import type ResourceManager from '../../../resource-manager/resource-manager'
 import ResourcePath from '../../../df/resource/path/path'
-import { ResourcePathFromEditorPath } from '../../../df/resource/path/path-from'
+import {
+  isResourcePathFromEditorPath,
+  ResourcePathFromEditorPath,
+} from '../../../df/resource/path/path-from'
 
 class TextureMessage extends System {
   public readonly componentsRequired = new Set<Function>([
@@ -38,7 +41,8 @@ class TextureMessage extends System {
         const c = this.ecs.getComponents(data.entity)
         const type = c.get(Type)
         const path = c.get(PathComponent)
-        if (type === undefined || path === undefined) throw new Error('Invalid entity!')
+        if (type === undefined || path === undefined)
+          throw new Error('Invalid entity!')
         if (type.key !== 'texture') throw new Error('Entity is not a texture!')
         const newPath = ResourcePathFromEditorPath(data.newPath)
         path.key = newPath
@@ -85,9 +89,13 @@ class TextureMessage extends System {
 
         names: [
           v.name.asThisEditorPath(true),
-          ...elements
-            .filter((o) => o.val !== v.val)
-            .map((o) => o.name.asThisEditorPath(true)),
+          ...this.resourceManager
+            .getAllCached()
+            .filter((o) => isResourcePathFromEditorPath(o))
+            .filter((o) => o !== v.name.asThisEditorPath(true)),
+          '_water_0',
+          '_water_1',
+          '_water_2',
         ],
       })
     }

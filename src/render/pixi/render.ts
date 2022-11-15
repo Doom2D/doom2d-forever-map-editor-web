@@ -26,6 +26,7 @@ class Pixi implements Renderer {
           arrows: (PIXI.Sprite | PIXI.TilingSprite)[]
           cleared: boolean
           imgKey: string
+          useImg: boolean
         }
       | undefined
     )[]
@@ -176,17 +177,15 @@ class Pixi implements Renderer {
     sprite.width = options.w ?? sprite.width
     sprite.height = options.h ?? sprite.height
     if (options.create === true) {
-      sprite.blendMode =
-        options.filter === true
-          ? 30
-          : PIXI.BLEND_MODES.NORMAL
+      sprite.blendMode = options.filter === true ? 30 : PIXI.BLEND_MODES.NORMAL
       sprite.alpha = options.alpha ?? 1
       sprite.tint = options.tint ?? 0xff_ff_ff
     } else {
       if (options.filter === true) sprite.blendMode = 30
-      else if (options.filter === false) sprite.blendMode = PIXI.BLEND_MODES.NORMAL
+      else if (options.filter === false)
+        sprite.blendMode = PIXI.BLEND_MODES.NORMAL
       if (options.alpha !== undefined) sprite.alpha = options.alpha
-      if (options.tint !== undefined) sprite.tint = options.tint 
+      if (options.tint !== undefined) sprite.tint = options.tint
     }
   }
 
@@ -267,7 +266,6 @@ class Pixi implements Renderer {
   }
 
   public async addResizeArrows(entity: number) {
-    // this.clearArrows(entity)
     const sprite = (await this.resourceManager.getItem(
       this.entityToString(entity)
     )) as PIXI.TilingSprite
@@ -450,24 +448,25 @@ class Pixi implements Renderer {
         arrows: [],
         cleared: false,
         imgKey: options.imgKey ?? '',
+        useImg: true,
       }
     }
     if (options.useImg === false) {
+      this.state.entityStates[options.entity].useImg = false
       const sprite = new TilingSprite(PIXI.Texture.WHITE)
       sprite.interactive = true
       this.addEvents(sprite, options.entity)
       await this.resourceManager.saveItem(entityString, sprite, true)
     } else {
+      this.state.entityStates[options.entity].useImg = true
       try {
-        if (!this.resourceManager.cachedAtKey(entityString)) {
-          const texture = (await this.resourceManager.getItem(
-            options.imgKey ?? ''
-          )) as PIXI.Texture
-          const sprite = new PIXI.TilingSprite(texture)
-          this.addEvents(sprite, options.entity)
-          await this.resourceManager.saveItem(entityString, sprite, true)
-          sprite.interactive = true
-        }
+        const texture = (await this.resourceManager.getItem(
+          options.imgKey ?? ''
+        )) as PIXI.Texture
+        const sprite = new PIXI.TilingSprite(texture)
+        this.addEvents(sprite, options.entity)
+        await this.resourceManager.saveItem(entityString, sprite, true)
+        sprite.interactive = true
       } catch {
         const graphics = new PIXI.Graphics()
         graphics.beginFill(16_768_256)
@@ -511,10 +510,13 @@ class Pixi implements Renderer {
     this.resourceManager.removeItem(this.entityToString(n), true, false)
   }
 
-  public async render(options: Readonly<RenderOptions>) {
+  public async render(options: RenderOptions) {
     if (options.useImg === undefined || options.useImg === true) {
       if (
-        !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
+        !this.resourceManager.cachedAtKey(
+          this.entityToString(options.entity)
+        ) ||
+        this.state.entityStates[options.entity]?.useImg === false
       ) {
         await this.registerEntity(options)
       }
@@ -529,14 +531,19 @@ class Pixi implements Renderer {
         this.updateSpriteTexture(sprite, options.imgKey)
         this.state.entityStates[options.entity].imgKey = options.imgKey
       }
+      this.state.entityStates[options.entity].useImg = true
       this.applyRenderOptionsToSprite(sprite, options)
       this.addSpriteToView(sprite)
     } else {
       if (
-        !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
+        !this.resourceManager.cachedAtKey(
+          this.entityToString(options.entity)
+        ) ||
+        this.state.entityStates[options.entity]?.useImg === true
       ) {
         await this.registerEntity(options)
       }
+      this.state.entityStates[options.entity].useImg = false
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)
       )) as PIXI.TilingSprite

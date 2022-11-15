@@ -41,10 +41,17 @@ function ResourcePathFromEditorPath(str: string) {
   return new ResourcePath(src, basename, fileSrc)
 }
 
+function isResourcePathFromEditorPath(str: string) {
+  const j = str.indexOf('[')
+  const l = str.indexOf(']')
+  return j !== -1 && j === 0 && l !== -1
+}
+
 export {
   ResourcePathFromWad,
   ResourcePathFromZipObject,
   ResourcePathFromGamePath,
   ResourcePathFromRegularPath,
   ResourcePathFromEditorPath,
+  isResourcePathFromEditorPath
 }
