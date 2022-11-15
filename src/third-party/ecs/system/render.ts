@@ -1,3 +1,4 @@
+/* eslint-disable max-depth */
 import type { RenderOptions } from '../../../render/interface'
 import { type Renderer } from '../../../render/interface'
 import ForRender from '../component/for-render'
@@ -122,6 +123,27 @@ class Render extends System {
           if (p === undefined)
             throw new Error('Invalid texture associated with the panel!')
           const imgKey = p.key.asThisEditorPath(true)
+          let tint = 0xff_ff_ff
+          let useImg = true
+          let filter = false
+          const b = p.key.getBaseName().toLocaleLowerCase()
+          if (b === '_water_0' || b === '_water_1' || b === '_water_2') {
+            useImg = false
+            filter = true
+            switch (b) {
+              case '_water_0':
+                tint = 0x00_00_ff
+                break
+              case '_water_1':
+                tint = 0x00_e0_00
+                break
+              case '_water_2':
+                tint = 0xe0_00_00
+                break
+              default:
+                break
+            }
+          }
           panelArr.push({
             entity: v,
 
@@ -141,6 +163,9 @@ class Render extends System {
               entity: v,
               alpha: alpha.key,
               imgKey,
+              tint,
+              useImg,
+              filter,
             },
           })
         }

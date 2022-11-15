@@ -161,10 +161,30 @@ class Pixi implements Renderer {
       this.viewport.removeChild(v)
     }
   }
+
   private clearSpriteHighlight(
     sprite: Readonly<PIXI.Sprite | PIXI.TilingSprite>
   ) {
     sprite.removeChildren()
+  }
+
+  public applyRenderOptionsToSprite(
+    sprite: PIXI.Sprite | PIXI.TilingSprite,
+    options: Readonly<RenderOptions>
+  ) {
+    sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
+    sprite.width = options.w ?? sprite.width
+    sprite.height = options.h ?? sprite.height
+    if (options.alpha !== undefined) sprite.alpha = options.alpha
+    sprite.tint = options.tint ?? 0xff_ff_ff
+    if (options.filter || options.blending) {
+      sprite.blendMode = 30
+    } else {
+      sprite.blendMode = PIXI.BLEND_MODES.NORMAL
+    }
+    if (sprite.parent !== this.viewport) {
+      this.viewport.addChild(sprite)
+    }
   }
 
   private entityToString(n: number) {
@@ -405,6 +425,7 @@ class Pixi implements Renderer {
       sprite.removeChildren()
     } catch {}
   }
+
   private async updateSpriteTexture(
     sprite: PIXI.Sprite | PIXI.TilingSprite,
     imgKey: string
@@ -413,45 +434,28 @@ class Pixi implements Renderer {
     sprite.texture = texture
   }
 
-  public async registerEntity(n: number, imgKey: string): Promise<void> {
-    const entityString = this.entityToString(n)
-    if (this.state.entityStates[n] === undefined) {
-      this.state.entityStates[n] = {
+  public async registerEntity(options: Readonly<RenderOptions>): Promise<void> {
+    const entityString = this.entityToString(options.entity)
+    if (this.state.entityStates[options.entity] === undefined) {
+      this.state.entityStates[options.entity] = {
         arrows: [],
         cleared: false,
-        imgKey,
+        imgKey: options.imgKey ?? '',
       }
     }
-    if (
-      imgKey === '[]_water_0' ||
-      imgKey === '[]_water_1' ||
-      imgKey === '[]_water_2'
-    ) {
+    if (options.useImg === false) {
       const sprite = new TilingSprite(PIXI.Texture.WHITE)
-      switch (imgKey) {
-        case '[]_water_0':
-          sprite.tint = 0x00_00_ff
-          break
-        case '[]_water_1':
-          sprite.tint = 0x00_e0_00
-          break
-        case '[]_water_2':
-          sprite.tint = 0xe0_00_00
-          break
-        default:
-          throw new Error('Unknown water special texture!')
-      }
-      sprite.blendMode = 30
       sprite.interactive = true
+      this.addEvents(sprite, options.entity)
       await this.resourceManager.saveItem(entityString, sprite, true)
     } else {
       try {
         if (!this.resourceManager.cachedAtKey(entityString)) {
           const texture = (await this.resourceManager.getItem(
-            imgKey
+            options.imgKey ?? ''
           )) as PIXI.Texture
           const sprite = new PIXI.TilingSprite(texture)
-          this.addEvents(sprite, n)
+          this.addEvents(sprite, options.entity)
           await this.resourceManager.saveItem(entityString, sprite, true)
           sprite.interactive = true
         }
@@ -489,9 +493,7 @@ class Pixi implements Renderer {
       // sprite.removeAllListeners()
       // eslint-disable-next-line unicorn/prefer-dom-node-remove
       this.viewport.removeChild(sprite)
-    } catch {
-
-    }
+    } catch {}
     this.clearArrows(n)
   }
 
@@ -501,11 +503,11 @@ class Pixi implements Renderer {
   }
 
   public async render(options: Readonly<RenderOptions>) {
-    if (options.sprite === undefined || options.sprite === true) {
+    if (options.useImg === undefined || options.useImg === true) {
       if (
         !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
       ) {
-        await this.registerEntity(options.entity, options.imgKey ?? '')
+        await this.registerEntity(options)
       }
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)
@@ -518,14 +520,17 @@ class Pixi implements Renderer {
         this.updateSpriteTexture(sprite, options.imgKey)
         this.state.entityStates[options.entity].imgKey = options.imgKey
       }
-      sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
-      sprite.width = options.w ?? sprite.width
-      sprite.height = options.h ?? sprite.height
-      if (options.alpha !== undefined) sprite.alpha = options.alpha
-      if (options.tint !== undefined) sprite.tint = options.tint
-      if (sprite.parent !== this.viewport) {
-        this.viewport.addChild(sprite)
+      this.applyRenderOptionsToSprite(sprite, options)
+    } else {
+      if (
+        !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
+      ) {
+        await this.registerEntity(options)
       }
+      const sprite = (await this.resourceManager.getItem(
+        this.entityToString(options.entity)
+      )) as PIXI.TilingSprite
+      this.applyRenderOptionsToSprite(sprite, options)
     }
   }
 }

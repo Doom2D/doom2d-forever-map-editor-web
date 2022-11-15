@@ -10,7 +10,10 @@ interface RenderOptions {
   entity: number,
   imgKey?: string,
   parent?: number,
-  sprite?: boolean,
+  useImg?: boolean,
+  color?: number,
+  blending?: boolean,
+  filter?: boolean, // for df liquids
 }
 
 interface Renderer {
