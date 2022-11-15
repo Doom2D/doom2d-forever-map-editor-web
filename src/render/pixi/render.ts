@@ -513,10 +513,7 @@ class Pixi implements Renderer {
   public async render(options: RenderOptions) {
     if (options.useImg === undefined || options.useImg === true) {
       if (
-        !this.resourceManager.cachedAtKey(
-          this.entityToString(options.entity)
-        ) ||
-        this.state.entityStates[options.entity]?.useImg === false
+        !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
       ) {
         await this.registerEntity(options)
       }
@@ -526,27 +523,30 @@ class Pixi implements Renderer {
       if (
         options.imgKey !== undefined &&
         this.state.entityStates[options.entity] !== undefined &&
-        this.state.entityStates[options.entity]?.imgKey !== options.imgKey
+        (this.state.entityStates[options.entity]?.imgKey !== options.imgKey ||
+          this.state.entityStates[options.entity]?.useImg === false)
       ) {
         this.updateSpriteTexture(sprite, options.imgKey)
         this.state.entityStates[options.entity].imgKey = options.imgKey
+        this.state.entityStates[options.entity].useImg = true
       }
       this.state.entityStates[options.entity].useImg = true
       this.applyRenderOptionsToSprite(sprite, options)
       this.addSpriteToView(sprite)
     } else {
       if (
-        !this.resourceManager.cachedAtKey(
-          this.entityToString(options.entity)
-        ) ||
-        this.state.entityStates[options.entity]?.useImg === true
+        !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
       ) {
         await this.registerEntity(options)
       }
-      this.state.entityStates[options.entity].useImg = false
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)
       )) as PIXI.TilingSprite
+      if (this.state.entityStates[options.entity]?.useImg === true) {
+        sprite.texture = PIXI.Texture.WHITE
+        options.create = true
+        this.state.entityStates[options.entity].useImg = false
+      }
       this.applyRenderOptionsToSprite(sprite, options)
       this.addSpriteToView(sprite)
     }

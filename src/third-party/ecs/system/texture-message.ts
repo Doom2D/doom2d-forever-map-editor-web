@@ -92,7 +92,12 @@ class TextureMessage extends System {
           ...this.resourceManager
             .getAllCached()
             .filter((o) => isResourcePathFromEditorPath(o))
-            .filter((o) => o !== v.name.asThisEditorPath(true)),
+            .filter(
+              (o) =>
+                o !== v.name.asThisEditorPath(true) &&
+                !o.endsWith('wadpic') &&
+                !o.endsWith('endpic')
+            ),
           '_water_0',
           '_water_1',
           '_water_2',
