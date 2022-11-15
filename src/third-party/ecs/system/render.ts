@@ -123,6 +123,7 @@ class Render extends System {
           if (p === undefined)
             throw new Error('Invalid texture associated with the panel!')
           const imgKey = p.key.asThisEditorPath(true)
+          const create = true
           let tint = 0xff_ff_ff
           let useImg = true
           let filter = false
@@ -166,6 +167,7 @@ class Render extends System {
               tint,
               useImg,
               filter,
+              create,
             },
           })
         }
@@ -176,7 +178,7 @@ class Render extends System {
     renderArray.push(
       ...panelArr
         .slice()
-        .sort((a, b) => a.id - b.id)
+        .sort((a, b) => b.id - a.id)
         .sort((a, b) => a.typeOrder - b.typeOrder)
         .map((x) => ({
           highlight: x.highlight,

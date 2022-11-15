@@ -14,6 +14,7 @@ interface RenderOptions {
   color?: number,
   blending?: boolean,
   filter?: boolean, // for df liquids
+  create?: boolean
 }
 
 interface Renderer {

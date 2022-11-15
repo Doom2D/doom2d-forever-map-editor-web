@@ -175,13 +175,22 @@ class Pixi implements Renderer {
     sprite.position.set(options.x ?? sprite.x, options.y ?? sprite.y)
     sprite.width = options.w ?? sprite.width
     sprite.height = options.h ?? sprite.height
-    if (options.alpha !== undefined) sprite.alpha = options.alpha
-    sprite.tint = options.tint ?? 0xff_ff_ff
-    if (options.filter || options.blending) {
-      sprite.blendMode = 30
+    if (options.create === true) {
+      sprite.blendMode =
+        options.filter === true
+          ? 30
+          : PIXI.BLEND_MODES.NORMAL
+      sprite.alpha = options.alpha ?? 1
+      sprite.tint = options.tint ?? 0xff_ff_ff
     } else {
-      sprite.blendMode = PIXI.BLEND_MODES.NORMAL
+      if (options.filter === true) sprite.blendMode = 30
+      else if (options.filter === false) sprite.blendMode = PIXI.BLEND_MODES.NORMAL
+      if (options.alpha !== undefined) sprite.alpha = options.alpha
+      if (options.tint !== undefined) sprite.tint = options.tint 
     }
+  }
+
+  public addSpriteToView(sprite: PIXI.Sprite | PIXI.TilingSprite) {
     if (sprite.parent !== this.viewport) {
       this.viewport.addChild(sprite)
     }
@@ -521,6 +530,7 @@ class Pixi implements Renderer {
         this.state.entityStates[options.entity].imgKey = options.imgKey
       }
       this.applyRenderOptionsToSprite(sprite, options)
+      this.addSpriteToView(sprite)
     } else {
       if (
         !this.resourceManager.cachedAtKey(this.entityToString(options.entity))
@@ -531,6 +541,7 @@ class Pixi implements Renderer {
         this.entityToString(options.entity)
       )) as PIXI.TilingSprite
       this.applyRenderOptionsToSprite(sprite, options)
+      this.addSpriteToView(sprite)
     }
   }
 }
