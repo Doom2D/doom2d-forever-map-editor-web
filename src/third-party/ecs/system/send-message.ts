@@ -144,9 +144,9 @@ class Message extends System {
         if (v2[0] === ptexture.key) return 1
         return 0
       })
-      .map((v) => ({
+      .map((v, i) => ({
         val: v[0],
-        localeName: `${String(v[0])}. ${String(v[1])}`,
+        localeName: `${String(i)}. ${String(v[1])}`,
       }))
     const textureInfo: MessageValue = {
       type: 'select',
