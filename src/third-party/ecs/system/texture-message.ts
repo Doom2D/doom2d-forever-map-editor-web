@@ -69,7 +69,7 @@ class TextureMessage extends System {
     this.ecs.addComponent(e, path)
   }
 
-  public giveTextures() {
+  public async giveTextures() {
     const l = this.ecs.getEntitiesWithComponent(new Set([Type, PathComponent]))
     const elements: Readonly<{
       val: number
@@ -113,8 +113,13 @@ class TextureMessage extends System {
         ],
       })
     }
+    const keys = await this.resourceManager.getAllPersistent()
+    const allNames = keys
+      .filter((o) => o.endsWith('[FULL]'))
+      .map((o) => o.slice(0, o.lastIndexOf('[')))
     return {
       val: returnArr,
+      allNames,
     }
   }
 

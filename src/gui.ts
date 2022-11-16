@@ -67,6 +67,8 @@ class HTMLInterface {
 
   private readonly textureCreateButton: HTMLButtonElement
 
+  private readonly textureAddButton: HTMLButtonElement
+
   private state: guiStatesKey = guiStates.INIT
 
   private info: (() => {
@@ -102,6 +104,7 @@ class HTMLInterface {
     const mainButton = document.querySelector<HTMLButtonElement>('#mainbutton')
     const textureDiv = document.querySelector<HTMLDivElement>('#texturediv')
     const textureCreateButton = document.querySelector<HTMLButtonElement>('#texturecreatebutton')
+    const textureAddButton = document.querySelector<HTMLButtonElement>('#textureaddbutton')
     if (
       mapdiv === null ||
       leftbutton === null ||
@@ -122,7 +125,8 @@ class HTMLInterface {
       textureButton === null ||
       mainButton === null ||
       textureDiv === null ||
-      textureCreateButton === null
+      textureCreateButton === null ||
+      textureAddButton === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -146,6 +150,7 @@ class HTMLInterface {
     this.mainButton = mainButton
     this.textureDiv = textureDiv
     this.textureCreateButton = textureCreateButton
+    this.textureAddButton = textureAddButton
     this.addCallbacks()
 
     this.manager = new ResourceManager()
@@ -351,8 +356,10 @@ class HTMLInterface {
       entity: number;
       names: Readonly<string[]>;
     }[]>
+    allNames: readonly string[];
 }>) {
   this.textureCreateButton.textContent = this.localization.getLocaleNameTranslation('CREATETEXTUREENTITY')
+  this.textureAddButton.textContent = this.localization.getLocaleNameTranslation('ADDTEXTURE')
   this.textureCreateButton.onclick = (ev) => {
     this.dispatch.dispatch('onRequestTextureCreate', {})
     this.dispatch.dispatch('onTextureMenuCreate', {})
@@ -389,6 +396,21 @@ class HTMLInterface {
     d.replaceChildren(l, select)
     this.textureDiv.appendChild(d)
   }
+  this.textureAddButton.onclick = () => {
+    this.dispatch.dispatch('onSaveTexture', {
+      val: tselect.value,
+    })
+  }
+  this.textureDiv.appendChild(this.textureAddButton)
+  const tselect = document.createElement('select')
+  tselect.id = 'add-texture'
+  for (const [, v] of Object.entries(data.allNames)) {
+    const option = document.createElement('option')
+    option.value = v
+    option.text = v
+    tselect.appendChild(option)
+  }
+  this.textureDiv.appendChild(tselect)
   }
 
   public addOptionsToMapSelect(src: Readonly<string[]>) {

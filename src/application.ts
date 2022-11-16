@@ -70,12 +70,6 @@ class Application {
     this.loadedMap.reload()
   }
 
-  public requestTextures() {
-    if (this.loadedMap === undefined)
-      throw new Error('Texture menu before a map is loaded!')
-    return this.loadedMap.giveTextures()
-  }
-
   public createTexture(data: unknown) {
     if (this.loadedMap === undefined) throw new Error('Map is not loaded yet!')
     this.mapDispatch().dispatch('onRequestTextureCreate', data)
@@ -84,6 +78,17 @@ class Application {
   public changeTexture(data: unknown) {
     if (this.loadedMap === undefined) throw new Error('Map is not loaded yet!')
     this.mapDispatch().dispatch('onRequestTextureChange', data)
+  }
+
+  public async requestTextures() {
+    if (this.loadedMap === undefined)
+      throw new Error('Texture menu before a map is loaded!')
+    return await this.loadedMap.giveTextures()
+  }
+
+  public async saveTexture(data: Readonly<{ val: string }>) {
+    if (this.loadedMap === undefined) throw new Error('Map is not loaded yet!')
+    await this.loadedMap.saveTexture(data)
   }
 
   public async saveWadImages(tab: number, persistent = false) {

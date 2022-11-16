@@ -46,6 +46,11 @@ dispatch.on('onTextureMenuCreate', async () => {
   gui.populateTextureMenu(i)
 })
 
+dispatch.on('onSaveTexture', async (data: Readonly<{ val: string }>) => {
+  await app.saveTexture(data)
+  const i = await app.requestTextures()
+  gui.populateTextureMenu(i)
+})
 dispatch.on(
   'onSelectPositionStart',
   (

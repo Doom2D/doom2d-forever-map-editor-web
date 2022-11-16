@@ -36,6 +36,8 @@ import { StartResizing } from '../../third-party/ecs/system/start-resizing'
 import { Highlight } from '../../third-party/ecs/system/highlight'
 import { SelectSize } from '../../third-party/ecs/system/select-size'
 import { TextureMessage } from '../../third-party/ecs/system/texture-message'
+import Bild from '../../image/bild'
+import loadImage from '../../utility/load-image-async'
 
 // more like a Tab
 class ECSFromMap {
@@ -219,6 +221,17 @@ class ECSFromMap {
   public async start() {
     this.registerEntitiesFromMap()
     await this.init()
+  }
+
+  public async saveTexture(data: Readonly<{ val: string }>) {
+    const img = await this.manager.getItem(`${data.val}[FULL]`)
+    if (img === null) throw new Error('Invalid texture path!')
+    const b = new Bild(img)
+    await b.init()
+    const image = await loadImage(b.giveBuffer())
+    await this.manager.saveItem(data.val, image, true, false)
+    await this.renderSystem.saveImage(data.val, image)
+    console.log(this.manager)
   }
 
   public async init() {
