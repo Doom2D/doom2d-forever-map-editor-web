@@ -347,16 +347,18 @@ class HTMLInterface {
   }
 
   public populateTextureMenu(data: Readonly<{
-    entity: number;
-    names: Readonly<string[]>;
-}>[]) {
+    val: Readonly<{
+      entity: number;
+      names: Readonly<string[]>;
+    }[]>
+}>) {
   this.textureCreateButton.textContent = this.localization.getLocaleNameTranslation('CREATETEXTUREENTITY')
   this.textureCreateButton.onclick = (ev) => {
     this.dispatch.dispatch('onRequestTextureCreate', {})
     this.dispatch.dispatch('onTextureMenuCreate', {})
   }
   this.textureDiv.replaceChildren(this.textureCreateButton)
-  for (const [k, v] of Object.entries(data)) {
+  for (const [k, v] of Object.entries(data.val)) {
     const select = document.createElement('select')
     select.id = String(v.entity)
     const l = document.createElement('label')

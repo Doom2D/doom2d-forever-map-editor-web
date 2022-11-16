@@ -113,7 +113,9 @@ class TextureMessage extends System {
         ],
       })
     }
-    return returnArr
+    return {
+      val: returnArr,
+    }
   }
 
   public update() {}
