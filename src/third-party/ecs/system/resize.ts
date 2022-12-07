@@ -164,6 +164,135 @@ class Resize extends System {
     return [cellPoint > cells && cells > 0, Math.abs(cellPoint - cells)]
   }
 
+  private readonly topLeftResizeLessen: resizer = (entity, s, p, c, m) => {
+    this.leftResizeLessen(entity, s, p, c, m)
+    this.topResizeLessen(entity, s, p, c, m)
+  }
+
+  private readonly topLeftResizeLargen: resizer = (entity, s, p, c, m) => {
+    this.leftResizeLargen(entity, s, p, c, m)
+    this.topResizeLargen(entity, s, p, c, m)
+  }
+
+  private readonly topLeftPredicateLessen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [tBoolean, tNumber] = this.topPredicateLessen(element, point)
+    const [lBoolean, lNumber] = this.leftPredicateLessen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && tBoolean && lBoolean,
+      clamp(Math.max(tNumber, lNumber), 0, Math.min(cellsW, cellsH) - 1),
+    ]
+  }
+
+  private readonly topLeftPredicateLargen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [tBoolean, tNumber] = this.topPredicateLargen(element, point)
+    const [lBoolean, lNumber] = this.leftPredicateLargen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && tBoolean && lBoolean,
+      Math.max(tNumber, lNumber),
+    ]
+  }
+
+  private readonly topRightResizeLessen: resizer = (entity, s, p, c, m) => {
+    this.rightResizeLessen(entity, s, p, c, m)
+    this.topResizeLessen(entity, s, p, c, m)
+  }
+
+  private readonly topRightResizeLargen: resizer = (entity, s, p, c, m) => {
+    this.rightResizeLargen(entity, s, p, c, m)
+    this.topResizeLargen(entity, s, p, c, m)
+  }
+
+  private readonly topRightPredicateLessen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [tBoolean, tNumber] = this.topPredicateLessen(element, point)
+    const [rBoolean, rNumber] = this.rightPredicateLessen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && tBoolean && rBoolean,
+      clamp(Math.max(tNumber, rNumber), 0, Math.min(cellsW, cellsH) - 1),
+    ]
+  }
+
+  private readonly topRightPredicateLargen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [tBoolean, tNumber] = this.topPredicateLargen(element, point)
+    const [rBoolean, rNumber] = this.rightPredicateLargen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && tBoolean && rBoolean,
+      Math.max(tNumber, rNumber),
+    ]
+  }
+
+  private readonly bottomLeftResizeLessen: resizer = (entity, s, p, c, m) => {
+    this.leftResizeLessen(entity, s, p, c, m)
+    this.bottomResizeLessen(entity, s, p, c, m)
+  }
+
+  private readonly bottomLeftResizeLargen: resizer = (entity, s, p, c, m) => {
+    this.leftResizeLargen(entity, s, p, c, m)
+    this.bottomResizeLargen(entity, s, p, c, m)
+  }
+
+  private readonly bottomLeftPredicateLessen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [bBoolean, bNumber] = this.bottomPredicateLessen(element, point)
+    const [lBoolean, lNumber] = this.leftPredicateLessen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && bBoolean && lBoolean,
+      clamp(Math.max(bNumber, lNumber), 0, Math.min(cellsW, cellsH) - 1),
+    ]
+  }
+
+  private readonly bottomLeftPredicateLargen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [bBoolean, bNumber] = this.bottomPredicateLargen(element, point)
+    const [lBoolean, lNumber] = this.leftPredicateLargen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && bBoolean && lBoolean,
+      Math.max(bNumber, lNumber),
+    ]
+  }
+
+  private readonly bottomRightResizeLessen: resizer = (entity, s, p, c, m) => {
+    this.rightResizeLessen(entity, s, p, c, m)
+    this.bottomResizeLessen(entity, s, p, c, m)
+  }
+
+  private readonly bottomRightResizeLargen: resizer = (entity, s, p, c, m) => {
+    this.rightResizeLargen(entity, s, p, c, m)
+    this.bottomResizeLargen(entity, s, p, c, m)
+  }
+
+  private readonly bottomRightPredicateLessen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [bBoolean, bNumber] = this.bottomPredicateLessen(element, point)
+    const [rBoolean, rNumber] = this.rightPredicateLessen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && bBoolean && rBoolean,
+      clamp(Math.max(bNumber, rNumber), 0, Math.min(cellsW, cellsH) - 1),
+    ]
+  }
+
+  private readonly bottomRightPredicateLargen: predicate = (element, point) => {
+    const cellsW = Math.round(element.w / element.canonicalW)
+    const cellsH = Math.round(element.h / element.canonicalH)
+    const [bBoolean, bNumber] = this.bottomPredicateLargen(element, point)
+    const [rBoolean, rNumber] = this.rightPredicateLargen(element, point)
+    return [
+      cellsW > 0 && cellsH > 0 && bBoolean && rBoolean,
+      Math.max(bNumber, rNumber),
+    ]
+  }
+
+
   // eslint-disable-next-line sort-class-members/sort-class-members
   private readonly funcs = {
     left: {
@@ -192,6 +321,34 @@ class Resize extends System {
       largen: this.bottomPredicateLargen,
       resizerLessen: this.bottomResizeLessen,
       resizerLargen: this.bottomResizeLargen,
+    },
+
+    topleft: {
+      lessen: this.topLeftPredicateLessen,
+      largen: this.topLeftPredicateLargen,
+      resizerLessen: this.topLeftResizeLessen,
+      resizerLargen: this.topLeftResizeLargen,
+    },
+
+    topright: {
+      lessen: this.topRightPredicateLessen,
+      largen: this.topRightPredicateLargen,
+      resizerLessen: this.topRightResizeLessen,
+      resizerLargen: this.topRightResizeLargen,
+    },
+
+    bottomleft: {
+      lessen: this.bottomLeftPredicateLessen,
+      largen: this.bottomLeftPredicateLargen,
+      resizerLessen: this.bottomLeftResizeLessen,
+      resizerLargen: this.bottomLeftResizeLargen,
+    },
+
+    bottomright: {
+      lessen: this.bottomRightPredicateLessen,
+      largen: this.bottomRightPredicateLargen,
+      resizerLessen: this.bottomRightResizeLessen,
+      resizerLargen: this.bottomRightResizeLargen,
     },
   }
 
@@ -248,6 +405,7 @@ class Resize extends System {
       } else if (shouldLargen) {
         resizerLargen(entity, size, position, canonicalSize, largenMultiplier)
       }
+      return shouldLargen || shouldLessen
     }
     this.dispatch.on(
       'onMouseMove',
@@ -284,7 +442,7 @@ class Resize extends System {
             x: info.point.x,
             y: info.point.y,
           }
-          resizeFunc(
+          const p = resizeFunc(
             v,
             point,
             this.funcs[resizing.dir].lessen,
@@ -292,7 +450,7 @@ class Resize extends System {
             this.funcs[resizing.dir].resizerLessen,
             this.funcs[resizing.dir].resizerLargen
           )
-          this.dispatch.dispatch('shouldUpdateRender', {})
+          if (p) this.dispatch.dispatch('shouldUpdateRender', {})
         }
       }
     )

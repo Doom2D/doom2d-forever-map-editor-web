@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { System } from '../minimal-ecs'
 import ForRender from '../component/for-render'
 import Position from '../component/position'
@@ -264,10 +265,46 @@ class StartResizing extends System {
       },
       { w: sizeWidth, h: sizeHeight }
     )
+    const topleft = addArrow(
+      'resizeTopLeft',
+      {
+        w: -sizeWidth / 2,
+        h: -sizeHeight / 2,
+      },
+      { w: sizeWidth, h: sizeHeight }
+    )
+    const topright = addArrow(
+      'resizeTopRight',
+      {
+        w: -sizeWidth / 2 + size.w,
+        h: -sizeHeight / 2,
+      },
+      { w: sizeWidth, h: sizeHeight }
+    )
+    const bottomleft = addArrow(
+      'resizeBottomLeft',
+      {
+        w: -sizeWidth / 2,
+        h: size.h - sizeHeight / 2,
+      },
+      { w: sizeWidth, h: sizeHeight }
+    )
+    const bottomright = addArrow(
+      'resizeBottomRight',
+      {
+        w: -sizeWidth / 2 + size.w,
+        h: size.h - sizeHeight / 2,
+      },
+      { w: sizeWidth, h: sizeHeight }
+    )
     set.set(left, 'left')
     set.set(right, 'right')
     set.set(tp, 'top')
     set.set(bottom, 'bottom')
+    set.set(topleft, 'topleft')
+    set.set(topright, 'topright')
+    set.set(bottomleft, 'bottomleft')
+    set.set(bottomright, 'bottomright')
     this.state.entityStates.set(entity, set)
     this.dispatch.dispatch('shouldUpdateRender', {})
   }
