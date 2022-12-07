@@ -38,20 +38,31 @@ class Move extends System {
             x: number
             y: number
           }>
+          point: Readonly<{
+            x: number
+            y: number
+          }>
         }>
       ) => {
         const components = this.ecs.getComponents(info.entity)
         const selected = components.get(Selected)
         const moveable = components.get(Moveable)
-        if (selected === undefined || moveable === undefined)
-          throw new Error('Invalid entity!')
+        const position = components.get(Position)
+        if (
+          selected === undefined ||
+          moveable === undefined ||
+          position === undefined
+        )
+          return
         if (selected.key > 0) {
           moveable.key = true
           this.state.entityStates[info.entity] = {
             offset: {
-              x: Math.round(info.offset.x / this.grid) * this.grid,
+              x:
+                Math.round((position.x - info.point.x) / this.grid) * this.grid,
 
-              y: Math.round(info.offset.y / this.grid) * this.grid,
+              y:
+                Math.round((position.y - info.point.y) / this.grid) * this.grid,
             },
           }
         }
@@ -71,12 +82,12 @@ class Move extends System {
       ) => {
         const components = this.ecs.getComponents(info.entity)
         const moveable = components.get(Moveable)
-        if (moveable === undefined) throw new Error('Invalid entity!')
+        if (moveable === undefined) return
         if (!moveable.key) return
         const a = this.state.entityStates[info.entity]
         if (a === undefined) return
         const pos = components.get(Position)
-        if (pos === undefined) throw new Error('Invalid entity!')
+        if (pos === undefined) return
         pos.set({
           x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
           y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,
@@ -108,7 +119,7 @@ class Move extends System {
       ) => {
         const components = this.ecs.getComponents(info.entity)
         const moveable = components.get(Moveable)
-        if (moveable === undefined) throw new Error('Invalid entity!')
+        if (moveable === undefined) return
         moveable.key = false
         this.dispatch.dispatch('onSelectEntity', {
           entity: info.entity,

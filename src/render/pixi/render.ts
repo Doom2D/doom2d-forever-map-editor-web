@@ -62,6 +62,20 @@ class Pixi implements Renderer {
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
     this.resourceManager = new ResourceManager()
     this.viewport.addListener(
+      'mousemove',
+      (ev: Readonly<PIXI.InteractionEvent>) => {
+        const point = this.viewport.toWorld(ev.data.global)
+        this.dispatch?.dispatch('onMouseMove', {
+          renderer: this,
+
+          point: {
+            x: point.x,
+            y: point.y,
+          },
+        })
+      }
+    )
+    this.viewport.addListener(
       'pointerup',
       (ev: Readonly<PIXI.InteractionEvent>) => {
         if (ev.data.originalEvent.shiftKey) return
@@ -155,14 +169,6 @@ class Pixi implements Renderer {
     }
   }
 
-  public clearArrows(n: number) {
-    const a = this.state.entityStates[n]
-    if (a === undefined) return
-    for (const [, v] of Object.entries(a.arrows)) {
-      this.viewport.removeChild(v)
-    }
-  }
-
   private clearSpriteHighlight(
     sprite: Readonly<PIXI.Sprite | PIXI.TilingSprite>
   ) {
@@ -215,6 +221,11 @@ class Pixi implements Renderer {
         renderer: this,
         entity,
         offset,
+
+        point: {
+          x: point.x,
+          y: point.y,
+        },
       })
     }
     const onDragMove = (ev: Readonly<PIXI.InteractionEvent>) => {
@@ -242,7 +253,6 @@ class Pixi implements Renderer {
         },
       })
     }
-
     sprite.addListener('mousedown', onDragStart)
     sprite.addListener('touchdown', onDragStart)
     sprite.addListener('mousemove', onDragMove)
@@ -263,165 +273,6 @@ class Pixi implements Renderer {
     outline.drawRect(0, 0, sprite.width, sprite.height)
     this.clearSpriteHighlight(sprite)
     sprite.addChild(outline)
-  }
-
-  public async addResizeArrows(entity: number) {
-    const sprite = (await this.resourceManager.getItem(
-      this.entityToString(entity)
-    )) as PIXI.TilingSprite
-
-    const width = 4
-    const height = 4
-    const leftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    leftRect.width = width
-    leftRect.height = height
-    leftRect.tint = 0xff_ff_ff
-    leftRect.x = sprite.x - leftRect.width
-    leftRect.y = sprite.y + sprite.height / 2 - leftRect.height / 2
-    leftRect.interactive = true
-    this.viewport.addChild(leftRect)
-
-    const addListeners = (name: string, direction: string, s: PIXI.Sprite) => {
-      s.addListener('pointerdown', (ev: Readonly<PIXI.InteractionEvent>) => {
-        if (ev.data.originalEvent.shiftKey) return
-        this.dispatch?.dispatch('resizeStart', {
-          direction,
-          entity,
-
-          base: {
-            w: sprite.texture.baseTexture.realWidth,
-            h: sprite.texture.baseTexture.realHeight,
-          },
-
-          canonical: {
-            x: sprite.x,
-            y: sprite.y,
-            w: sprite.width,
-            h: sprite.height,
-          },
-        })
-      })
-
-      s.addListener('pointermove', (ev: Readonly<PIXI.InteractionEvent>) => {
-        const point = this.viewport.toWorld(ev.data.global)
-        const w = {
-          renderer: this,
-          entity,
-
-          arrow: {
-            x: s.x,
-            y: s.y,
-            w: s.width,
-            h: s.height,
-          },
-
-          sprite: {
-            x: sprite.x,
-            y: sprite.y,
-            w: sprite.width,
-            h: sprite.height,
-          },
-
-          point: {
-            x: point.x,
-            y: point.y,
-          },
-        }
-        this.dispatch?.dispatch(name, w)
-      })
-    }
-
-    addListeners('resizeLeft', 'left', leftRect)
-
-    const rightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    rightRect.width = width
-    rightRect.height = height
-    rightRect.tint = 0xff_ff_ff
-    rightRect.x = sprite.x + sprite.width
-    rightRect.y = sprite.y + sprite.height / 2 - rightRect.height / 2
-    rightRect.interactive = true
-    this.viewport.addChild(rightRect)
-
-    addListeners('resizeRight', 'right', rightRect)
-
-    const topRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    topRect.width = width
-    topRect.height = height
-    topRect.tint = 0xff_ff_ff
-    topRect.x = sprite.x + sprite.width / 2 - width / 2
-    topRect.y = sprite.y - topRect.height
-    topRect.interactive = true
-    this.viewport.addChild(topRect)
-
-    addListeners('resizeTop', 'top', topRect)
-
-    const bottomRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    bottomRect.width = width
-    bottomRect.height = height
-    bottomRect.tint = 0xff_ff_ff
-    bottomRect.x = sprite.x + sprite.width / 2 - width / 2
-    bottomRect.y = sprite.y + sprite.height
-    bottomRect.interactive = true
-    this.viewport.addChild(bottomRect)
-
-    addListeners('resizeBottom', 'bottom', bottomRect)
-
-    const topLeftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    topLeftRect.width = width
-    topLeftRect.height = height
-    topLeftRect.tint = 0xff_ff_ff
-    topLeftRect.x = sprite.x - topLeftRect.width
-    topLeftRect.y = sprite.y - topLeftRect.height
-    topLeftRect.interactive = true
-    this.viewport.addChild(topLeftRect)
-
-    addListeners('resizeTopLeft', 'topleft', topLeftRect)
-
-    const bottomLeftRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    bottomLeftRect.width = width
-    bottomLeftRect.height = height
-    bottomLeftRect.tint = 0xff_ff_ff
-    bottomLeftRect.x = sprite.x - bottomLeftRect.width
-    bottomLeftRect.y = sprite.y + sprite.height
-    bottomLeftRect.interactive = true
-    this.viewport.addChild(bottomLeftRect)
-
-    addListeners('resizeBottomLeft', 'bottomleft', bottomLeftRect)
-
-    const topRightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    topRightRect.width = width
-    topRightRect.height = height
-    topRightRect.tint = 0xff_ff_ff
-    topRightRect.x = sprite.x + sprite.width
-    topRightRect.y = sprite.y - topRightRect.height
-    topRightRect.interactive = true
-    this.viewport.addChild(topRightRect)
-
-    addListeners('resizeTopRight', 'topright', topRightRect)
-
-    const bottomRightRect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    bottomRightRect.width = width
-    bottomRightRect.height = height
-    bottomRightRect.tint = 0xff_ff_ff
-    bottomRightRect.x = sprite.x + sprite.width
-    bottomRightRect.y = sprite.y + sprite.height
-    bottomRightRect.interactive = true
-    this.viewport.addChild(bottomRightRect)
-    this.clearAllArrows()
-    const u = this.state.entityStates[entity]
-    if (u === undefined) throw new Error('Invalid entity!')
-    u.arrows = [
-      leftRect,
-      rightRect,
-      topRect,
-      bottomRect,
-      topLeftRect,
-      bottomLeftRect,
-      topRightRect,
-      bottomRightRect,
-    ]
-
-    addListeners('resizeBottomRight', 'bottomright', bottomRightRect)
   }
 
   public async clearHighlight(n: number) {
@@ -469,8 +320,8 @@ class Pixi implements Renderer {
         sprite.interactive = true
       } catch {
         const graphics = new PIXI.Graphics()
-        graphics.beginFill(16_768_256)
-        graphics.lineStyle(5, 16_768_256)
+        graphics.beginFill(0x00_ff_00)
+        graphics.lineStyle(5, 0x00_ff_00)
         graphics.drawRect(0, 0, 1, 1)
         graphics.endFill()
         const texture = this.renderer.generateTexture(graphics)
@@ -502,7 +353,6 @@ class Pixi implements Renderer {
       // eslint-disable-next-line unicorn/prefer-dom-node-remove
       this.viewport.removeChild(sprite)
     } catch {}
-    this.clearArrows(n)
   }
 
   public async deleteEntity(n: number) {

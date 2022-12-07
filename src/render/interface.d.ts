@@ -30,9 +30,7 @@ interface Renderer {
   lastMousePosition(): { x: number, y: number }
   deregisterAll(): unknown
   addDispatch(dispatch: Dispatch): unknown
-  addResizeArrows(n: number)
   highlight(n: number): unknown
-  clearArrows(n: number): unknown
   clearHighlight(n: number): unknown
   selectStart(n: number): unknown
 }

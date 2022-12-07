@@ -85,6 +85,9 @@ class Render extends System {
       arrows: boolean
       opts: RenderOptions
     }[] = []
+    const supportArr: {
+      opts: RenderOptions
+    }[] = []
     for (const [, v] of Object.entries(Array.from(entities))) {
       const components = this.ecs.getComponents(v)
       const shouldRender = components.get(ForRender)
@@ -170,12 +173,28 @@ class Render extends System {
               create,
             },
           })
+        } else if (type.key === 'support') {
+          const pos = components.get(Position)
+          const size = components.get(Size)
+          supportArr.push({
+            opts: {
+              x: pos?.x ?? 0,
+              y: pos?.y ?? 0,
+              w: size?.w ?? 0,
+              h: size?.h ?? 0,
+              entity: v,
+              imgKey: '',
+              useImg: false,
+            },
+          })
         }
       } else {
         this.rendererImplementation.removeEntity(v)
       }
     }
+    console.log(supportArr)
     renderArray.push(
+      ...supportArr,
       ...panelArr
         .slice()
         .sort((a, b) => b.id - a.id)
@@ -185,14 +204,10 @@ class Render extends System {
           arrows: x.arrows,
           opts: x.opts,
           entity: x.entity,
-        }))
+        })),
     )
     for (const [, v] of Object.entries(renderArray)) {
       this.rendererImplementation.render(v.opts)
-      if (v.arrows) {
-        this.rendererImplementation.clearArrows(v.entity)
-        this.rendererImplementation.addResizeArrows(v.entity)
-      }
       if (v.highlight) {
         this.rendererImplementation.clearHighlight(v.entity)
         this.rendererImplementation.highlight(v.entity)

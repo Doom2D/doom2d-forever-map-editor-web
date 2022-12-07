@@ -38,6 +38,7 @@ import { SelectSize } from '../../third-party/ecs/system/select-size'
 import { TextureMessage } from '../../third-party/ecs/system/texture-message'
 import Bild from '../../image/bild'
 import loadImage from '../../utility/load-image-async'
+import CanonicalSize from '../../third-party/ecs/component/canonical-size'
 
 // more like a Tab
 class ECSFromMap {
@@ -139,23 +140,50 @@ class ECSFromMap {
     return this.textureMessageSystem.giveTextures()
   }
 
-  private registerEntitiesFromMap() {
+
+  public giveMap() {
+    this.mapCreatorSystem.createMap()
+    this.ECS.update()
+    return this.mapCreatorSystem.giveMap()
+  }
+
+  private async registerEntitiesFromMap() {
     const bindings: {
       texture: Texture
       entity: number
     }[] = []
+    const promises: Promise<unknown>[] = []
     for (const [, v] of Object.entries(this.map.giveTextures())) {
-      const entity = this.ECS.addEntity()
-      const path = v.givePath()
-      const c = new PathComponent(path)
-      const type = new Type('texture')
-      this.ECS.addComponent(entity, type)
-      this.ECS.addComponent(entity, c)
-      bindings.push({
-        texture: v,
-        entity,
-      })
+      const func = (async () => {
+        const x = v
+        const entity = this.ECS.addEntity()
+        const path = x.givePath()
+        const c = new PathComponent(path)
+        const type = new Type('texture')
+        this.ECS.addComponent(entity, type)
+        this.ECS.addComponent(entity, c)
+        const image = await this.getTextureImage(x)
+        if (image === null) {
+          const s = new CanonicalSize({
+            w: 1,
+            h: 1,
+          })
+          this.ECS.addComponent(entity, s)
+        } else {
+          const s = new CanonicalSize({
+            w: image.naturalWidth,
+            h: image.naturalHeight,
+          })
+          this.ECS.addComponent(entity, s)
+        }
+        bindings.push({
+          texture: x,
+          entity,
+        })
+      })()
+      promises.push(func)
     }
+    await Promise.allSettled(promises)
     let i = 0
     for (const [, v] of Object.entries(this.map.givePanels())) {
       const entity = this.ECS.addEntity()
@@ -173,7 +201,7 @@ class ECSFromMap {
       const s = bindings.find((q) => q.texture === t)
       if (s === undefined) throw new Error('Texture is not found!')
       const textureComponent = new PanelTexture(s.entity)
-      const selected = new Selected(0)
+      const selected = new Selected(0, false)
       const highlighted = new Highlighted(false)
       const moveable = new Moveable(false)
       const resizeable = new Resizeable(false)
@@ -212,14 +240,18 @@ class ECSFromMap {
     }
   }
 
-  public giveMap() {
-    this.mapCreatorSystem.createMap()
-    this.ECS.update()
-    return this.mapCreatorSystem.giveMap()
+  private async getTextureImage(el: Texture) {
+    const pathStr = el.givePath().asThisEditorPath(true)
+    try {
+      const i = (await this.manager.getItem(pathStr)) as HTMLImageElement | null
+      return i
+    } catch {
+      return null
+    }
   }
 
   public async start() {
-    this.registerEntitiesFromMap()
+    await this.registerEntitiesFromMap()
     await this.init()
   }
 
@@ -261,14 +293,15 @@ class ECSFromMap {
     const promises: Promise<void>[] = []
     console.log(this.manager)
     for (const [, v] of Object.entries(this.map.giveTextures())) {
-      const pathStr = v.givePath().asThisEditorPath(true)
       const cacheImage = (async () => {
-        const x = pathStr
-        const element = (await this.manager.getItem(
-          x
-        )) as HTMLImageElement | null
+        const x = v
+        const element = await this.getTextureImage(x)
         if (element === null) return
-        await this.renderSystem.saveImage(x, element)
+        console.log(element)
+        await this.renderSystem.saveImage(
+          x.givePath().asThisEditorPath(),
+          element
+        )
       })()
       promises.push(cacheImage)
     }

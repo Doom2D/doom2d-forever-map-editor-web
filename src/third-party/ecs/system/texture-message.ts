@@ -13,6 +13,7 @@ import {
   isResourcePathFromEditorPath,
   ResourcePathFromEditorPath,
 } from '../../../df/resource/path/path-from'
+import CanonicalSize from '../component/canonical-size'
 
 class TextureMessage extends System {
   public readonly componentsRequired = new Set<Function>([
@@ -32,7 +33,7 @@ class TextureMessage extends System {
     super()
     this.dispatch.on(
       'onRequestTextureChange',
-      (
+      async (
         data: Readonly<{
           entity: number
           newPath: string
@@ -41,11 +42,18 @@ class TextureMessage extends System {
         const c = this.ecs.getComponents(data.entity)
         const type = c.get(Type)
         const path = c.get(PathComponent)
-        if (type === undefined || path === undefined)
+        const size = c.get(CanonicalSize)
+        if (type === undefined || path === undefined || size === undefined)
           throw new Error('Invalid entity!')
         if (type.key !== 'texture') throw new Error('Entity is not a texture!')
         const newPath = ResourcePathFromEditorPath(data.newPath)
         path.key = newPath
+        const img = await this.resourceManager.getItem(
+          newPath.asThisEditorPath(true)
+        ) as HTMLImageElement | null
+        if (img === null) throw new Error('Invalid image!')
+        size.info.w = img.naturalWidth
+        size.info.h = img.naturalHeight
         dispatch.dispatch('shouldUpdateRender', {})
       }
     )

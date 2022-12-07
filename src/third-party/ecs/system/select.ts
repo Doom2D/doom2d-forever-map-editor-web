@@ -47,7 +47,9 @@ class Select extends System {
         const components = this.ecs.getComponents(entity)
         const selected = components.get(Selected)
         if (selected === undefined) throw new Error('Invalid entity!')
-        selected.key += 1
+        if (!selected.never) {
+          selected.key += 1
+        }
         for (const [, v] of Object.entries(
           Array.from(this.ecs.getEntitiesWithComponent(new Set([Selected])))
         )) {

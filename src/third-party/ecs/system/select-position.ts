@@ -42,7 +42,7 @@ class SelectPosition extends System {
 
     srcX: ['', '', ''],
 
-    srcY: ['', '', '']
+    srcY: ['', '', ''],
   }
 
   public constructor(
@@ -63,8 +63,16 @@ class SelectPosition extends System {
           return
         }
         console.log(a)
-        this.info.srcX = [a.src.localeName, a.msg.localeName, a.msg.val[0].localeName]
-        this.info.srcY = [a.src.localeName, a.msg.localeName, a.msg.val[1].localeName]
+        this.info.srcX = [
+          a.src.localeName,
+          a.msg.localeName,
+          a.msg.val[0].localeName,
+        ]
+        this.info.srcY = [
+          a.src.localeName,
+          a.msg.localeName,
+          a.msg.val[1].localeName,
+        ]
         this.info.id = a.entity
         this.info.active = true
         const components = this.ecs.getComponents(this.info.id)
