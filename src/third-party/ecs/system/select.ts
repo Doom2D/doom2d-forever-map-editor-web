@@ -63,6 +63,8 @@ class Select extends System {
           })
           k.key = 0
         }
+        console.log('onDragStart', selected, entity)
+        console.log(this.dispatch)
         if (selected.key >= this.clicksToHighlight) {
           this.dispatch.dispatch('onSelectEntity', {
             entity,

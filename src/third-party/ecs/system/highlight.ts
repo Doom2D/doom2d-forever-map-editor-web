@@ -44,6 +44,22 @@ class Highlight extends System {
         a.renderer.highlight(a.entity)
       }
     )
+    this.dispatch.on(
+      'onDragStart',
+      (
+        a: Readonly<{
+          entity: number
+          renderer: Readonly<Renderer>
+        }>
+      ) => {
+        const c = this.ecs.getComponents(a.entity)
+        const highlight = c.get(Highlighted)
+        if (highlight === undefined) throw new Error('Invalid entity!')
+        if (highlight.never) return
+        highlight.key = true
+        a.renderer.highlight(a.entity)
+      }
+    )
   }
 
   public update() {}

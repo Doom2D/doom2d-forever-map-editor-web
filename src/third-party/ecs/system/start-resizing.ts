@@ -42,6 +42,23 @@ class StartResizing extends System {
       }
     )
     this.dispatch.on(
+      'resizeEnd',
+      (info: Readonly<{ entity: number; render: Readonly<Renderer> }>) => {
+        const c = this.ecs.getComponents(info.entity)
+        const resizing = c.get(Resizing)
+        const selected = c.get(Selected)
+        if (resizing === undefined || selected === undefined)
+          throw new Error('Invalid entity!')
+        resizing.key = false
+        selected.key += 1
+        console.log(this.dispatch, info.render)
+        this.dispatch.dispatch('onSelectEntity', {
+          entity: info.entity,
+          renderer: info.render,
+        })
+      }
+    )
+    this.dispatch.on(
       'onDeselectEntity',
       (
         a: Readonly<{
@@ -134,14 +151,12 @@ class StartResizing extends System {
             resizing === undefined
           )
             continue
-          resizing.dir = 'none'
-          for (const [, vv] of Object.entries(Array.from(v[1]))) {
-            if (vv[0] === data.entity) {
-              this.dispatch.dispatch('resizeEnd1', {
-                dir: vv[1],
-                entity: v[0],
-              })
-            }
+          if (resizing.dir !== 'none') {
+            this.dispatch.dispatch('resizeEnd', {
+              entity: v[0],
+              render: data.renderer,
+            })
+            resizing.dir = 'none'
           }
         }
       }
@@ -167,14 +182,12 @@ class StartResizing extends System {
             resizing === undefined
           )
             continue
-          resizing.dir = 'none'
-          for (const [, vv] of Object.entries(Array.from(v[1]))) {
-            if (vv[0] === data.entity) {
-              this.dispatch.dispatch('resizeEnd1', {
-                dir: vv[1],
-                entity: v[0],
-              })
-            }
+          if (resizing.dir !== 'none') {
+            this.dispatch.dispatch('resizeEnd', {
+              entity: v[0],
+              render: data.renderer,
+            })
+            resizing.dir = 'none'
           }
         }
       }
@@ -191,7 +204,7 @@ class StartResizing extends System {
       if (type === undefined || render === undefined)
         throw new Error('Invalid entity!')
       render.setForRender(false)
-      this.ecs.removeEntity(v[0])
+      if (remove) this.ecs.removeEntity(v[0])
     }
     if (remove) this.state.entityStates.delete(entity)
   }
@@ -203,7 +216,8 @@ class StartResizing extends System {
         const c = this.ecs.getComponents(v[0])
         const update = c.get(SupportUpdater)
         const forRender = c.get(ForRender)
-        if (update === undefined || forRender === undefined) throw new Error('Invalid entity!')
+        if (update === undefined || forRender === undefined)
+          throw new Error('Invalid entity!')
         update.key()
         forRender.setForRender(true)
       }

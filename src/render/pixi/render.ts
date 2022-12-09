@@ -216,7 +216,6 @@ class Pixi implements Renderer {
         x: x.x - Math.round(point.x),
         y: x.y - Math.round(point.y),
       }
-      console.log('dragStart')
       d.dispatch('onDragStart', {
         renderer: this,
         entity,
