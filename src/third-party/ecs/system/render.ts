@@ -15,6 +15,8 @@ import PathComponent from '../component/path'
 import Alpha from '../component/alpha'
 import { Highlighted } from '../component/highlighted'
 import Resizeable from '../component/resizeable'
+import { Selected } from '../component/selected'
+import SupportUpdater from '../component/support-update'
 
 class Render extends System {
   public readonly componentsRequired = new Set<Function>([ForRender])
@@ -75,6 +77,7 @@ class Render extends System {
       entity: number
       highlight: boolean
       arrows: boolean
+      selected: boolean
       opts: RenderOptions
     }[] = []
     const panelArr: {
@@ -83,12 +86,14 @@ class Render extends System {
       typeOrder: number
       highlight: boolean
       arrows: boolean
+      selected: boolean
       opts: RenderOptions
     }[] = []
     const supportArr: {
       opts: RenderOptions
     }[] = []
     for (const [, v] of Object.entries(Array.from(entities))) {
+      this.rendererImplementation.removeEntity(v)
       const components = this.ecs.getComponents(v)
       const shouldRender = components.get(ForRender)
       if (shouldRender === undefined) throw new Error('Invalid entity!')
@@ -103,8 +108,10 @@ class Render extends System {
           const alpha = components.get(Alpha)
           const highlighted = components.get(Highlighted)
           const resizeable = components.get(Resizeable)
-          let highlight = highlighted?.key ?? false
-          let arrows = resizeable?.key ?? false
+          const selected = components.get(Selected)
+          const highlight = highlighted?.key ?? false
+          const arrows = resizeable?.key ?? false
+          const s = (selected?.key ?? 0) > 0
           if (
             pos === undefined ||
             size === undefined ||
@@ -117,7 +124,6 @@ class Render extends System {
           const typeComponent = components.get(PanelType)
           if (typeComponent === undefined) throw new Error('Invalid entity!')
           const ordnung = typeComponent.key.giveRenderOrder()
-          this.rendererImplementation.removeEntity(v)
           this.state.entityStates[v] = {
             order: ordnung,
           }
@@ -157,6 +163,8 @@ class Render extends System {
 
             highlight,
 
+            selected: s,
+
             arrows,
 
             opts: {
@@ -176,6 +184,9 @@ class Render extends System {
         } else if (type.key === 'support') {
           const pos = components.get(Position)
           const size = components.get(Size)
+          const updater = components.get(SupportUpdater)
+          if (updater === undefined) throw new Error('Invalid entity!')
+          updater.key()
           supportArr.push({
             opts: {
               x: pos?.x ?? 0,
@@ -188,13 +199,9 @@ class Render extends System {
             },
           })
         }
-      } else {
-        this.rendererImplementation.removeEntity(v)
       }
     }
-    console.log(supportArr)
     renderArray.push(
-      ...supportArr,
       ...panelArr
         .slice()
         .sort((a, b) => b.id - a.id)
@@ -204,14 +211,12 @@ class Render extends System {
           arrows: x.arrows,
           opts: x.opts,
           entity: x.entity,
+          selected: x.selected,
         })),
+      ...supportArr,
     )
     for (const [, v] of Object.entries(renderArray)) {
       this.rendererImplementation.render(v.opts)
-      if (v.highlight) {
-        this.rendererImplementation.clearHighlight(v.entity)
-        this.rendererImplementation.highlight(v.entity)
-      }
     }
   }
 }

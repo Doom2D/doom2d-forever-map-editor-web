@@ -11,6 +11,7 @@ import { Resizing } from '../component/resizing'
 import Size from '../component/size'
 import { Highlighted } from '../component/highlighted'
 import Moveable from '../component/moveable'
+import SupportUpdater from '../component/support-update'
 
 class StartResizing extends System {
   public readonly componentsRequired = new Set<Function>([Resizeable, Resizing])
@@ -180,7 +181,7 @@ class StartResizing extends System {
     )
   }
 
-  private clearArrows(entity: number) {
+  private clearArrows(entity: number, remove = false) {
     const l = this.state.entityStates.get(entity)
     if (l === undefined) return
     for (const v of l) {
@@ -192,10 +193,25 @@ class StartResizing extends System {
       render.setForRender(false)
       this.ecs.removeEntity(v[0])
     }
+    if (remove) this.state.entityStates.delete(entity)
   }
 
   private addResizeArrows(entity: number) {
-    if (this.state.entityStates.get(entity) !== undefined) return
+    const l = this.state.entityStates.get(entity)
+    if (l !== undefined) {
+      for (const v of l) {
+        const c = this.ecs.getComponents(v[0])
+        const update = c.get(SupportUpdater)
+        const forRender = c.get(ForRender)
+        if (update === undefined || forRender === undefined) throw new Error('Invalid entity!')
+        update.key()
+        forRender.setForRender(true)
+      }
+      this.dispatch.dispatch('shouldUpdateRender', {
+        entity: [],
+      })
+      return
+    }
     const components = this.ecs.getComponents(entity)
     const position = components.get(Position)
     const size = components.get(Size)
@@ -208,7 +224,7 @@ class StartResizing extends System {
       throw new Error('Invalid entity!')
     const set = new Map<number, string>()
     const addArrow = (
-      callback: string,
+      callback: Function,
       offset: Readonly<{
         w: number
         h: number
@@ -221,79 +237,129 @@ class StartResizing extends System {
       const e = this.ecs.addEntity()
       this.ecs.addComponent(e, new ForRender(true))
       this.ecs.addComponent(e, new Type('support'))
-      this.ecs.addComponent(
-        e,
-        new Position(position.x + offset.w, position.y + offset.h)
-      )
+      const pos = new Position(position.x + offset.w, position.y + offset.h)
+      this.ecs.addComponent(e, pos)
       this.ecs.addComponent(e, new Size(s.w, s.h))
       this.ecs.addComponent(e, new Selected(0, true))
       this.ecs.addComponent(e, new Highlighted(false, true))
       this.ecs.addComponent(e, new Moveable(false, true))
+      this.ecs.addComponent(
+        e,
+        new SupportUpdater(() => {
+          callback(pos)
+        })
+      )
       return e
     }
     const sizeWidth = 10
     const sizeHeight = 10
+    const widthLeft = () => -sizeWidth / 2
+    const widthRight = () => -sizeWidth / 2 + size.w
+    const heightTop = () => -sizeHeight / 2
+    const heightBottom = () => -sizeHeight / 2 + size.h
+    const widthMiddle = () => -sizeWidth / 2 + size.w / 2
+    const heightMiddle = () => -sizeHeight / 2 + size.h / 2
     const left = addArrow(
-      'resizeLeft',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthLeft(),
+          y: position.y + heightMiddle(),
+        })
+      },
       {
-        w: -sizeWidth / 2,
-        h: size.h / 2 - sizeHeight / 2,
+        w: widthLeft(),
+        h: heightMiddle(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const right = addArrow(
-      'resizeRight',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthRight(),
+          y: position.y + heightMiddle(),
+        })
+      },
       {
-        w: -sizeWidth / 2 + size.w,
-        h: size.h / 2 - sizeHeight / 2,
+        w: widthRight(),
+        h: heightMiddle(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const tp = addArrow(
-      'resizeTop',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthMiddle(),
+          y: position.y + heightTop(),
+        })
+      },
       {
-        w: -sizeWidth / 2 + size.w / 2,
-        h: -sizeHeight / 2,
+        w: widthMiddle(),
+        h: heightTop(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const bottom = addArrow(
-      'resizeBottom',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthMiddle(),
+          y: position.y + heightBottom(),
+        })
+      },
       {
-        w: -sizeWidth / 2 + size.w / 2,
-        h: size.h - sizeHeight / 2,
+        w: widthMiddle(),
+        h: heightBottom(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const topleft = addArrow(
-      'resizeTopLeft',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthLeft(),
+          y: position.y + heightTop(),
+        })
+      },
       {
-        w: -sizeWidth / 2,
-        h: -sizeHeight / 2,
+        w: widthLeft(),
+        h: heightTop(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const topright = addArrow(
-      'resizeTopRight',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthRight(),
+          y: position.y + heightTop(),
+        })
+      },
       {
-        w: -sizeWidth / 2 + size.w,
-        h: -sizeHeight / 2,
+        w: widthRight(),
+        h: heightTop(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const bottomleft = addArrow(
-      'resizeBottomLeft',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthLeft(),
+          y: position.y + heightBottom(),
+        })
+      },
       {
-        w: -sizeWidth / 2,
-        h: size.h - sizeHeight / 2,
+        w: widthLeft(),
+        h: heightBottom(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
     const bottomright = addArrow(
-      'resizeBottomRight',
+      (pos: Position) => {
+        pos.set({
+          x: position.x + widthRight(),
+          y: position.y + heightBottom(),
+        })
+      },
       {
-        w: -sizeWidth / 2 + size.w,
-        h: size.h - sizeHeight / 2,
+        w: widthRight(),
+        h: heightBottom(),
       },
       { w: sizeWidth, h: sizeHeight }
     )
@@ -306,7 +372,6 @@ class StartResizing extends System {
     set.set(bottomleft, 'bottomleft')
     set.set(bottomright, 'bottomright')
     this.state.entityStates.set(entity, set)
-    this.dispatch.dispatch('shouldUpdateRender', {})
   }
 
   public update() {}

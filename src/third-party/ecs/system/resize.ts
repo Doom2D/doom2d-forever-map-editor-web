@@ -292,7 +292,6 @@ class Resize extends System {
     ]
   }
 
-
   // eslint-disable-next-line sort-class-members/sort-class-members
   private readonly funcs = {
     left: {
@@ -399,7 +398,6 @@ class Resize extends System {
             Math.round(size.h / canonicalSize.info.h) * canonicalSize.info.h,
         })
       }
-      console.log(lessenMultiplier, largenMultiplier)
       if (shouldLessen) {
         resizerLessen(entity, size, position, canonicalSize, lessenMultiplier)
       } else if (shouldLargen) {

@@ -19,11 +19,11 @@ class UpdateRender extends System {
       'shouldUpdateRender',
       (
         data: Readonly<{
-          entity: number | undefined
+          entity: Readonly<number[] | number | undefined>
         }>
       ) => {
         this.dispatch.dispatch('updateRender', {
-          entities: [data.entity],
+          entities: [data.entity ?? []].flat(),
         })
       }
     )

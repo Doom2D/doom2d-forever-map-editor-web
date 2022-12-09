@@ -349,10 +349,10 @@ class Pixi implements Renderer {
         entityString
       )) as PIXI.TilingSprite
       this.clearSpriteHighlight(sprite)
-      // sprite.removeAllListeners()
       // eslint-disable-next-line unicorn/prefer-dom-node-remove
       this.viewport.removeChild(sprite)
-    } catch {}
+    } catch {
+    }
   }
 
   public async deleteEntity(n: number) {
@@ -392,7 +392,7 @@ class Pixi implements Renderer {
       const sprite = (await this.resourceManager.getItem(
         this.entityToString(options.entity)
       )) as PIXI.TilingSprite
-      if (this.state.entityStates[options.entity]?.useImg === true) {
+      if (this.state.entityStates[options.entity]?.useImg ?? false) {
         sprite.texture = PIXI.Texture.WHITE
         options.create = true
         this.state.entityStates[options.entity].useImg = false
