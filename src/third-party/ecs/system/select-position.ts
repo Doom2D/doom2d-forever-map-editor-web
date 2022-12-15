@@ -93,7 +93,7 @@ class SelectPosition extends System {
         const texturePath = textureComponents.get(PathComponent)
         if (texturePath === undefined) throw new Error('Invalid entity!')
         this.info.ecsId = this.ecs.addEntity()
-        this.info.imgKey = texturePath.key.asThisEditorPath(false)
+        this.info.imgKey = texturePath.key.asThisEditorPath(true)
         this.info.size.width = size.w
         this.info.size.height = size.h
         this.info.pos.x = pos.x
@@ -106,9 +106,9 @@ class SelectPosition extends System {
         const type = new Type('panel')
         const alpha = new Alpha(1)
         const textureComponent = new PanelTexture(texture.key)
-        const selected = new Selected(4)
+        const selected = new Selected(4, true)
         const highlighted = new Highlighted(false, true)
-        const moveable = new Moveable(false)
+        const moveable = new Moveable(true, false)
         const resizeable = new Resizeable(false, true)
         const resizing = new Resizing(false)
         const platform = new Platform(false)
@@ -137,16 +137,16 @@ class SelectPosition extends System {
           w: size.w,
           h: size.h,
           alpha: alpha.key,
-          imgKey: texturePath.key.asThisEditorPath(false),
+          imgKey: texturePath.key.asThisEditorPath(true),
           tint: 0x80_80_80,
         })
         this.dispatch.dispatch('onDragStart', {
           entity: this.info.ecsId,
           renderer: this.renderer,
 
-          offset: {
-            x: -(this.info.size.width / 2),
-            y: -(this.info.size.height / 2),
+          point: {
+            x: this.info.size.width / 2,
+            y: this.info.size.height / 2,
           },
         })
       }
@@ -201,11 +201,11 @@ class SelectPosition extends System {
             val: pos.y,
             entity: this.info.id,
           })
-          this.clearShadow()
           this.dispatch.dispatch('onSelectEntity', {
             entity: this.info.id,
             renderer: this.renderer,
           })
+          this.clearShadow()
         }
       }
     )

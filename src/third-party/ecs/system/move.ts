@@ -54,7 +54,8 @@ class Move extends System {
           position === undefined
         )
           return
-        if (selected.key > 0) {
+        if (selected.key > 0 && !moveable.never) {
+          console.log('onDragStart', info.entity)
           moveable.key = true
           this.state.entityStates[info.entity] = {
             offset: {
@@ -88,6 +89,7 @@ class Move extends System {
         if (a === undefined) return
         const pos = components.get(Position)
         if (pos === undefined) return
+        console.log('onDragStart', info.entity)
         pos.set({
           x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
           y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,

@@ -78,6 +78,7 @@ class SelectSize extends System {
         if (size === undefined || resizing === undefined)
           throw new Error('Invalid entity!')
         resizing.key = true
+        resizing.dir = 'bottomright'
         this.info.size.width = size.w
         this.info.size.height = size.h
       }
@@ -108,6 +109,10 @@ class SelectSize extends System {
             src: this.info.srcH,
             val: h,
             entity: this.info.id,
+          })
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: this.info.id,
+            renderer: this.renderer,
           })
           this.info.active = false
           this.info.id = -1
@@ -140,6 +145,10 @@ class SelectSize extends System {
             src: this.info.srcH,
             val: h,
             entity: this.info.id,
+          })
+          this.dispatch.dispatch('onSelectEntity', {
+            entity: this.info.id,
+            renderer: this.renderer,
           })
           this.info.active = false
           this.info.id = -1
