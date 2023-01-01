@@ -113,7 +113,6 @@ class SelectPosition extends System {
         const resizing = new Resizing(false)
         const platform = new Platform(false)
         const id = new Id(Number.MAX_SAFE_INTEGER)
-        console.log(texturePath, textureComponent)
         this.ecs.addComponent(this.info.ecsId, position)
         this.ecs.addComponent(this.info.ecsId, sizet)
         this.ecs.addComponent(this.info.ecsId, shouldRender)

@@ -134,7 +134,7 @@ class SelectSize extends System {
           const h = size.h
           size.set({
             width: this.info.size.width,
-            height: this.info.size.height, 
+            height: this.info.size.height,
           })
           this.dispatch.dispatch('onElementInfoApply', {
             src: this.info.srcW,

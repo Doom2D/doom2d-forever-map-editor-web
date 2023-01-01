@@ -29,8 +29,7 @@ class Select extends System {
           const j = this.ecs.getComponents(v)
           const k = j.get(Selected)
           if (k === undefined) throw new Error('Invalid entity!')
-          const l = j.get(Resizing)
-          if (!(l?.key ?? false)) {
+          if (k.key > 0) {
             this.dispatch.dispatch('onDeselectEntity', {
               entity: v,
               renderer: info.renderer,

@@ -39,6 +39,7 @@ import { TextureMessage } from '../../third-party/ecs/system/texture-message'
 import Bild from '../../image/bild'
 import loadImage from '../../utility/load-image-async'
 import CanonicalSize from '../../third-party/ecs/component/canonical-size'
+import { CreateEntity } from '../../third-party/ecs/system/create-entity'
 
 // more like a Tab
 class ECSFromMap {
@@ -76,6 +77,8 @@ class ECSFromMap {
 
   private readonly textureMessageSystem: TextureMessage
 
+  private readonly createEntitySystem: CreateEntity
+
   private renderRules: RenderRulesKey[] = []
 
   public constructor(
@@ -100,6 +103,7 @@ class ECSFromMap {
     this.highlightSystem = new Highlight(this.dispatch)
     this.selectSizeSystem = new SelectSize(this.dispatch, this.pixi)
     this.textureMessageSystem = new TextureMessage(this.dispatch, this.manager)
+    this.createEntitySystem = new CreateEntity(this.dispatch)
   }
 
   public giveDispatch() {
@@ -282,6 +286,8 @@ class ECSFromMap {
     this.ECS.addSystem(this.startResizingSystem)
     this.ECS.addSystem(this.selectSizeSystem)
     this.ECS.addSystem(this.textureMessageSystem)
+    this.ECS.addSystem(this.createEntitySystem)
+    console.log(this.textureMessageSystem, this.createEntitySystem)
     this.pixi.addDispatch(this.dispatch)
     const info = this.map.giveMetaInfo()
     this.resizeRender(this.drawSrc.width, this.drawSrc.height)

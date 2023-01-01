@@ -38,7 +38,7 @@ class Pixi implements Renderer {
     this.renderer = new PIXI.Renderer({
       width: src.clientWidth,
       height: src.clientHeight,
-      backgroundColor: 0,
+      backgroundColor: 0x40_60_7f,
       view: this.src,
       antialias: false,
     })
@@ -90,6 +90,36 @@ class Pixi implements Renderer {
           this.dispatch?.dispatch('onMouseUpGeneral', {
             entity: e,
             renderer: this,
+          })
+        }
+      }
+    )
+    this.viewport.addListener(
+      'pointerdown',
+      (ev: Readonly<PIXI.InteractionEvent>) => {
+        if (ev.data.originalEvent.shiftKey) return
+        const s = this.renderer.plugins.interaction.hitTest(ev.data.global)
+        const e = this.resourceManager.findCached(s)
+        const point = this.viewport.toWorld(ev.data.global)
+        if (e === undefined) {
+          this.dispatch?.dispatch('onMouseInAirDown', {
+            entity: -1,
+            renderer: this,
+
+            point: {
+              x: point.x,
+              y: point.y,
+            },
+          })
+        } else {
+          this.dispatch?.dispatch('onMouseDownGeneral', {
+            entity: e,
+            renderer: this,
+
+            point: {
+              x: point.x,
+              y: point.y,
+            },
           })
         }
       }
