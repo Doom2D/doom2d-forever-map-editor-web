@@ -27,6 +27,24 @@ class UpdateRender extends System {
         })
       }
     )
+    this.dispatch.on(
+      'shouldUpdateRenderEntity',
+      (data: Readonly<{ entity: number[] }>) => {
+        for (const entity of data.entity) {
+          const components = this.ecs.getComponents(entity)
+          const pos = components.get(Position)
+          const size = components.get(Size)
+          if (pos === undefined || size === undefined) continue
+          this.render.render({
+            entity,
+            x: pos.x,
+            y: pos.y,
+            w: size.w,
+            h: size.h,
+          })
+        }
+      }
+    )
   }
 
   public update() {}

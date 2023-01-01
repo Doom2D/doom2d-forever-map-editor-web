@@ -56,6 +56,7 @@ class StartResizing extends System {
           entity: info.entity,
           renderer: info.render,
         })
+        this.dispatch.dispatch('shouldUpdateRender', {})
       }
     )
     this.dispatch.on(

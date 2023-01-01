@@ -441,7 +441,9 @@ class Resize extends System {
             this.funcs[resizing.dir].lessen,
             this.funcs[resizing.dir].largen,
           )
-          if (p) this.dispatch.dispatch('shouldUpdateRender', {})
+          if (p) this.dispatch.dispatch('shouldUpdateRenderEntity', {
+            entity: [v],
+          })
         }
       }
     )
