@@ -20,6 +20,7 @@
       "curly": "off",
       "unicorn/new-for-builtins": "off",
       "id-length": "off",
+      "unicorn/prefer-ternary": "off",
       "no-continue": "off",
       "@typescript-eslint/naming-convention": "off",
       "unicorn/prevent-abbreviations": "off",
