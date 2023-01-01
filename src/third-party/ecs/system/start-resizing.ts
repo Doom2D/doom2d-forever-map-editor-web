@@ -51,6 +51,7 @@ class StartResizing extends System {
           throw new Error('Invalid entity!')
         resizing.key = false
         selected.key += 1
+        this.clearArrows(info.entity)
         console.log(this.dispatch, info.render)
         this.dispatch.dispatch('onSelectEntity', {
           entity: info.entity,

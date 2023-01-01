@@ -81,28 +81,44 @@ class Pixi implements Renderer {
         if (ev.data.originalEvent.shiftKey) return
         const s = this.renderer.plugins.interaction.hitTest(ev.data.global)
         const e = this.resourceManager.findCached(s)
-        if (e === undefined) {
-          this.dispatch?.dispatch('onMouseInAir', {
-            entity: -1,
-            renderer: this,
-          })
-        } else {
-          this.dispatch?.dispatch('onMouseUpGeneral', {
-            entity: e,
-            renderer: this,
-          })
+        if (ev.data.button === 0) {
+          // left click
+          if (e === undefined) {
+            this.dispatch?.dispatch('onMouseInAir', {
+              entity: -1,
+              renderer: this,
+            })
+          } else {
+            this.dispatch?.dispatch('onMouseUpGeneral', {
+              entity: e,
+              renderer: this,
+            })
+          }
+        } else if (ev.data.button === 2) {
+          // right click
+          if (e === undefined) {
+            this.dispatch?.dispatch('onRightMouseUpInAir', {
+              entity: -1,
+              renderer: this,
+            })
+          } else {
+            this.dispatch?.dispatch('onRightMouseUpGeneral', {
+              entity: e,
+              renderer: this,
+            })
+          }
         }
       }
     )
     this.viewport.addListener(
       'pointerdown',
       (ev: Readonly<PIXI.InteractionEvent>) => {
-        if (ev.data.originalEvent.shiftKey) return
+        if (ev.data.button !== 2) return
         const s = this.renderer.plugins.interaction.hitTest(ev.data.global)
         const e = this.resourceManager.findCached(s)
         const point = this.viewport.toWorld(ev.data.global)
         if (e === undefined) {
-          this.dispatch?.dispatch('onMouseInAirDown', {
+          this.dispatch?.dispatch('onRightMouseDownInAir', {
             entity: -1,
             renderer: this,
 
@@ -112,7 +128,7 @@ class Pixi implements Renderer {
             },
           })
         } else {
-          this.dispatch?.dispatch('onMouseDownGeneral', {
+          this.dispatch?.dispatch('onRightMouseDownGeneral', {
             entity: e,
             renderer: this,
 
@@ -380,8 +396,7 @@ class Pixi implements Renderer {
       this.clearSpriteHighlight(sprite)
       // eslint-disable-next-line unicorn/prefer-dom-node-remove
       this.viewport.removeChild(sprite)
-    } catch {
-    }
+    } catch {}
   }
 
   public async deleteEntity(n: number) {
