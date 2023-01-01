@@ -6,6 +6,10 @@ import { type MessageValue } from './messager-types'
 import isObject from './utility/is-object'
 import pathSplit from './utility/split-path'
 
+document.body.addEventListener('contextmenu', (e) => {
+  e.preventDefault()
+})
+
 let activeTab = -1
 // eslint-disable-next-line @typescript-eslint/init-declarations
 let activeCanvas: HTMLCanvasElement | undefined
