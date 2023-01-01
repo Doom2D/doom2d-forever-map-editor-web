@@ -9,7 +9,10 @@ import { Type } from '../component/type'
 import { System } from '../minimal-ecs'
 
 class Move extends System {
-  private readonly grid = 1
+  private readonly grid = {
+    x: 4,
+    y: 4,
+  }
 
   private readonly state: {
     entityStates: (
@@ -60,10 +63,10 @@ class Move extends System {
           this.state.entityStates[info.entity] = {
             offset: {
               x:
-                Math.round((position.x - info.point.x) / this.grid) * this.grid,
+                Math.round((position.x - info.point.x) / this.grid.x) * this.grid.x,
 
               y:
-                Math.round((position.y - info.point.y) / this.grid) * this.grid,
+                Math.round((position.y - info.point.y) / this.grid.y) * this.grid.y,
             },
           }
         }
@@ -91,18 +94,18 @@ class Move extends System {
         if (pos === undefined) return
         console.log('onDragStart', info.entity)
         pos.set({
-          x: Math.round(info.point.x / this.grid) * this.grid + a.offset.x,
-          y: Math.round(info.point.y / this.grid) * this.grid + a.offset.y,
+          x: Math.round(info.point.x / this.grid.x) * this.grid.x + a.offset.x,
+          y: Math.round(info.point.y / this.grid.y) * this.grid.y + a.offset.y,
         })
         info.renderer.render({
           entity: info.entity,
 
           x:
-            Math.round(info.point.x / this.grid) * this.grid +
+            Math.round(info.point.x / this.grid.x) * this.grid.y +
             (this.state.entityStates[info.entity]?.offset.x ?? 0),
 
           y:
-            Math.round(info.point.y / this.grid) * this.grid +
+            Math.round(info.point.y / this.grid.x) * this.grid.y +
             (this.state.entityStates[info.entity]?.offset.y ?? 0),
         })
       }
