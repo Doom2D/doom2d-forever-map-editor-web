@@ -10,8 +10,8 @@ import { System } from '../minimal-ecs'
 
 class Move extends System {
   private readonly grid = {
-    x: 4,
-    y: 4,
+    x: 1,
+    y: 1,
   }
 
   private readonly state: {
