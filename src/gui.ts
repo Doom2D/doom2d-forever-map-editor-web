@@ -69,6 +69,8 @@ class HTMLInterface {
 
   private readonly textureAddButton: HTMLButtonElement
 
+  private readonly saveMapButton: HTMLButtonElement
+
   private state: guiStatesKey = guiStates.INIT
 
   private info: (() => {
@@ -105,6 +107,7 @@ class HTMLInterface {
     const textureDiv = document.querySelector<HTMLDivElement>('#texturediv')
     const textureCreateButton = document.querySelector<HTMLButtonElement>('#texturecreatebutton')
     const textureAddButton = document.querySelector<HTMLButtonElement>('#textureaddbutton')
+    const saveMapButton = document.querySelector<HTMLButtonElement>('#savemapbutton')
     if (
       mapdiv === null ||
       leftbutton === null ||
@@ -126,7 +129,8 @@ class HTMLInterface {
       mainButton === null ||
       textureDiv === null ||
       textureCreateButton === null ||
-      textureAddButton === null
+      textureAddButton === null ||
+      saveMapButton === null
     ) {
       throw new Error('Incorrect DOM!')
     }
@@ -151,6 +155,7 @@ class HTMLInterface {
     this.textureDiv = textureDiv
     this.textureCreateButton = textureCreateButton
     this.textureAddButton = textureAddButton
+    this.saveMapButton = saveMapButton
     this.addCallbacks()
 
     this.manager = new ResourceManager()

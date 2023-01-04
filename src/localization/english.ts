@@ -43,6 +43,7 @@ class English implements Localization {
     'layersbutton': 'Layers',
     'texturebutton': 'Texture',
     'mainbutton': 'Main',
+    'savemapbutton': 'Save map',
   }
 
   public getAllMenuButtonsTranslation = () => {

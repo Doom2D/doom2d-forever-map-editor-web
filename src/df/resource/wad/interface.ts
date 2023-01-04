@@ -8,8 +8,8 @@ interface ResourceArchive {
   loadFileAsString: (
     p: (a: Readonly<ResourcePath>) => boolean
   ) => string | undefined
-  saveFileArrayBuffer: (path: string, content: Readonly<ArrayBuffer>) => void
-  saveFileString: (path: string, content: string) => void
+  saveFileArrayBuffer: (path: ResourcePath, content: Readonly<ArrayBuffer>) => void
+  saveFileString: (path: ResourcePath, content: string) => void
 }
 
 export default ResourceArchive
