@@ -53,7 +53,21 @@ class CreateEntity extends System {
     const resizeable = new Resizeable(false, false)
     const resizing = new Resizing(false)
     const platform = new Platform(false)
-    const id = new Id(Number.MAX_SAFE_INTEGER)
+    const other = this.ecs.getEntitiesWithComponent(new Set([Id]))
+    const id = new Id(
+      other.size === 0
+        ? 0
+        : Math.max(
+            ...Array.from(other, (v) => {
+              const c = this.ecs.getComponents(v)
+              const i = c.get(Id)
+              if (i === undefined) {
+                throw new Error('id is undefined')
+              }
+              return i.key
+            })
+          ) + 1
+    )
     this.ecs.addComponent(e, position)
     this.ecs.addComponent(e, sizet)
     this.ecs.addComponent(e, shouldRender)

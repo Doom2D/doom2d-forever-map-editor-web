@@ -10,5 +10,5 @@ function debounce<T extends Function>(cb: T, wait = 20) {
   return callable as unknown as T
 }
 
-export {debounce}
+export { debounce }
 
