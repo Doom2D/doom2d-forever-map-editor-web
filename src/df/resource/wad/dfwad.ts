@@ -48,9 +48,45 @@ class DFWad implements ResourceArchive {
     return typeof v === 'string' ? v : readString(v, 0, undefined, 'win1251')
   }
 
-  public saveFileArrayBuffer = () => true
+  public saveFileArrayBuffer = (path: ResourcePath, content: Readonly<ArrayBuffer>) => {
+    if (this.filePaths.includes(path)) {
+      this.files = this.files.map((v) => {
+        if (v.path === path) {
+          return {
+            path,
+            content,
+          }
+        }
+        return v
+      })
+    } else {
+      this.filePaths.push(path)
+      this.files.push({
+        path,
+        content,
+      })
+    }
+  }
 
-  public saveFileString = () => true
+  public saveFileString = (path: ResourcePath, content: string) => {
+    if (this.filePaths.includes(path)) {
+      this.files = this.files.map((v) => {
+        if (v.path === path) {
+          return {
+            path,
+            content,
+          }
+        }
+        return v
+      })
+    } else {
+      this.filePaths.push(path)
+      this.files.push({
+        path,
+        content,
+      })
+    }
+  }
 
   public filesForCategorising = () => this.files
 
@@ -143,6 +179,7 @@ class DFWad implements ResourceArchive {
         this.type = 'zip'
       } catch {
         this.isSupported = false
+        this.type = 'none'
       }
     }
     return true
