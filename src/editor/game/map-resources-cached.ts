@@ -43,11 +43,8 @@ class mapResourcesCached {
             const fullResponse = await this.m.getItem(fullPath)
             if (infoResponse === null || fullResponse === null)
               throw new Error('Error loading animated texture!')
-            const bild = new Bild(
-              fullResponse,
-              infoResponse.width,
-              infoResponse.height
-            )
+            const info = JSON.parse(infoResponse)
+            const bild = new Bild(fullResponse, info.width, info.height)
             await bild.init()
             const image = await loadImage(bild.giveBuffer())
             await this.m.saveItem(p.asThisEditorPath(true), image, true, false)
